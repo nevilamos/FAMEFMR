@@ -1,0 +1,46 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+ARCGIS_PRO_RAW_FH
+AdHocPolygons
+CustomCSV
+EcoResFunctionsShiny.r
+FAMEPreProcessing
+FAME_FMR.r
+FAME_FMRby region.r
+FAME_FMRv2.r
+GSO
+GSOInputs
+HDMS
+InputGeneralRasters
+Inputs
+ReferenceShapefiles
+ReferenceTables
+Results2019rerun
+Results2019rerun.zip
+Results2020_No1755
+ResultsFFRAU_FH2020_FAME_vg94_STATEWIDE_NO_1755
+ResultsFFRAU_FH2020_FAME_vg94_STATEWIDE_NO_1755_75m
+Results_FH_Analysis_FFRAU_FH2020_FAME_vg94_STATEWIDEWith1755
+TFI.bmat
+TFI.desc.txt
+TFI.nmscol.txt
+TFI_functionsFMRv2.r
+TFI_functionsFMRv3.r
+TYPE.bmat
+TYPE.desc.txt
+TYPE.nmscol.txt
+Troubleshooting
+compareFhs.r
+convert New FHAnalysis to old FHat format.r
+draftJFMP_20202122_high_fh2019_logasbushfireUnion
+draftJFMP_20202122_high_fh2019_logasbushfireUnion.zip
+draftJFMP_20202122_high_fh2019_logasbushfireUnion_SEASON.dbf
+draftJFMP_20202122_high_fh2019_logasbushfireUnion_SEASON.prj
+draftJFMP_20202122_high_fh2019_logasbushfireUnion_SEASON.shp
+draftJFMP_20202122_high_fh2019_logasbushfireUnion_SEASON.shx
+makeinput rasters.R
+myTFI.xlsx
+BBTFI_Cell_SEASON.csv
+New.rdb
