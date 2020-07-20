@@ -28,6 +28,8 @@ library(Rfast)
 source("EcoResFunctionsFMRv2.r")
 source("TFI_functionsFMRv2.r")
 
+source("calc_TFI_75.r")
+
 #source("ButtonDisableHelpers.r")
 #Set the maximum size of files for upload/ download 
 
@@ -107,12 +109,6 @@ names(TFI_LUT)[1]<-"EFG"
 if (REGION_NO==7){clipPoly=adHocPolygon}else{clipPoly="./ReferenceShapefiles/LF_DISTRICT.shp"}
 
 
-e = local({load("/mnt/TbSSD/FAMEStatewideReporting2020/ResultsFFRAU_FH2020_FAME_vg94_STATEWIDE_NO_1755_75m/FH_Analysis_FFRAU_FH2020_FAME_vg94_STATEWIDE_SEASON_AS_NUMERIC_NO_175575.rdata"); environment()})
-#tools:::makeLazyLoadDB(e, "New")
-
-
-
-
 
 
 # FH_procssing starts here ------------------------------------------------
@@ -154,6 +150,13 @@ myTFI<-calc_TFI(FHanalysis =FHanalysis,#the selected FHanalysis object ( either 
 print("Finished my TFI")
 write.csv(myTFI,file.path(ResultsDir,"TFI_Summary.csv"))
 
+
+myTFIv75<-calc_TFI_75(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
+                TFI_LUT_DF = TFI_LUT,
+                cropRasters = cropRasters,
+                OutputRasters = writeSpRasters)
+print("Finished my TFI")
+write.csv(myTFIv75,file.path(ResultsDir,"TFI_Summary_v75.csv"))
 
 
 # myTFI_lorequ<-calc_TFI_lorequ(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
@@ -202,63 +205,3 @@ write.csv(GS_Summary,file.path(ResultsDir,"GS_Summary.csv"))
 gc()
 
 save.image(file.path(ResultsDir,paste0(myBasename,"_finalImage.rdata")))
-#########Species based stuff
-# LU_List<-makeLU_List(myHDMSpp_NO = HDMSpp_NO,
-#myAbundDataLong = AbundDataLong)
-# if(is.null(customSpList)){
-#   TaxonList <-read.csv("./ReferenceTables/DraftTaxonListStatewidev2.csv")
-# }else{
-#   TaxonList<-read.csv(customSpList)
-# }
-# HDMSpp_NO<<-TaxonList$TAXON_ID[TaxonList$Include=="Yes"]
-# 
-# print("getting HDMvals")
-# if(FHanalysis$RasterRes==225){
-#   load(paste0("./HDMS/HDMVals",RasterRes,".rdata"))
-#   HDMVals<-HDMVals[cropRasters$IDX,as.character(HDMSpp_NO)]
-# }else{
-#   print("doing 75m version makeHDMValsfromRasters")
-#   HDMVals<<-makeHDMValsfromRasters(myHDMSpp_NO = HDMSpp_NO,
-#                                    myCropDetails = cropRasters)
-# }
-# 
-# 
-# if(is.null(customResponseFile)){
-#   mySpGSResponses="./ReferenceTables/OrdinalExpertLong.csv"
-# }else{
-#   mySpGSResponses=customResponseFile
-# }
-# AbundDataByGS = read.csv(mySpGSResponses)[,c("EFG_NO", "GS4_NO",  "FireType" , "Abund", "VBA_CODE")]  #Select the file giving the fauna relative abundacne inputs you wish to use
-# AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="High"]<-2
-# AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="Low"]<-1
-# AbundDataByGS<-AbundDataByGS[!is.na(AbundDataByGS$Abund),c("EFG_NO", "GS4_NO",  "FireTypeNo" , "Abund", "VBA_CODE")]
-# 
-# EFG_TSF_4GS <- read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrs.csv")[,c('EFG_NO','GS4_NO',"YSF")]
-# AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS,   by=c('EFG_NO','GS4_NO'))
-# AbundDataLong<-AbundDataLong[order(AbundDataLong$VBA_CODE),]
-
-# SpYearSumm<-makeSppYearSum(TimeSpan = FHanalysis$TimeSpan,
-#                            myHDMSpp_NO = HDMSpp_NO,
-#                            writeSpRasters = writeSpRasters,
-#                            myLU_List = LU_List,
-#                            YSF_TSF_Dir = YSF_TSF_Dir,
-#                            ResultsDir = ResultsDir,
-#                            EFG = cropRasters$EFG,
-#                            myCropDetails = cropRasters,
-#                            HDMVals = HDMVals,
-#                            myFHResults = FHanalysis,
-#                            myYSF_LFT = tsf_ysf_mat,
-#                            TaxonList = TaxonList,
-#                            writeYears = yearsForRasters)
-# write.csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"),row.names=F)
-# myBaseline<<-ifelse(endBaseline>startBaseline,startBaseline:endBaseline,input$startBaseline)
-# calcDeltaAbund(SpYearSumm,
-#                TimeSpan=FHanalysis$TimeSpan,
-#                myBaseline,
-#                ResultsDir,
-#                HDMSpp_NO,
-#                TaxonList)
-# makeSummaryGraphs(SpYearSumm,
-#                   ResultsDir,
-#                   HDMSpp_NO,
-#                   outputFH<-outputFH)

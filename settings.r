@@ -9,13 +9,17 @@ REGION_NO 			= 99
 #path to the ad Hoc polygon if REGION_NO 			== 7
 #adHocPolygon 		= 
 #path to your rawFH file ( output of the ARCGIS preprocessing tool)
+
   rawFH 				= "./rawFH/FFRAU_FH2020_FAME_vg94_STATEWIDE_SEASON_AS_NUMERIC_NO_1755.shp"
+
 #path to custom species list if used
 customSpList 		= NULL
 #path to custom response list if used
 customResponseFile 	= NULL
 #raster resolution 75 or 225
+
 RasterRes			= 75
+
 #sets the csv table containing 4GS info by years since fire
 myEFG_TSF_4GS= read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[,c('EFG_NO','GS4_NO',"YSF")]
 #path to HDMVals225 file
@@ -39,11 +43,13 @@ PUBLIC_LAND_ONLY	=	FALSE
 startBaseline =1990
 endBaseline =1990
 
-Ncores=1
+
+Ncores=4
 print(paste("Using",Ncores,"cores"))
 
-  ResultsDir<-file.path("./Results/ResultsFFRAU_FH2020_FAME_vg94_STATEWIDE_NO_1755_75m")
+  ResultsDir<-file.path("./Results",paste(tools::file_path_sans_ext(basename(rawFH)),RasterRes,sep="_"))
   dir.create(ResultsDir)
 file.copy("settings.r",file.path(ResultsDir,"settings.r"))
-#change below to TRUE for abrreviated test ( on first two years only)
+#change beleow to TRUE for abrreviated test ( on first two years only)
+
 Test=F
