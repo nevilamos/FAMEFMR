@@ -5,7 +5,7 @@ rm(list=ls(all=TRUE))
 gc()
 # Load libraries and custom functions -------------------------------------
 
-tic("whole process time")
+
 options(stringsAsFactors = F)
 library(Matrix.utils)
 library(tools)
@@ -28,8 +28,8 @@ library(tictoc)
 source("EcoResFunctionsFMRv2.r")
 source("TFI_functionsFMRv2.r")
 
-source("calc_TFI_75.r")
-
+source("calcTFI_2.r")
+tic("whole process time")
 #source("ButtonDisableHelpers.r")
 #Set the maximum size of files for upload/ download 
 
@@ -142,14 +142,12 @@ myTFI<-calc_TFI(FHanalysis =FHanalysis,#the selected FHanalysis object ( either 
 print("Finished my TFI")
 write.csv(myTFI,file.path(ResultsDir,"TFI_Summary.csv"))
 toc()
-tic("calc_TFI_75")
-myTFIv75<-calc_TFI_75(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
-                      TFI_LUT_DF = TFI_LUT,
-                      cropRasters = cropRasters,
-                      OutputRasters = "No")
-
-print("Finished my TFI75")
-write.csv(myTFIv75,file.path(ResultsDir,"TFI_Summary_v75.csv"))
+tic("calc_TFI_2")
+myTFI_2<-calc_TFI_2(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
+                TFI_LUT,
+                cropRasters = cropRasters,
+                OutputRasters = "No")
+write.csv(myTFI_2,file.path(ResultsDir,"TFI_Summary_2.csv"))
 toc()
 
 # myTFI_lorequ<-calc_TFI_lorequ(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
