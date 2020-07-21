@@ -1,12 +1,11 @@
-
 # Clear workspace ---------------------------------------------------------
 
 
 rm(list=ls(all=TRUE))
-
+gc()
 # Load libraries and custom functions -------------------------------------
 
-
+tic("whole process time")
 options(stringsAsFactors = F)
 library(Matrix.utils)
 library(tools)
@@ -21,9 +20,10 @@ library(tiff)
 library(reshape2)
 library(tabularaster)
 library(tictoc)
-#library(filematrix)
+library(filematrix)
 library(data.table)
 library(Rfast)
+library(tictoc)
 #loads functions used in TFI and RA calculations
 source("EcoResFunctionsFMRv2.r")
 source("TFI_functionsFMRv2.r")
@@ -59,31 +59,31 @@ dir.create(file.path(ResultsDir,"GS_Rasters"))
 # Lookup table for choice of region/ state or adhoc plygon for analysis
 
 REG_LUT<-tibble(FIRE_REG = c(99, 1, 2, 3, 4, 5, 6, 7),
-                        FIRE_REGION_NAME = c("WHOLE OF STATE",
-                                             "BARWON SOUTH WEST",
-                                             "GIPPSLAND",
-                                             "GRAMPIANS",
-                                             "HUME",
-                                             "LODDON MALLEE",
-                                             "PORT PHILLIP",
-                                             "USER DEFINED POLYGON")
-                )
+                FIRE_REGION_NAME = c("WHOLE OF STATE",
+                                     "BARWON SOUTH WEST",
+                                     "GIPPSLAND",
+                                     "GRAMPIANS",
+                                     "HUME",
+                                     "LODDON MALLEE",
+                                     "PORT PHILLIP",
+                                     "USER DEFINED POLYGON")
+)
 
 #Lookup table for Fire FMZ
 FIREFMZ_LUT<-tibble(FIREFMZ = c(0, 1, 2, 3, 4, 5),
-                            FIRE_FMZ_NAME = c("0 - Non FPA Land",
-                                                 "1 - Asset Protection Zone",
-                                                 "2 - Bushfire Moderation Zone",
-                                                 "3 - Landscape Management Zone",
-                                                 "4 - Planned Burn Exclusion Zone",
-                                                 "5 - Unknown. Contact Fire Management Officer"),
-                            FIRE_FMZ_SHORT_NAME=c("Non FPA",
-                                                     "APZ",
-                                                     "BMZ",
-                                                     "LMZ",
-                                                     "PBEZ",
-                                                     "UNK")
-                    )
+                    FIRE_FMZ_NAME = c("0 - Non FPA Land",
+                                      "1 - Asset Protection Zone",
+                                      "2 - Bushfire Moderation Zone",
+                                      "3 - Landscape Management Zone",
+                                      "4 - Planned Burn Exclusion Zone",
+                                      "5 - Unknown. Contact Fire Management Officer"),
+                    FIRE_FMZ_SHORT_NAME=c("Non FPA",
+                                          "APZ",
+                                          "BMZ",
+                                          "LMZ",
+                                          "PBEZ",
+                                          "UNK")
+)
 
 #lookup table for TFI_STATUS values
 TFI_STATUS_LUT<-tibble(
@@ -108,17 +108,13 @@ TFI_LUT<-read.csv("./ReferenceTables/EFG_EVD_TFI.csv")[,c("EFG_NUM","MIN_LO_TFI"
 names(TFI_LUT)[1]<-"EFG"
 if (REGION_NO==7){clipPoly=adHocPolygon}else{clipPoly="./ReferenceShapefiles/LF_DISTRICT.shp"}
 
-
-
-
-# FH_procssing starts here ------------------------------------------------
-
-
-#Starts Processing here
 inputR<-inputRasters(x=RasterRes)
 outputFH<-file_path_sans_ext(basename(rawFH))
 
-  FHanalysis<-FHProcess(flattenedFH = rawFH,start.SEASON = start.SEASON,end.SEASON = NULL,OtherAndUnknown = OtherAndUnknown)
+
+# FH_processing starts here ------------------------------------------------
+
+FHanalysis<-FHProcess(flattenedFH = rawFH,start.SEASON = start.SEASON,end.SEASON = NULL,OtherAndUnknown = OtherAndUnknown)
 FHanalysis$FireScenario= rawFH
 FHanalysis$RasterRes = RasterRes
 FHanalysis$ClipPolygonFile = clipPoly
@@ -132,10 +128,79 @@ st_write(FHanalysis$OutDF,file.path(ResultsDir,paste0(FHanalysis$name,".shp")))
 cropRasters<-makeCropDetails(REG_NO = REGION_NO,RasterRes = RasterRes,PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,myPoly =clipPoly,generalRasterDir = "./InputGeneralRasters")
 FHanalysis$FH_IDr<-fasterize(sf=FHanalysis$OutDF,raster =  cropRasters$Raster,field = "ID",fun="first")
 save(FHanalysis,cropRasters,file=file.path(ResultsDir,paste0(FHanalysis$name,RasterRes,".rdata")))
-#load(file.path(ResultsDir,paste0(FHanalysis$name,RasterRes,".rdata")))
 
 
+
+# If reusing FH_processing from previous run ( details same as in settings file) -----------------------
+#load(file.path(ResultsDir,paste0("FH_Analysis_",outputFH,RasterRes,".rdata")))
 # TFI calcuations ---------------------------------------------------------
+tic("standard calcTFI")
+myTFI<-calc_TFI(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
+                TFI_LUT_DF = TFI_LUT,
+                cropRasters = cropRasters,
+                OutputRasters = writeSpRasters)
+print("Finished my TFI")
+write.csv(myTFI,file.path(ResultsDir,"TFI_Summary.csv"))
+toc()
+tic("calc_TFI_75")
+myTFIv75<-calc_TFI_75(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
+                      TFI_LUT_DF = TFI_LUT,
+                      cropRasters = cropRasters,
+                      OutputRasters = "No")
+
+print("Finished my TFI75")
+write.csv(myTFIv75,file.path(ResultsDir,"TFI_Summary_v75.csv"))
+toc()
+
+# myTFI_lorequ<-calc_TFI_lorequ(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
+#                 TFI_LUT_DF = TFI_LUT,
+#                 cropRasters = cropRasters,
+#                 OutputRasters = writeSpRasters)
+# print("Finished my TFI")
+# write.csv(myTFI_lorequ,file.path(ResultsDir,"TFI_lorequ_Summary.csv"))
+
+# BBTFI calculations ------------------------------------------------------
+tic("BBTFI calculations complete")
+myBBTFI<-calc_BBTFI(FHanalysis,
+                    cropRasters,#,the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
+                    TFI_LUT_DF = TFI_LUT)
+print("finished BBTFI calcs")
+save(myBBTFI,file=file.path(ResultsDir,paste(file_path_sans_ext(FHanalysis$name),"BBTFI_TFI.rdata")))
+# 
+# write.csv(myTFI$UNDER_TFI__BY_EFG_WIDE,file.path(ResultsDir,"UnderTFIbyEFGandSEASONwide.csv"),row.names=F)
+# 
+# toc()
+# 
+save(myBBTFI,file=file.path(ResultsDir,"bbtfi_tfi.rdata"))
+write.csv(myBBTFI$BBTFI_BY_TYPE,file.path(ResultsDir,"BBTFI_BY_TYPE.csv"))
+BBTFI_time<-toc()
+print(BBTFI_time)
+# GS calculations ---------------------------------------------------------
+
+
+
+
+tic("GS calculations")
+GS_LU<-makeGS_LU()
+
+
+tsf_ysf_mat<-makeYSF_LFT_matrix(FHanalysis = FHanalysis,
+                                myCropDetails=cropRasters,
+                                FH_ID.tif=FHanalysis$FH_IDr)
+gc()
+GS_Summary<-makeGS_Sum(TimeSpan = FHanalysis$TimeSpan,
+                       writeGSRasters = "Yes",
+                       myLU = GS_LU,
+                       myResultsDir = ResultsDir,
+                       myCropDetails = cropRasters,
+                       myFHResults = FHanalysis,
+                       myYSF_LFT = tsf_ysf_mat,
+                       writeYears=NULL)
+write.csv(GS_Summary,file.path(ResultsDir,"GS_Summary.csv"))
+gc()
+toc()
+TimeTaken<-toc()
+save.image(file.path(ResultsDir,paste0(myBasename,"_finalImage.rdata")))
 
 
 
@@ -150,58 +215,3 @@ myTFI<-calc_TFI(FHanalysis =FHanalysis,#the selected FHanalysis object ( either 
 print("Finished my TFI")
 write.csv(myTFI,file.path(ResultsDir,"TFI_Summary.csv"))
 
-
-myTFIv75<-calc_TFI_75(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
-                TFI_LUT_DF = TFI_LUT,
-                cropRasters = cropRasters,
-                OutputRasters = writeSpRasters)
-print("Finished my TFI")
-write.csv(myTFIv75,file.path(ResultsDir,"TFI_Summary_v75.csv"))
-
-
-# myTFI_lorequ<-calc_TFI_lorequ(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
-#                 TFI_LUT_DF = TFI_LUT,
-#                 cropRasters = cropRasters,
-#                 OutputRasters = writeSpRasters)
-# print("Finished my TFI")
-# write.csv(myTFI_lorequ,file.path(ResultsDir,"TFI_lorequ_Summary.csv"))
-
-# BBTFI calculations ------------------------------------------------------
-
-myBBTFI<-calc_BBTFI(FHanalysis,
-                    cropRasters,#,the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
-                    TFI_LUT_DF = TFI_LUT)
-print("finished BBTFI calcs")
-save(myBBTFI,file=file.path(ResultsDir,paste(file_path_sans_ext(FHanalysis$name),"BBTFI_TFI.rdata")))
-# 
-# write.csv(myTFI$UNDER_TFI__BY_EFG_WIDE,file.path(ResultsDir,"UnderTFIbyEFGandSEASONwide.csv"),row.names=F)
-# 
-# toc()
-# 
-#save(myBBTFI,file="bbtfi_tfi.rdata")
-
-
-# GS calculations ---------------------------------------------------------
-
-
-write.csv(myBBTFI$BBTFI_BY_TYPE,file.path(ResultsDir,"BBTFI_BY_TYPE.csv"))
-GS_LU<-makeGS_LU()
-
-
-tsf_ysf_mat<-makeYSF_LFT_matrix(FHanalysis = FHanalysis,
-                                myCropDetails=cropRasters,
-                                FH_ID.tif=FHanalysis$FH_IDr)
-gc()
-GS_Summary<-makeGS_Sum(TimeSpan = FHanalysis$TimeSpan,
-                       #myHDMSpp_NO = HDMSpp_NO,
-                       writeGSRasters = "Yes",
-                       myLU = GS_LU,
-                       myResultsDir = ResultsDir,
-                       myCropDetails = cropRasters,
-                       myFHResults = FHanalysis,
-                       myYSF_LFT = tsf_ysf_mat,
-                       writeYears=NULL)
-write.csv(GS_Summary,file.path(ResultsDir,"GS_Summary.csv"))
-gc()
-
-save.image(file.path(ResultsDir,paste0(myBasename,"_finalImage.rdata")))

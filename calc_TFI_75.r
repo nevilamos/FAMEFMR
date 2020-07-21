@@ -1,28 +1,25 @@
 calc_TFI_75<-function(FHanalysis=FHanalysis,
-                   cropRasters=cropRasters,
-                   TFI_LUT_DF = TFI_LUT,
-                   OutputRasters = makeTFIRasters)#whether or not to output rasters for each year of area under TFI
+                      cropRasters=cropRasters,
+                      TFI_LUT_DF = TFI_LUT,
+                      OutputRasters = makeTFIRasters)#whether or not to output rasters for each year of area under TFI
 {
   TimeRange<-as.integer(FHanalysis$TimeSpan)
-  if (Test){TimeRange=TimeRange[1:2]}
+  #if (Test){TimeRange=TimeRange[1:2]}
   r<-FHanalysis$FH_IDr
-#FH_ID<-as.data.frame(as.integer(values(r)))
-#names(FH_ID)<-"ID"
+  Ncells<-ncell(r)
+  NSeas<-length(TimeRange)
+  
   FH_ID<-as.integer(values(r))
   
   OutTab<-FHanalysis$OutDF
   st_geometry(OutTab)<-NULL
   OutTab<-as.data.table(OutTab)
-  rm(FHanalysis)
+  #rm(FHanalysis)
   gc()
   
   #read in the raster of EFG numbers PLM FireFMZ etc
   #extract the values as a vector and use it to make a data frame contianing cell-wise values for TFI
-  # PLM<-cropRasters$PLM
-  # EFG<-cropRasters$EFG
-  # FIRE_REG<-as.integer(cropRasters$RGN)
-  # FIREFMZ<-as.integer(cropRasters$FIREFMZ)
-  #PUBLIC<-as.integer()
+  
   EFG_DF<-data.table(cropRasters$EFG,cropRasters$RGN,cropRasters$FIREFMZ,cropRasters$PLM)#cbind(EFG,FIRE_REG,FIREFMZ,PLM)
   rm(cropRasters)
   gc()
@@ -33,14 +30,14 @@ calc_TFI_75<-function(FHanalysis=FHanalysis,
   #read the corresponding shapefile for the FireHat analysis chosen
   #convert to a data.frame
   
- 
-    SEASFields<-names(OutTab)[grep("^SEAS",names(OutTab))]
+  
+  SEASFields<-names(OutTab)[grep("^SEAS",names(OutTab))]
   TYPEFields<-names(OutTab)[grep("^FireType",names(OutTab))]
   outM<-as.matrix(OutTab)
   mode(outM)<-"integer"
   SEAS<-outM[FH_ID,SEASFields]
-  #INTFields<-names(OutTab)[grep("^INT",names(OutTab))]
-
+  
+  
   gc()
   #using data.table notation for these ( left_joins) as faster
   #SEAS1<-as.matrix(OutTab[FH_ID,..SEASFields])
@@ -53,10 +50,10 @@ calc_TFI_75<-function(FHanalysis=FHanalysis,
   gc()
   #SEAS_HI<-x<-left_join(FH_ID,OutTab)
   #x<-left_join(FH_ID,OutTab)
-
+  
   
   #SEAS<-as.matrix(x[,SEASFields])#The Season
-
+  
   #TYPE<-as.matrix(x[,TYPEFields[]])#The type of the fire 
   TYPE_HI<-TYPE==2L
   TYPE_HI[TYPE_HI<1]<-NA
@@ -71,58 +68,48 @@ calc_TFI_75<-function(FHanalysis=FHanalysis,
   #Ncores<-8#detectCores()-2
   #cl<-makeCluster(Ncores,outfile="")
   #registerDoParallel(cl, cores=Ncores)
-  
-  LBY_HI<-NULL
-  #LBY_HI<-foreach(y=iter(TimeRange),.combine = cbind,.packages ="Rfast" )%dopar%
-  for(y in TimeRange){
+  TFI_STATUS<-fm.create(filenamebase = "TFI_STATUS",nrow=Ncells,ncol=NSeas,type="integer",)
+  for(i in 1:NSeas){
     try({
+      y=TimeRange[i]
+      
       X<-SEAS_HI
-      X[X>y]<-NA
-      gc()
-      X[X==0]<-NA
+      X[X>y|X==0]<-NA
+      #X[X==0]<-NA
       mode(X)<-"numeric"
-      #LBY<-apply(X,1,max,na.rm=TRUE)
-      LBY<-rowMaxs(X,value=T)
+      
+      LBY_HI<-rowMaxs(X,value=T)
       rm(X)
       gc()
-      LBY[is.infinite(LBY)]<-NA
-      mode(LBY)<-"integer"
-      LBY
-      LBY_HI<-cbind(LBY_HI,LBY)
-      print(y)
-      gc()
-    })
-  }
-  mode(LBY_HI)<-"integer"
-  gc()
-  #LBY_LO<-foreach(y=iter(TimeRange),.combine = cbind,.packages ="Rfast" )%dopar%
-  LBY_LO<-NULL  
-  for(y in TimeRange){
-    try({
+      LBY_HI[is.infinite(LBY_HI)]<-NA
+      mode(LBY_HI)<-"integer"
+      
       X<-SEAS
       X[X>y]<-NA
       X[X==0]<-NA
       mode(X)<-"numeric"
-      LBY<-rowMaxs(X,value=T)
+      LBY_LO<-rowMaxs(X,value=T)
       rm(X)
       gc()
-      LBY[is.infinite(LBY)]<-NA
-      LBY_LO<-cbind(LBY_LO,LBY)
-      gc()
+      LBY_LO[is.infinite(LBY_LO)]<-NA
+      
+      TFI_LO<-(TimeRange-LBY_LO-TFI$MIN_LO_TFI)<1
+      TFI_HI<-(TimeRange-LBY_HI-TFI$MIN_HI_TFI)<1
+      TFI_MAX<-((TimeRange-LBY_LO)>TFI$MAX_TFI)*2L
+      TFI_COMB<-TFI_LO
+      TFI_COMB[TFI_HI==T]<-TRUE
+      TFI_STAT<-TFI_COMB+TFI_MAX
+      TFI_STAT[is.na(TFI_STAT)]<--99L
+      TFI_STATUS[,i]<-TFI_STAT
+      rm()
+      print(y)
     })
   }
-  mode(LBY_LO)<-"integer"
+  TFI_STATUS_M<-as.matrix(TFI_STATUS)
+  colnames(TFI_STATUS_M)<-as.character(TimeRange)
   
-  TFI_LO<-(t(TimeRange-t(LBY_LO))-TFI$MIN_LO_TFI)<1
-  TFI_HI<-(t(TimeRange-t(LBY_HI))-TFI$MIN_HI_TFI)<1
-  TFI_MAX<-(t(TimeRange-t(LBY_LO))>TFI$MAX_TFI)*2L
-  TFI_COMB<-TFI_LO
-  TFI_COMB[TFI_HI==T]<-TRUE
-  colnames(TFI_COMB)<-as.character(TimeRange)
-  TFI_STATUS<-TFI_COMB+TFI_MAX
-  TFI_STATUS[is.na(TFI_STATUS)]<--99L
-  #Area_ha<-(as.numeric(FHanalysis$RasterRes)/100)^2
-  z<-as_tibble(cbind(EFG_DF,TFI_STATUS))
+  
+  z<-as_tibble(cbind(EFG_DF,TFI_STATUS_M))
   
   #zz<-gather(z[,!names(z)%in%c("MIN_LO_TFI", "MIN_HI_TFI", "MAX_TFI", "EFG_NAME")]
   TFI_Summary<-as_tibble(z%>%
@@ -142,15 +129,14 @@ calc_TFI_75<-function(FHanalysis=FHanalysis,
     
     # write the TFI Status tiffs for each year.  
     outR<-r
-    for(i in colnames(TFI_STATUS)){
+    for(i in 1:NSeas){
       values(r)<-TFI_STATUS[,i]
-      writeRaster(r,file.path(ResultsDir,"TFI_Rasters",paste0("TFI_STATUS",i,".tif")),overwrite=T,datatype="INT1U")
-    gc()
+      writeRaster(r,file.path(ResultsDir,"TFI_Rasters",paste0("TFI_STATUS",TimeRange[i],".tif")),overwrite=T,datatype="INT1U")
+      gc()
     }
     
   }
   
   return(TFI_Summary)
   
-  }
-  
+}
