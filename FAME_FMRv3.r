@@ -5,7 +5,7 @@ rm(list=ls(all=TRUE))
 gc()
 # Load libraries and custom functions -------------------------------------
 
-tic("whole process time")
+
 options(stringsAsFactors = F)
 library(Matrix.utils)
 library(tools)
@@ -29,7 +29,7 @@ source("EcoResFunctionsFMRv2.r")
 source("TFI_functionsFMRv2.r")
 
 source("calc_TFI_75.r")
-
+tic("whole process time")
 #source("ButtonDisableHelpers.r")
 #Set the maximum size of files for upload/ download 
 

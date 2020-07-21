@@ -4,8 +4,11 @@
 #                         [[3]] the raster resolution used.
 # throws an error if raster resolution does not match selected FH_ID file
 
+<<<<<<< HEAD
 
 #function to get Last Burnt Year from line sequence of burn years.
+=======
+>>>>>>> 3229ce7067e61199f64c033df2cf0c88ac774cd8
 LBY_f<-function(M,y){
   M[M>y|M==0]<-NA
   LBY<-Rfast::rowMaxs(M,value = T)
