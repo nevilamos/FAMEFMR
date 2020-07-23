@@ -23,14 +23,6 @@ Results2020_No1755
 ResultsFFRAU_FH2020_FAME_vg94_STATEWIDE_NO_1755
 ResultsFFRAU_FH2020_FAME_vg94_STATEWIDE_NO_1755_75m
 Results_FH_Analysis_FFRAU_FH2020_FAME_vg94_STATEWIDEWith1755
-TFI.bmat
-TFI.desc.txt
-TFI.nmscol.txt
-TFI_functionsFMRv2.r
-TFI_functionsFMRv3.r
-TYPE.bmat
-TYPE.desc.txt
-TYPE.nmscol.txt
 Troubleshooting
 compareFhs.r
 convert New FHAnalysis to old FHat format.r

@@ -1,14 +1,4 @@
-# calculate date sequence BBTFI (accomodating  Hi and Lo fire intesity of first burn to determine TFI) 
-#returns list containing  [[1]] the date sequence matrix for each cell of the raster
-#                         [[2]] the EFG TFI Lookup for each cell of the raster
-#                         [[3]] the raster resolution used.
-# throws an error if raster resolution does not match selected FH_ID file
-
-<<<<<<< HEAD
-
-#function to get Last Burnt Year from line sequence of burn years.
-=======
->>>>>>> 3229ce7067e61199f64c033df2cf0c88ac774cd8
+# Function to calculate last burnt year from matrix of rows of fire season  iterating by year (y) used in calc_TFI_2---------
 LBY_f<-function(M,y){
   M[M>y|M==0]<-NA
   LBY<-Rfast::rowMaxs(M,value = T)
@@ -16,25 +6,220 @@ LBY_f<-function(M,y){
   return(LBY)
 }
 
+
+
+#Calcuates where each cell is currently at below MinTFI or above HI_TFI------------------------------------
+#returns the per cell and long table summarised by multiple admin units and evc
+calc_TFI_2<-function(FHanalysis,
+                     cropRasters,
+                     TFI_LUT,
+                     OutputRasters = makeTFIRasters){
+  TimeRange<-as.integer(FHanalysis$TimeSpan)
+  TimeNames<-as.character(FHanalysis$TimeSpan)
+  LTR<-length(TimeRange)
+  r<-FHanalysis$FH_IDr
+  FH_ID<-values(r)
+  r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
+  gc()
+  
+  names(FH_ID)<-"ID"
+  
+  PLM<-cropRasters$PLM
+  EFG<-cropRasters$EFG
+  FIRE_REG<-as.integer(cropRasters$RGN)
+  FIREFMZ<-as.integer(cropRasters$FIREFMZ)
+  DELWP<-cropRasters$DELWP
+  #PUBLIC<-as.integer()
+  AllCombs<-as.data.table(cbind(FH_ID,EFG,FIRE_REG,FIREFMZ,PLM,DELWP))
+  #TFI<-left_join(EFG_DF,TFI_LUT)
+  rm(PLM,EFG,FIRE_REG,FIREFMZ,FH_ID,DELWP)
+  gc()
+  #calc the unique combinations of fire history(FH_ID) and EFG and various other admin datasets-----
+  #This then allows the reduction of the subsequent calculation matrices to the number of unique cases of EFG and fire history rather than the numebr of raster cells
+  U_AllCombs<-mgcv::uniquecombs(AllCombs)
+  #index of the unique combs for linking back to raster
+  Index_AllCombs<-attributes(U_AllCombs)$index
+  rm(AllCombs)
+  gc()
+  
+  
+  #get the number of pixels in each this can be used at the end of the process to calcualte area cases
+  nPixel<-as.vector(table(Index_AllCombs))
+  #Add index column a and count of pixels to unique combs matrix
+  Index<-1:nrow(U_AllCombs)
+  U_AllCombs<-cbind(Index,nPixel,U_AllCombs)
+  
+  
+  
+  ### using DT formatted left join ( the "left" table is the one in brackets on the right)
+  setDT(TFI_LUT)
+  setkey(TFI_LUT,"EFG")
+  U_AllCombs<-as.data.table(U_AllCombs)
+  setkey(U_AllCombs,"EFG")
+  U_AllCombs_TFI<-TFI_LUT[U_AllCombs]
+  #have to reset the index to Index to retrun to the original order which is needed for cbinds below.
+  setkey(U_AllCombs_TFI,"Index")
+  
+  
+  #read the corresponding shapefile for the FireHat analysis chosen
+  #convert to a data.frame
+  OutTab<-FHanalysis$OutDF
+  st_geometry(OutTab)<-NULL
+  ID<-OutTab$ID
+  #INTFields<-names(OutTab)[grep("^INT",names(OutTab))]
+  SEASFields<-names(OutTab)[grep("^SEAS",names(OutTab))]
+  TYPEFields<-names(OutTab)[grep("^FireType",names(OutTab))]
+  
+  
+  SEAS<-as.matrix(OutTab[,SEASFields])#The Season
+  SEAS[SEAS==0]<-NA
+  TYPE<-as.matrix(OutTab[,TYPEFields[]])#The type of the fire 
+  
+  TYPE_HI<-TYPE==2
+  TYPE_HI[TYPE_HI<1]<-NA
+  SEAS_HI<-SEAS*TYPE_HI
+  
+  TYPE_LO<-TYPE==1
+  TYPE_LO[TYPE_LO<1]<-NA
+  SEAS_LO<-SEAS*TYPE_LO
+  rm(OutTab)
+  gc()
+  
+  
+  
+  # Calc Last Burned Year (LBY) for each firetype (currently only deals with two firetypes)
+  LBY_HI<-matrix(NA,nrow(SEAS),LTR)
+  colnames(LBY_HI)<-TimeNames
+  LBY_HI<-LBY_LO<-cbind(LBY_HI,ID)
+  
+  for(i in 1:LTR){
+    try({
+      y=TimeRange[i]
+      
+      LBY_HI[,i]<-LBY_f(M=SEAS_HI,y)
+      LBY_LO[,i]<-LBY_f(M=SEAS,y)##############This Should Maybe be SEAS_LO
+      print(y)
+      
+    })
+  }
+  
+  
+  
+  
+  #partial inflation using U_AllCombs_TFI$FH_ID
+  #and TFI vaules using U_AllCombs_TFI$MIN_LO_TFI
+  LBY_LO<-LBY_LO[U_AllCombs_TFI$FH_ID,]
+  LBY_HI<-LBY_HI[U_AllCombs_TFI$FH_ID,]
+  
+  
+  ###Calc the TFI status - this is the section to check if there are unusual TFI statuses -------
+  TFI_LO<-(t(TimeRange-t(LBY_LO[,TimeNames]))-U_AllCombs_TFI$MIN_LO_TFI)<1
+  TFI_HI<-(t(TimeRange-t(LBY_HI[,TimeNames]))-U_AllCombs_TFI$MIN_HI_TFI)<1
+  TFI_MAX<-(t(TimeRange-t(LBY_LO[,TimeNames]))>U_AllCombs_TFI$MAX_TFI)*5L
+  TFI_COMB<-TFI_LO
+  TFI_COMB[TFI_HI==T]<-TRUE
+  #colnames(TFI_COMB)
+  TFI_VAL<-TFI_COMB+TFI_MAX
+  ###Turn next line on to get rid of TFI status>2----
+  #TFI_VAL[TFI_VAL>4]<-2
+  TFI_VAL[is.na(TFI_VAL)]<--99L
+  #TFI_VAL<-cbind(TFI_VAL,U_AllCombs_TFI)
+  
+  #This next section is only run for debgging unusual TFI statuses it allows their isolation at the level of unique combination of fire history and EFG ----
+  # Check_TFI<-cbind(TFI_VAL,U_AllCombs_TFI)%>%
+  #   select(-FIRE_REG,-FIREFMZ,-PLM,-DELWP)%>%
+  #   pivot_longer(all_of(TimeNames),names_to="SEASON",values_to="TFI_VAL")%>%
+  #   filter(!TFI_VAL%in%c(-99,0,1,5))%>%
+  #   group_by(EFG,MIN_LO_TFI,MIN_HI_TFI,MAX_TFI,EFG_NAME,Index,FH_ID, SEASON,TFI_VAL)%>%
+  #   summarize(Cells=sum(nPixel))
+  # 
+  # Check_TFI<-as.data.table(Check_TFI)
+  # setkey(Check_TFI,"FH_ID")
+  # write.csv(Check_TFI,"Check_TFI.csv")
+  # OutTab<-as.data.table(OutTab)
+  # Check_TFI<-OutTab[Check_TFI]
+  
+  #dplyr wrangling of output summary tables-------------  
+  TFI_Summary<-cbind(TFI_VAL,U_AllCombs_TFI[,c("EFG",  "EFG_NAME", "nPixel",  "FIRE_REG", "FIREFMZ", "PLM","DELWP")])%>%
+    pivot_longer(all_of(TimeNames),names_to="SEASON",values_to="TFI_VAL")%>%
+    group_by(EFG,  EFG_NAME,  FIRE_REG,DELWP, FIREFMZ, PLM,SEASON,TFI_VAL)%>%
+    summarize(Cells=sum(nPixel))%>%
+    mutate(hectares=cellsToHectares(Cells))
+  
+  TFI_Summary<-left_join(TFI_Summary,TFI_STATUS_LUT)
+  
+  TFI_Summary<-left_join(FIREFMZ_LUT,TFI_Summary)
+  TFI_Summary<-left_join(TFI_Summary,REG_LUT)
+  
+  #expand the TFI status values to raster vector for raster values save as filematrix - for future reference or reading into raster. --------------
+  TFI_VAL_RASTER_VALS<-fm.create(file.path(ResultsDir,"TFI_VAL_RASTER_VALS"),nrow=length(Index_AllCombs),ncol=LTR)
+  colnames(TFI_VAL_RASTER_VALS)<-TimeNames
+  for(i in 1:LTR){
+    j=TimeNames[i]
+    TFI_VAL_RASTER_VALS[,i]<-TFI_VAL[Index_AllCombs,j]
+    print(j)
+  }
+  #if filematrix of raster values already made in order to open again----------------
+  TFI_VAL_RASTER_VALS<-fm.open(file.path(ResultsDir,"TFI_VAL_RASTER_VALS"))
+  
+  # write the TFI Status tiffs for each year.-------------- 
+  #should look at finding way to assign to stack or even to envi or similar directly - maybe talk to Pete Griff and Lachlan about this.
+  
+  if (OutputRasters == "Yes"){
+    #cl<-makeCluster(Ncores,outfile="")
+    #registerDoParallel(cl, cores=Ncores)
+    #foreach(i=iter(1:LTR),.packages =c("raster","filematrix") )%dopar%{
+    
+    for (i in 1:LTR){
+      j=TimeNames[i]
+      outR<-r
+      values(outR)<-TFI_VAL_RASTER_VALS[,i]
+      writeRaster(outR,file.path(ResultsDir,"TFI_Rasters",paste0("TFI_VAL",j,".tif")),overwrite=T,datatype="INT1U")
+      rm(outR)
+      gc()
+    }
+    #stopImplicitCluster()
+    
+  }
+  return(TFI_Summary)
+}
+
+
+
+
+
+
+
+
+
+
+
+# calculate date sequence BBTFI (accomodating  Hi and Lo fire intesity of first burn to determine TFI) ----------------
+#returns list containing  [[1]] the date sequence matrix for each cell of the raster
+#                         [[2]] the EFG TFI Lookup for each cell of the raster
+#                         [[3]] the raster resolution used.
+# throws an error if raster resolution does not match selected FH_ID file
+
 calc_BBTFI<-function(FHanalysis,#the slected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
                      cropRasters,
                      TFI_LUT_DF = TFI_LUT#the dataframe read from a csv that gives the lookup table from EVD to MinTFI_LO, MinTFI_HI and MaxTFI
-) {
+                     ) {
   
   r<-FHanalysis$FH_IDr
   Hectares<-(as.numeric(FHanalysis$RasterRes)/100)^2
-  
+
   FH_ID<-as.data.frame(values(r))
   names(FH_ID)<-"ID"
+  DELWP<-cropRasters$DELWP
   PLM<-cropRasters$PLM
   EFG<-cropRasters$EFG
   FIRE_REG<-cropRasters$RGN
   FIREFMZ<-cropRasters$FIREFMZ
   PLM<-cropRasters$PLM
   EFG_DF<-as.data.frame(EFG)
-  
+
   TFI<-left_join(EFG_DF,TFI_LUT_DF)
-  
+
   #read the corresponding shapefile for the FireHat analysis chosen
   #convert to a data.frame
   
@@ -46,7 +231,6 @@ calc_BBTFI<-function(FHanalysis,#the slected FHanalysis object ( either through 
   TYPEFields<-names(OutTab)[grep("^FireType",names(OutTab))]#fields giving type of 1:nth fire
   x<-left_join(FH_ID,OutTab)
   x<-as.matrix(x)
-  gc()
   mode(x)<-"integer"
   INTS<-x[,INTFields]#The fire intervals in numbered sequence
   SEAS<-x[,SEASFields[-1]]#The Season of the second fire of each interval to get the season when burning under TFI occurs
@@ -73,25 +257,25 @@ calc_BBTFI<-function(FHanalysis,#the slected FHanalysis object ( either through 
   #and those below the Hi TFI theshold( as determined by the TYPE of the first fire)
   BBTFI_COMB<-BB_LO_TFI_SEASON
   BBTFI_COMB[is.na(BB_LO_TFI_SEASON)]<-BB_HI_TFI_SEASON[is.na(BB_LO_TFI_SEASON)]
-  
+ 
   #separating whether the fire in the second season of the BBTFI was high or low for reporting
   ID<-1:nrow(BBTFI_COMB)
-  
-  
-  
+   
+    
+
   BBTFI_ID<-as_tibble(cbind(ID,BBTFI_COMB))%>%gather(Garbage,SEASON,-ID)
   TYPE2_ID<-as_tibble(cbind(ID,TYPE2))%>%gather(Garbage,TYPE,-ID)
-  
-  ID_LU<-as_tibble(cbind(ID,EFG,FIREFMZ,FIRE_REG,PLM))
-  
+ 
+  ID_LU<-as_tibble(cbind(ID,EFG,FIREFMZ,FIRE_REG,DELWP,PLM))
+
   BBTFI_BY_TYPE<-right_join(ID_LU,na.omit(cbind(BBTFI_ID[,c("ID","SEASON")],TYPE2_ID[,"TYPE"])))%>%
-    count(EFG,FIRE_REG,FIREFMZ,PLM,SEASON,TYPE)
+    count(EFG,FIRE_REG,DELWP,FIREFMZ,PLM,SEASON,TYPE)
   BBTFI_BY_TYPE$Hectares<-BBTFI_BY_TYPE$n*Hectares
   BBTFI_BY_TYPE<-right_join(FIRETYPE_LUT,BBTFI_BY_TYPE)
   BBTFI_BY_TYPE<-right_join(TFI_LUT[,c("EFG","EFG_NAME")],BBTFI_BY_TYPE)
   BBTFI_BY_TYPE<-right_join(FIREFMZ_LUT,BBTFI_BY_TYPE)
   BBTFI_BY_TYPE<-right_join(REG_LUT,BBTFI_BY_TYPE)
-  
+  BBTFI_BY_TYPE<-right_join(DELWP_LUT,BBTFI_BY_TYPE)
   x<-BBTFI_COMB
   EFGM<-matrix(EFG,dim(x)[1],dim(x)[2])
   y<-!is.na(x)
@@ -116,10 +300,10 @@ calc_BBTFI<-function(FHanalysis,#the slected FHanalysis object ( either through 
   y$Area_ha<-Hectares
   yy<-y%>%group_by(EFG,TimesBBTFI)%>%summarise(ha=sum(Area_ha))
   TimesBBTFI_Summary<-dcast(yy,formula =EFG~TimesBBTFI,value.var = "ha")
-  
+
   #apply(myBBTFI$BBTFI_COMB,1,min,na.rm=T)
-  
-  
+
+
   #BBTFI_COMB<-list("BBTFI_COMB"=BBTFI_COMB,"TimesBBTFI_Summary"=TimesBBTFI_Summary,"BBTFI_Cell_SEASON"=BBTFI_Cell_SEASON,"BBTFI_EFG_Area_SEASON"=BBTFI_EFG_Area_SEASON,"TFI"=TFI,"BBTFI_BY_TYPE"=BBTFI_BY_TYPE)
   write.csv(TimesBBTFI_Summary,file.path(ResultsDir,"TimesBBTFI_Summary.csv"))
   #write.csv(BBTFI_COMB,file.path(ResultsDir,"BBTFI_COMB.csv"))
@@ -129,133 +313,6 @@ calc_BBTFI<-function(FHanalysis,#the slected FHanalysis object ( either through 
 }
 
 
-##Calcuates where each cell is currently at below MinTFI or above HI_TFI------------------------------------
-#returns the per cell and long and wide tablessummariesed by season and EFG
-calc_TFI<-function(FHanalysis,
-                   cropRasters,
-                   TFI_LUT_DF = TFI_LUT,
-                   OutputRasters = makeTFIRasters)#whether or not to output rasters for each year of area under TFI
-{
-  TimeRange<-as.integer(FHanalysis$TimeSpan)
-  r<-FHanalysis$FH_IDr
-  FH_ID<-as.data.frame(as.integer(values(r)))
-  names(FH_ID)<-"ID"
-  
-  #read in the raster of EFG numbers PLM FireFMZ etc
-  #extract the values as a vector and use it to make a data frame contianing cell-wise values for TFI
-  PLM<-cropRasters$PLM
-  EFG<-cropRasters$EFG
-  FIRE_REG<-as.integer(cropRasters$RGN)
-  FIREFMZ<-as.integer(cropRasters$FIREFMZ)
-  #PUBLIC<-as.integer()
-  EFG_DF<-as.data.frame(cbind(EFG,FIRE_REG,FIREFMZ,PLM))
-  TFI<-left_join(EFG_DF,TFI_LUT_DF)
-  gc()
-  #read the corresponding shapefile for the FireHat analysis chosen
-  #convert to a data.frame
-  
-  OutTab<-FHanalysis$OutDF
-  st_geometry(OutTab)<-NULL
-  ID<-OutTab$ID
-  #INTFields<-names(OutTab)[grep("^INT",names(OutTab))]
-  SEASFields<-names(OutTab)[grep("^SEAS",names(OutTab))]
-  TYPEFields<-names(OutTab)[grep("^FireType",names(OutTab))]
-  #SEAS_HI<-x<-left_join(FH_ID,OutTab)
-  
-  SEAS<-as.matrix(OutTab[,SEASFields])#The Season
-  SEAS[SEAS==0]<-NA
-  TYPE<-as.matrix(OutTab[,TYPEFields[]])#The type of the fire 
-  
-  TYPE_HI<-TYPE==2
-  TYPE_HI[TYPE_HI<1]<-NA
-  SEAS_HI<-SEAS*TYPE_HI
-  
-  TYPE_LO<-TYPE==1
-  TYPE_LO[TYPE_LO<1]<-NA
-  SEAS_LO<-SEAS*TYPE_LO
-  rm(OutTab)
-  gc()
-  
-  #print("making multicore cluster for parallel processing of TSF")
-  #Ncores<-8#detectCores()-2
-  #cl<-makeCluster(Ncores,outfile="")
-  #registerDoParallel(cl, cores=Ncores)
-  
-  LBY_HI<-matrix(NA,nrow(SEAS),length(TimeRange))
-  colnames(LBY_HI)<-as.character(TimeRange)
-  LBY_HI<-LBY_LO<-cbind(LBY_HI,ID)
-  
-  #LBY_HI<-foreach(y=iter(TimeRange),.combine = cbind,.packages ="Rfast" )%dopar%
-  for(i in 1:length(TimeRange)){
-    try({
-      y=TimeRange[i]
-      
-      LBY_HI[,i]<-LBY_f(M=SEAS_HI,y)
-      
-      print(y)
-      
-    })
-  }
-  #mode(LBY_HI)<-"integer"
-  
-  #LBY_LO<-foreach(y=iter(TimeRange),.combine = cbind,.packages ="Rfast" )%dopar%
-  
-  #LBY_HI<-foreach(y=iter(TimeRange),.combine = cbind,.packages ="Rfast" )%dopar%
-  for(i in 1:length(TimeRange)){
-    try({
-      y=TimeRange[i]
-      
-      LBY_LO[,i]<-LBY_f(M=SEAS,y)
-      
-      print(y)
-      
-    })
-  }
-  
-  
-  
-  ##########the stuff above needs to be inflated at some point below to match the raster cells
-  
-  
-  TFI_LO<-(t(TimeRange-t(LBY_LO))-TFI$MIN_LO_TFI)<1
-  TFI_HI<-(t(TimeRange-t(LBY_HI))-TFI$MIN_HI_TFI)<1
-  TFI_MAX<-(t(TimeRange-t(LBY_LO))>TFI$MAX_TFI)*2L
-  TFI_COMB<-TFI_LO
-  TFI_COMB[TFI_HI==T]<-TRUE
-  colnames(TFI_COMB)<-as.character(TimeRange)
-  TFI_STATUS<-TFI_COMB+TFI_MAX
-  TFI_STATUS[is.na(TFI_STATUS)]<--99L
-  Area_ha<-(as.numeric(FHanalysis$RasterRes)/100)^2
-  z<-as_tibble(cbind(EFG_DF,TFI_STATUS))
-  
-  #zz<-gather(z[,!names(z)%in%c("MIN_LO_TFI", "MIN_HI_TFI", "MAX_TFI", "EFG_NAME")]
-  TFI_Summary<-as_tibble(z%>%
-                           gather(SEASON,TFI_VAL,-c(EFG,FIRE_REG,FIREFMZ,PLM))%>%
-                           count(EFG,FIRE_REG,FIREFMZ,PLM,SEASON,TFI_VAL))
-  TFI_Summary$Hectares<-TFI_Summary$n*cellsToHectares()
-  
-  TFI_Summary<-left_join(TFI_Summary,TFI_STATUS_LUT)
-  TFI_Summary<-left_join(TFI_Summary,TFI_LUT[,c("EFG","EFG_NAME")])
-  TFI_Summary<-left_join(FIREFMZ_LUT,TFI_Summary)
-  TFI_Summary<-left_join(TFI_Summary,REG_LUT)
-  
-  
-  
-  if (OutputRasters == "Yes"){
-    #write a lookup table for the values in the TFI _STATUS_TIFs
-    
-    # write the TFI Status tiffs for each year.  
-    outR<-r
-    for(i in colnames(TFI_STATUS)){
-      values(r)<-TFI_STATUS[,i]
-      writeRaster(r,file.path(ResultsDir,"TFI_Rasters",paste0("TFI_STATUS",i,".tif")),overwrite=T,datatype="INT1U")
-    }
-    
-  }
-  
-  return(TFI_Summary)
-  
-}
 
 
 ##makeGS_LU------------
@@ -273,7 +330,7 @@ makeGS_LU<-function(EFG_TSF_4GS =myEFG_TSF_4GS){
   return(x)
 }
 
-
+#
 makeGS_Sum<-function(TimeSpan = FHanalysis$TimeSpan,
                      writeGSRasters,
                      myLU = GS_LU,
@@ -286,6 +343,7 @@ makeGS_Sum<-function(TimeSpan = FHanalysis$TimeSpan,
   EFG<-cropRasters$EFG
   FIRE_REG<-cropRasters$RGN
   FIREFMZ<-cropRasters$FIREFMZ
+  DELWP<-cropRasters$DELWP
   GSYrArray<-NULL
   GSYearSumm <- NULL
   for (year in TimeSpan) {
@@ -334,12 +392,12 @@ makeGS_Sum<-function(TimeSpan = FHanalysis$TimeSpan,
     
   }
   colnames(GSYrArray)<-TimeSpan
-  myTab<-cbind(EFG,FIRE_REG,FIREFMZ,PLM,GSYrArray)
+  myTab<-cbind(EFG,FIRE_REG,DELWP,FIREFMZ,PLM,GSYrArray)
   myTab<-as_tibble(myTab)
   #tablong<-gather(myTab,SEASON,GS,-EFG,-FIRE_REG,-FIREFMZ,-PLM)
   GS_Summary<-myTab%>%
     gather(SEASON,GS,-EFG,-FIRE_REG,-FIREFMZ,-PLM)%>%
-    count(EFG,FIRE_REG,FIREFMZ,PLM,SEASON,GS)
+    count(EFG,FIRE_REG,DELWP,FIREFMZ,PLM,SEASON,GS)
   rm(myTab)
   gc()
   GS_Summary$Hectares<-GS_Summary$n*cellsToHectares()

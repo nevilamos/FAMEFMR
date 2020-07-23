@@ -28,7 +28,6 @@ library(tictoc)
 source("EcoResFunctionsFMRv2.r")
 source("TFI_functionsFMRv2.r")
 
-source("calcTFI_2.r")
 tic("whole process time")
 #source("ButtonDisableHelpers.r")
 #Set the maximum size of files for upload/ download 
@@ -56,7 +55,7 @@ dir.create(file.path(ResultsDir,"RA_Rasters"))
 dir.create(file.path(ResultsDir,"TFI_Rasters"))
 dir.create(file.path(ResultsDir,"GS_Rasters"))
 
-# Lookup table for choice of region/ state or adhoc plygon for analysis
+# Lookup table for choice of Fire region/ state or adhoc polygon for analysis----------
 
 REG_LUT<-tibble(FIRE_REG = c(99, 1, 2, 3, 4, 5, 6, 7),
                 FIRE_REGION_NAME = c("WHOLE OF STATE",
@@ -69,7 +68,7 @@ REG_LUT<-tibble(FIRE_REG = c(99, 1, 2, 3, 4, 5, 6, 7),
                                      "USER DEFINED POLYGON")
 )
 
-#Lookup table for Fire FMZ
+#Lookup table for Fire FMZ-----------
 FIREFMZ_LUT<-tibble(FIREFMZ = c(0, 1, 2, 3, 4, 5),
                     FIRE_FMZ_NAME = c("0 - Non FPA Land",
                                       "1 - Asset Protection Zone",
@@ -84,27 +83,30 @@ FIREFMZ_LUT<-tibble(FIREFMZ = c(0, 1, 2, 3, 4, 5),
                                           "PBEZ",
                                           "UNK")
 )
+#Lookup for delwp regeon names-----
+DELWP_LUT<-tibble(DELWP= c(2,4,3,5,6,7),
+                  DELWP_REGION=c("GIPPSLAND","HUME","PORT PHILLIP","BARWON SOUTH WEST","LODDON MALLEE","GRAMPIANS"))
 
-#lookup table for TFI_STATUS values
-TFI_STATUS_LUT<-tibble(
-  TFI_VAL= c(-99,0,1,2),
-  TFI_STATUS=c("NA","WITHIN_TFI","BELOW_MIN_TFI","ABOVE_MAX_TFI")
-)
 
-write.csv(
-  TFI_STATUS_LUT,
-  file.path(ResultsDir,"TFI_Rasters","TFI_STATUS_LUT.csv"))
 
-FIRETYPE_LUT<-tibble(
-  TYPE=c(1,2),
-  FIRETYPE=c("BURN","BUSHFIRE")
-)
-#lookup for Growth Stage
+
+
+#
+#lookup table for TFI_STATUS values------------
+TFI_STATUS_LUT<-structure(list(TFI_VAL = c(-99, 0, 1, 5, 6),
+               TFI_STATUS = c("NONE","WITHIN_TFI", "BELOW_MIN_TFI", "ABOVE_MAX_TFI", "ABOVE_MAX_BELOW_MIN_HI_TFI")),
+          row.names = c(NA,-5L), class = c("tbl_df", "tbl", "data.frame"))
+
+write.csv(  TFI_STATUS_LUT,  file.path(ResultsDir,"TFI_Rasters","TFI_STATUS_LUT.csv"))
+
+FIRETYPE_LUT<-tibble(  TYPE=c(1,2),  FIRETYPE=c("BURN","BUSHFIRE"))
+
+#lookup for Growth Stage---------------
 GS_LUT<-tibble("GS"=c(0,1,2,3,4),
                "GROWTH_STAGE"=c("Unknown","Juvenile","Adolescent","Mature","Old"))
 #Lookup table from EFG to TFI attributes ( csv version of CGDL lookup table)
 TFI_LUT<-read.csv("./ReferenceTables/EFG_EVD_TFI.csv")[,c("EFG_NUM","MIN_LO_TFI","MIN_HI_TFI","MAX_TFI","EFG_NAME")]
-
+# ------------
 names(TFI_LUT)[1]<-"EFG"
 if (REGION_NO==7){clipPoly=adHocPolygon}else{clipPoly="./ReferenceShapefiles/LF_DISTRICT.shp"}
 
@@ -133,7 +135,7 @@ save(FHanalysis,cropRasters,file=file.path(ResultsDir,paste0(FHanalysis$name,Ras
 
 # If reusing FH_processing from previous run ( details same as in settings file) -----------------------
 #load(file.path(ResultsDir,paste0("FH_Analysis_",outputFH,RasterRes,".rdata")))
-# TFI calcuations ---------------------------------------------------------
+# TFI calcuations old calc_TFI ---------------------------------------------------------
 tic("standard calcTFI")
 myTFI<-calc_TFI(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
                 TFI_LUT_DF = TFI_LUT,
@@ -142,6 +144,8 @@ myTFI<-calc_TFI(FHanalysis =FHanalysis,#the selected FHanalysis object ( either 
 print("Finished my TFI")
 write.csv(myTFI,file.path(ResultsDir,"TFI_Summary.csv"))
 toc()
+
+# TFI calcuations new calc_TFI_2 ---------------------------------------------------------
 tic("calc_TFI_2")
 myTFI_2<-calc_TFI_2(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
                 TFI_LUT,
@@ -198,18 +202,9 @@ write.csv(GS_Summary,file.path(ResultsDir,"GS_Summary.csv"))
 gc()
 toc()
 TimeTaken<-toc()
-save.image(file.path(ResultsDir,paste0(myBasename,"_finalImage.rdata")))
+#save.image(file.path(ResultsDir,paste0(myBasename,"_finalImage.rdata")))
 
 
 
 
-myBasename<-file_path_sans_ext(basename(FHanalysis$name))
-
-
-myTFI<-calc_TFI(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
-                TFI_LUT_DF = TFI_LUT,
-                cropRasters = cropRasters,
-                OutputRasters = writeSpRasters)
-print("Finished my TFI")
-write.csv(myTFI,file.path(ResultsDir,"TFI_Summary.csv"))
 
