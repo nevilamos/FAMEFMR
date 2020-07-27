@@ -31,7 +31,7 @@ source("EcoResFunctionsFMRv2.r")
 source("TFI_functionsFMRv2.r")
 
 
-source("calc_TFI_2.r")
+#source("calc_TFI_2.r")
 tic("whole process time")
 
 #source("ButtonDisableHelpers.r")
