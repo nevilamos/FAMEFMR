@@ -8,7 +8,7 @@ LBY_f<-function(M,y){
 
 
 
-#Calcuates where each cell is currently at below MinTFI or above HI_TFI------------------------------------
+#Calcuates where each cell is currently at below MinTFI or above MAX_TFI------------------------------------
 #returns the per cell and long table summarised by multiple admin units and evc
 calc_TFI_2<-function(FHanalysis,
                      cropRasters,
@@ -359,7 +359,7 @@ makeGS_Sum<-function(TimeSpan = FHanalysis$TimeSpan,
     LU = myLU
     
     getVals <- Mask_idx[!is.na(RegMaskVal)]#
-    OutTif <-file.path(myResultsDir,"GS_Rasters", paste0("GS_YR_", year, ".tif"))
+    OutTif <-file.path(ResultsDir,"GS_Rasters", paste0("GS_YR_", year, ".tif"))
     #OutName<-paste0(year,"_",sp)
     
     Out <- array(NA, myDim)
@@ -396,7 +396,7 @@ makeGS_Sum<-function(TimeSpan = FHanalysis$TimeSpan,
   myTab<-as_tibble(myTab)
   #tablong<-gather(myTab,SEASON,GS,-EFG,-FIRE_REG,-FIREFMZ,-PLM)
   GS_Summary<-myTab%>%
-    gather(SEASON,GS,-EFG,-FIRE_REG,-FIREFMZ,-PLM)%>%
+    gather(SEASON,GS,-EFG,-FIRE_REG,-FIREFMZ,-PLM,-DELWP)%>%
     count(EFG,FIRE_REG,DELWP,FIREFMZ,PLM,SEASON,GS)
   rm(myTab)
   gc()
@@ -405,5 +405,6 @@ makeGS_Sum<-function(TimeSpan = FHanalysis$TimeSpan,
   GS_Summary<-left_join(GS_Summary,TFI_LUT[,c("EFG","EFG_NAME")])
   GS_Summary<-left_join(GS_Summary,FIREFMZ_LUT)
   GS_Summary<-left_join(GS_Summary,REG_LUT)
+  GS_Summary<-left_join(GS_Summary,DELWP_LUT)
   return(GS_Summary)
 }

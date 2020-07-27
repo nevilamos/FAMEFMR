@@ -31,14 +31,14 @@ source("EcoResFunctionsFMRv2.r")
 source("TFI_functionsFMRv2.r")
 
 
-tic("whole process time")
+
 #source("ButtonDisableHelpers.r")
 #Set the maximum size of files for upload/ download 
 
 #options(shiny.maxRequestSize=2*1024^3) 
 
 # Load all settings and input files and tables ----------------------------
-
+tic("whole process time")
 source("./settings.r")
 
 

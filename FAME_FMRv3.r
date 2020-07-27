@@ -135,15 +135,6 @@ save(FHanalysis,cropRasters,file=file.path(ResultsDir,paste0(FHanalysis$name,Ras
 
 # If reusing FH_processing from previous run ( details same as in settings file) -----------------------
 #load(file.path(ResultsDir,paste0("FH_Analysis_",outputFH,RasterRes,".rdata")))
-# TFI calcuations old calc_TFI ---------------------------------------------------------
-tic("standard calcTFI")
-myTFI<-calc_TFI(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
-                TFI_LUT_DF = TFI_LUT,
-                cropRasters = cropRasters,
-                OutputRasters = writeSpRasters)
-print("Finished my TFI")
-write.csv(myTFI,file.path(ResultsDir,"TFI_Summary.csv"))
-toc()
 
 # TFI calcuations new calc_TFI_2 ---------------------------------------------------------
 tic("calc_TFI_2")
@@ -154,12 +145,6 @@ myTFI_2<-calc_TFI_2(FHanalysis =FHanalysis,#the selected FHanalysis object ( eit
 write.csv(myTFI_2,file.path(ResultsDir,"TFI_Summary_2.csv"))
 toc()
 
-# myTFI_lorequ<-calc_TFI_lorequ(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
-#                 TFI_LUT_DF = TFI_LUT,
-#                 cropRasters = cropRasters,
-#                 OutputRasters = writeSpRasters)
-# print("Finished my TFI")
-# write.csv(myTFI_lorequ,file.path(ResultsDir,"TFI_lorequ_Summary.csv"))
 
 # BBTFI calculations ------------------------------------------------------
 tic("BBTFI calculations complete")
@@ -178,9 +163,6 @@ write.csv(myBBTFI$BBTFI_BY_TYPE,file.path(ResultsDir,"BBTFI_BY_TYPE.csv"))
 BBTFI_time<-toc()
 print(BBTFI_time)
 # GS calculations ---------------------------------------------------------
-
-
-
 
 tic("GS calculations")
 GS_LU<-makeGS_LU()

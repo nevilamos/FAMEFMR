@@ -18,8 +18,8 @@ customSpList 		= NULL
 #path to custom response list if used----
 customResponseFile 	= NULL
 #raster resolution 75 or 225----
-RasterRes	= 75
-#RasterRes = 225
+
+RasterRes = 75
 #sets the csv table containing 4GS info by years since fire---
 myEFG_TSF_4GS= read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[,c('EFG_NO','GS4_NO',"YSF")]
 #path to HDMVals225 file---
