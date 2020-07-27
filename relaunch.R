@@ -31,6 +31,8 @@ source("EcoResFunctionsFMRv2.r")
 source("TFI_functionsFMRv2.r")
 
 
+source("calc_TFI_2.r")
+tic("whole process time")
 
 #source("ButtonDisableHelpers.r")
 #Set the maximum size of files for upload/ download 
