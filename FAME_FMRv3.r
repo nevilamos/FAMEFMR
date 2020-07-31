@@ -3,6 +3,7 @@
 
 rm(list=ls(all=TRUE))
 gc()
+tic("start all processes")
 # Load libraries and custom functions -------------------------------------
 
 
@@ -16,7 +17,7 @@ library(sf)
 library(foreach)
 library(doParallel)
 library(dplyr)
-library(tiff)
+#library(tiff)
 library(reshape2)
 library(tabularaster)
 library(tictoc)
@@ -27,7 +28,8 @@ library(tictoc)
 #loads functions used in TFI and RA calculations
 source("EcoResFunctionsFMRv2.r")
 source("TFI_functionsFMRv2.r")
-
+source("GS_Calcs.R")
+source("calc_U_AllCombs.r")
 tic("whole process time")
 #source("ButtonDisableHelpers.r")
 #Set the maximum size of files for upload/ download 
@@ -135,7 +137,10 @@ save(FHanalysis,cropRasters,file=file.path(ResultsDir,paste0(FHanalysis$name,Ras
 
 # If reusing FH_processing from previous run ( details same as in settings file) -----------------------
 #load(file.path(ResultsDir,paste0("FH_Analysis_",outputFH,RasterRes,".rdata")))
-
+# does "All combinations of fire sequences (FH_ID) and EFG plus chosen polygons----
+tic("make all combs object")
+myAllCombs<-calcU_All_Combs(FHAnalysis,cropRasters)
+toc()
 # TFI calcuations new calc_TFI_2 ---------------------------------------------------------
 tic("calc_TFI_2")
 myTFI_2<-calc_TFI_2(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
@@ -148,42 +153,28 @@ toc()
 
 # BBTFI calculations ------------------------------------------------------
 tic("BBTFI calculations complete")
-myBBTFI<-calc_BBTFI(FHanalysis,
-                    cropRasters,#,the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
-                    TFI_LUT_DF = TFI_LUT)
-print("finished BBTFI calcs")
-save(myBBTFI,file=file.path(ResultsDir,paste(file_path_sans_ext(FHanalysis$name),"BBTFI_TFI.rdata")))
-# 
-# write.csv(myTFI$UNDER_TFI__BY_EFG_WIDE,file.path(ResultsDir,"UnderTFIbyEFGandSEASONwide.csv"),row.names=F)
-# 
-# toc()
-# 
-save(myBBTFI,file=file.path(ResultsDir,"bbtfi_tfi.rdata"))
-write.csv(myBBTFI$BBTFI_BY_TYPE,file.path(ResultsDir,"BBTFI_BY_TYPE.csv"))
-BBTFI_time<-toc()
-print(BBTFI_time)
+myBBTFI<-calcBBTFI_2(FHanalysis, myAllCombs)
+write.csv(myBBTFI$BBTFI_LONG,file.path(ResultsDir,"BBTFI_LONG.csv"))
+write.csv(myBBTFI$BBTFI_WIDE,file.path(ResultsDir,"BBTFI_WIDE.csv"))
+toc()
+
 # GS calculations ---------------------------------------------------------
 
 tic("GS calculations")
-GS_LU<-makeGS_LU()
 
-
-tsf_ysf_mat<-makeYSF_LFT_matrix(FHanalysis = FHanalysis,
-                                myCropDetails=cropRasters,
-                                FH_ID.tif=FHanalysis$FH_IDr)
-gc()
-GS_Summary<-makeGS_Sum(TimeSpan = FHanalysis$TimeSpan,
-                       writeGSRasters = "Yes",
-                       myLU = GS_LU,
-                       myResultsDir = ResultsDir,
-                       myCropDetails = cropRasters,
-                       myFHResults = FHanalysis,
-                       myYSF_LFT = tsf_ysf_mat,
+GS_Summary<-makeGS_Sum(writeGSRasters,
+                       ResultsDir,
+                       U_AllCombs_TFI=myAllCombs$U_AllCombs_TFI,
+                       Index_AllCombs=myAllCombs$Index_AllCombs,
+                       FHanalysis,
                        writeYears=NULL)
-write.csv(GS_Summary,file.path(ResultsDir,"GS_Summary.csv"))
+
+
+write.csv(GS_Summary$GS_Summary_wide,file.path(ResultsDir,"GS_Summary_VAT.csv"),na="",row.names = F)
+write.csv(GS_Summary$GS_Summary_Long,file.path(ResultsDir,"GS_Summary_Long.csv"),na="",row.names = F)
 gc()
 toc()
-TimeTaken<-toc()
+toc()
 #save.image(file.path(ResultsDir,paste0(myBasename,"_finalImage.rdata")))
 
 

@@ -6,7 +6,7 @@
 ################################################################################
 #revove all empty  directories in a path----------------------------
 
-removeEmptyDirs<-function(rootDir="./results"){
+removeEmptyDirs<-function(rootDir="./Results"){
   
   dirList <- list.dirs(rootDir)[-1]#makes sure the root results direcotry is not deleted
   if(length(dirList)>0){
@@ -682,11 +682,28 @@ inputRasters<-function(x=RasterRes){
            "DELWP.tif"=DELWP.tif)
   return(y)
 }
+
+# Function joins Lookup tables to DF containing ID_NO :Nme combinations at the moment the LUTS are hard wired.
+
+Join_Names<-function(myDF,#dataframe or similar containing indices for the LUTS listed 
+                     LUTS=c("TFI_LUT","TFI_LUT","FIREFMZ_LUT","REG_LUT","DELWP_LUT")){
+  for(i in LUTS){
+    try(myDF<-left_join(myDF,get(i)))}
+    return (myDF)
+}
+
+# Function calclulate multiplier form cells to hecatres for cell resolution in Metres ( usually from RasterRes in settings file)----------
+cellsToHectares<-function(RasterMetres=RasterRes){
+  (RasterMetres/100)^2
+}
+#######################################################
 #st_parallel--------------------------------------------------------
 #possible parallel version of st_ functions  not yet expolored from
 # https://www.spatialanalytics.co.nz/post/2017/09/11/a-parallel-function-for-spatial-analysis-in-r/ 
 #and https://www.spatialanalytics.co.nz/post/2018/04/01/fixing-st-par/
 #for linux only
+#latest info on this on github suggests that there are not likely to be eay spoeed gains of parallell at the moment (July 2020)
+# https://github.com/r-spatial/sf/issues/611
 
 # Paralise any simple features analysis.
 st_parallel <- function(sf_df, sf_func, n_cores, ...){
@@ -724,8 +741,3 @@ st_parallel <- function(sf_df, sf_func, n_cores, ...){
   # Return result
   return(result)
 }
-
-cellsToHectares<-function(RasterMetres=RasterRes){
-  (RasterMetres/100)^2
-}
-############END OF FUNCTIONS########################################

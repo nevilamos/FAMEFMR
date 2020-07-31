@@ -11,7 +11,7 @@ if (REGION_NO==7){adHocPolygon 		=     "addPolygonshapefile path"       }
 
 #path to your rawFH file ( output of the ARCGIS preprocessing tool)----
 
-  rawFH 				= "./rawFH/FFRAU_FH2020_FAME_vg94_STATEWIDE_SEASON_AS_NUMERIC_NO_1755.shp"
+  rawFH 				= "./rawFH/FFRAU_FH2020_FAME_vg94_20200723.shp"
 
 #path to custom species list if used----
 customSpList 		= NULL
@@ -19,7 +19,7 @@ customSpList 		= NULL
 customResponseFile 	= NULL
 #raster resolution 75 or 225----
 
-RasterRes = 225
+RasterRes = 75
 #sets the csv table containing 4GS info by years since fire---
 myEFG_TSF_4GS= read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[,c('EFG_NO','GS4_NO',"YSF")]
 #path to HDMVals225 file---

@@ -151,21 +151,22 @@ calc_TFI_2<-function(FHanalysis,
   TFI_Summary<-left_join(FIREFMZ_LUT,TFI_Summary)
   TFI_Summary<-left_join(TFI_Summary,REG_LUT)
   
-  #expand the TFI status values to raster vector for raster values save as filematrix - for future reference or reading into raster. --------------
-  TFI_VAL_RASTER_VALS<-fm.create(file.path(ResultsDir,"TFI_VAL_RASTER_VALS"),nrow=length(Index_AllCombs),ncol=LTR)
-  colnames(TFI_VAL_RASTER_VALS)<-TimeNames
-  for(i in 1:LTR){
-    j=TimeNames[i]
-    TFI_VAL_RASTER_VALS[,i]<-TFI_VAL[Index_AllCombs,j]
-    print(j)
-  }
-  #if filematrix of raster values already made in order to open again----------------
-  TFI_VAL_RASTER_VALS<-fm.open(file.path(ResultsDir,"TFI_VAL_RASTER_VALS"))
-  
-  # write the TFI Status tiffs for each year.-------------- 
-  #should look at finding way to assign to stack or even to envi or similar directly - maybe talk to Pete Griff and Lachlan about this.
-  
   if (OutputRasters == "Yes"){
+    #expand the TFI status values to raster vector for raster values save as filematrix - for future reference or reading into raster. --------------
+    TFI_VAL_RASTER_VALS<-fm.create(file.path(ResultsDir,"TFI_VAL_RASTER_VALS"),nrow=length(Index_AllCombs),ncol=LTR)
+    colnames(TFI_VAL_RASTER_VALS)<-TimeNames
+    for(i in 1:LTR){
+      j=TimeNames[i]
+      TFI_VAL_RASTER_VALS[,i]<-TFI_VAL[Index_AllCombs,j]
+      print(j)
+    }
+    #if filematrix of raster values already made in order to open again----------------
+    #TFI_VAL_RASTER_VALS<-fm.open(file.path(ResultsDir,"TFI_VAL_RASTER_VALS"))
+    
+    # write the TFI Status tiffs for each year.-------------- 
+    #should look at finding way to assign to stack or even to envi or similar directly - maybe talk to Pete Griff and Lachlan about this.
+    
+    
     #cl<-makeCluster(Ncores,outfile="")
     #registerDoParallel(cl, cores=Ncores)
     #foreach(i=iter(1:LTR),.packages =c("raster","filematrix") )%dopar%{
@@ -203,11 +204,11 @@ calc_TFI_2<-function(FHanalysis,
 calc_BBTFI<-function(FHanalysis,#the slected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
                      cropRasters,
                      TFI_LUT_DF = TFI_LUT#the dataframe read from a csv that gives the lookup table from EVD to MinTFI_LO, MinTFI_HI and MaxTFI
-                     ) {
+) {
   
   r<-FHanalysis$FH_IDr
   Hectares<-(as.numeric(FHanalysis$RasterRes)/100)^2
-
+  
   FH_ID<-as.data.frame(values(r))
   names(FH_ID)<-"ID"
   DELWP<-cropRasters$DELWP
@@ -217,9 +218,9 @@ calc_BBTFI<-function(FHanalysis,#the slected FHanalysis object ( either through 
   FIREFMZ<-cropRasters$FIREFMZ
   PLM<-cropRasters$PLM
   EFG_DF<-as.data.frame(EFG)
-
+  
   TFI<-left_join(EFG_DF,TFI_LUT_DF)
-
+  
   #read the corresponding shapefile for the FireHat analysis chosen
   #convert to a data.frame
   
@@ -257,17 +258,17 @@ calc_BBTFI<-function(FHanalysis,#the slected FHanalysis object ( either through 
   #and those below the Hi TFI theshold( as determined by the TYPE of the first fire)
   BBTFI_COMB<-BB_LO_TFI_SEASON
   BBTFI_COMB[is.na(BB_LO_TFI_SEASON)]<-BB_HI_TFI_SEASON[is.na(BB_LO_TFI_SEASON)]
- 
+  
   #separating whether the fire in the second season of the BBTFI was high or low for reporting
   ID<-1:nrow(BBTFI_COMB)
-   
-    
-
+  
+  
+  
   BBTFI_ID<-as_tibble(cbind(ID,BBTFI_COMB))%>%gather(Garbage,SEASON,-ID)
   TYPE2_ID<-as_tibble(cbind(ID,TYPE2))%>%gather(Garbage,TYPE,-ID)
- 
+  
   ID_LU<-as_tibble(cbind(ID,EFG,FIREFMZ,FIRE_REG,DELWP,PLM))
-
+  
   BBTFI_BY_TYPE<-right_join(ID_LU,na.omit(cbind(BBTFI_ID[,c("ID","SEASON")],TYPE2_ID[,"TYPE"])))%>%
     count(EFG,FIRE_REG,DELWP,FIREFMZ,PLM,SEASON,TYPE)
   BBTFI_BY_TYPE$Hectares<-BBTFI_BY_TYPE$n*Hectares
@@ -300,10 +301,10 @@ calc_BBTFI<-function(FHanalysis,#the slected FHanalysis object ( either through 
   y$Area_ha<-Hectares
   yy<-y%>%group_by(EFG,TimesBBTFI)%>%summarise(ha=sum(Area_ha))
   TimesBBTFI_Summary<-dcast(yy,formula =EFG~TimesBBTFI,value.var = "ha")
-
+  
   #apply(myBBTFI$BBTFI_COMB,1,min,na.rm=T)
-
-
+  
+  
   #BBTFI_COMB<-list("BBTFI_COMB"=BBTFI_COMB,"TimesBBTFI_Summary"=TimesBBTFI_Summary,"BBTFI_Cell_SEASON"=BBTFI_Cell_SEASON,"BBTFI_EFG_Area_SEASON"=BBTFI_EFG_Area_SEASON,"TFI"=TFI,"BBTFI_BY_TYPE"=BBTFI_BY_TYPE)
   write.csv(TimesBBTFI_Summary,file.path(ResultsDir,"TimesBBTFI_Summary.csv"))
   #write.csv(BBTFI_COMB,file.path(ResultsDir,"BBTFI_COMB.csv"))
@@ -315,96 +316,96 @@ calc_BBTFI<-function(FHanalysis,#the slected FHanalysis object ( either through 
 
 
 
-##makeGS_LU------------
-#Function makes LU matrix for Growth stage from TSF and EFG 
-# YSF has 1 added to both the Lookup and the input to deal with YSF==0 which cannot be used in the array indexing
-makeGS_LU<-function(EFG_TSF_4GS =myEFG_TSF_4GS){
-  y<-EFG_TSF_4GS
-  b=(y$YSF)+1
-  c=y$EFG_NO
-  e=y$GS4_NO
-  x<-array(NA,dim=c(max(b),40))
-  for(j in 1:nrow(y)){
-    x[b[j],c[j]]<-e[j]
-  }
-  return(x)
-}
-
-#
-makeGS_Sum<-function(TimeSpan = FHanalysis$TimeSpan,
-                     writeGSRasters,
-                     myLU = GS_LU,
-                     myResultsDir = ResultsDir,
-                     myCropDetails = cropRasters,
-                     myFHResults = FHanalysis,
-                     myYSF_LFT = tsf_ysf_mat,
-                     writeYears=NULL) {
-  PLM<-cropRasters$PLM
-  EFG<-cropRasters$EFG
-  FIRE_REG<-cropRasters$RGN
-  FIREFMZ<-cropRasters$FIREFMZ
-  DELWP<-cropRasters$DELWP
-  GSYrArray<-NULL
-  GSYearSumm <- NULL
-  for (year in TimeSpan) {
-    print(paste("Starting GS for",year))
-    myYSF <- paste0("YSF", year)
-    YSF <- myYSF_LFT[, myYSF] + 1
-    myDim <- length(YSF)
-    Mask_idx <- (1:myDim)
-    RegMaskVal <- YSF + EFG    #+RGN    
-    M<-cbind(YSF,EFG)
-    
-    
-    LU = myLU
-    
-    getVals <- Mask_idx[!is.na(RegMaskVal)]#
-    OutTif <-file.path(ResultsDir,"GS_Rasters", paste0("GS_YR_", year, ".tif"))
-    #OutName<-paste0(year,"_",sp)
-    
-    Out <- array(NA, myDim)
-    
-    
-    Out[getVals]<-as.integer(LU[M[getVals,]])
-    
-    if(writeGSRasters=="Yes"){
-      
-      
-      if(year%in%writeYears|is.null(writeYears)){
-        
-        emptyraster <- myCropDetails$Raster
-        values(emptyraster) <- as.vector(Out)
-        writeRaster(
-          emptyraster,
-          OutTif,
-          options = c("COMPRESS=LZW", "TFW=YES"),
-          datatype = 'INT1U',
-          overwrite = TRUE
-        )
-        
-      }
-    }
-    GSYrArray<-cbind(GSYrArray,Out)
-    GSYrres <- c(year, table(Out))
-    GSYearSumm <- rbind(GSYearSumm, GSYrres)
-    
-    print(paste("Finished",year))
-    
-  }
-  colnames(GSYrArray)<-TimeSpan
-  myTab<-cbind(EFG,FIRE_REG,DELWP,FIREFMZ,PLM,GSYrArray)
-  myTab<-as_tibble(myTab)
-  #tablong<-gather(myTab,SEASON,GS,-EFG,-FIRE_REG,-FIREFMZ,-PLM)
-  GS_Summary<-myTab%>%
-    gather(SEASON,GS,-EFG,-FIRE_REG,-FIREFMZ,-PLM,-DELWP)%>%
-    count(EFG,FIRE_REG,DELWP,FIREFMZ,PLM,SEASON,GS)
-  rm(myTab)
-  gc()
-  GS_Summary$Hectares<-GS_Summary$n*cellsToHectares()
-  GS_Summary<-left_join(GS_Summary,GS_LUT)
-  GS_Summary<-left_join(GS_Summary,TFI_LUT[,c("EFG","EFG_NAME")])
-  GS_Summary<-left_join(GS_Summary,FIREFMZ_LUT)
-  GS_Summary<-left_join(GS_Summary,REG_LUT)
-  GS_Summary<-left_join(GS_Summary,DELWP_LUT)
-  return(GS_Summary)
-}
+# ##makeGS_LU------------
+# #Function makes LU matrix for Growth stage from TSF and EFG 
+# # YSF has 1 added to both the Lookup and the input to deal with YSF==0 which cannot be used in the array indexing
+# makeGS_LU<-function(EFG_TSF_4GS =myEFG_TSF_4GS){
+#   y<-EFG_TSF_4GS
+#   b=(y$YSF)+1
+#   c=y$EFG_NO
+#   e=y$GS4_NO
+#   x<-array(NA,dim=c(max(b),40))
+#   for(j in 1:nrow(y)){
+#     x[b[j],c[j]]<-e[j]
+#   }
+#   return(x)
+# }
+# 
+# #
+# makeGS_Sum<-function(TimeSpan = FHanalysis$TimeSpan,
+#                      writeGSRasters,
+#                      myLU = GS_LU,
+#                      myResultsDir = ResultsDir,
+#                      myCropDetails = cropRasters,
+#                      myFHResults = FHanalysis,
+#                      myYSF_LFT = tsf_ysf_mat,
+#                      writeYears=NULL) {
+#   PLM<-cropRasters$PLM
+#   EFG<-cropRasters$EFG
+#   FIRE_REG<-cropRasters$RGN
+#   FIREFMZ<-cropRasters$FIREFMZ
+#   DELWP<-cropRasters$DELWP
+#   GSYrArray<-NULL
+#   GSYearSumm <- NULL
+#   for (year in TimeSpan) {
+#     print(paste("Starting GS for",year))
+#     myYSF <- paste0("YSF", year)
+#     YSF <- myYSF_LFT[, myYSF] + 1
+#     myDim <- length(YSF)
+#     Mask_idx <- (1:myDim)
+#     RegMaskVal <- YSF + EFG    #+RGN    
+#     M<-cbind(YSF,EFG)
+#     
+#     
+#     LU = myLU
+#     
+#     getVals <- Mask_idx[!is.na(RegMaskVal)]#
+#     OutTif <-file.path(ResultsDir,"GS_Rasters", paste0("GS_YR_", year, ".tif"))
+#     #OutName<-paste0(year,"_",sp)
+#     
+#     Out <- array(NA, myDim)
+#     
+#     
+#     Out[getVals]<-as.integer(LU[M[getVals,]])
+#     
+#     if(writeGSRasters=="Yes"){
+#       
+#       
+#       if(year%in%writeYears|is.null(writeYears)){
+#         
+#         emptyraster <- myCropDetails$Raster
+#         values(emptyraster) <- as.vector(Out)
+#         writeRaster(
+#           emptyraster,
+#           OutTif,
+#           options = c("COMPRESS=LZW", "TFW=YES"),
+#           datatype = 'INT1U',
+#           overwrite = TRUE
+#         )
+#         
+#       }
+#     }
+#     GSYrArray<-cbind(GSYrArray,Out)
+#     GSYrres <- c(year, table(Out))
+#     GSYearSumm <- rbind(GSYearSumm, GSYrres)
+#     
+#     print(paste("Finished",year))
+#     
+#   }
+#   colnames(GSYrArray)<-TimeSpan
+#   myTab<-cbind(EFG,FIRE_REG,DELWP,FIREFMZ,PLM,GSYrArray)
+#   myTab<-as_tibble(myTab)
+#   #tablong<-gather(myTab,SEASON,GS,-EFG,-FIRE_REG,-FIREFMZ,-PLM)
+#   GS_Summary<-myTab%>%
+#     gather(SEASON,GS,-EFG,-FIRE_REG,-FIREFMZ,-PLM,-DELWP)%>%
+#     count(EFG,FIRE_REG,DELWP,FIREFMZ,PLM,SEASON,GS)
+#   rm(myTab)
+#   gc()
+#   GS_Summary$Hectares<-GS_Summary$n*cellsToHectares()
+#   GS_Summary<-left_join(GS_Summary,GS_LUT)
+#   GS_Summary<-left_join(GS_Summary,TFI_LUT[,c("EFG","EFG_NAME")])
+#   GS_Summary<-left_join(GS_Summary,FIREFMZ_LUT)
+#   GS_Summary<-left_join(GS_Summary,REG_LUT)
+#   GS_Summary<-left_join(GS_Summary,DELWP_LUT)
+#   return(GS_Summary)
+# }
