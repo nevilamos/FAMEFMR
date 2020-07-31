@@ -29,7 +29,9 @@ library(tictoc)
 #loads functions used in TFI and RA calculations
 source("EcoResFunctionsFMRv2.r")
 source("TFI_functionsFMRv2.r")
-
+source("calc_U_AllCombs.r")
+source("GS_Calcs.R")
+source("calcBBTFI_2.R")
 
 #source("calc_TFI_2.r")
 tic("whole process time")
