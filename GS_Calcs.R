@@ -38,9 +38,11 @@ makeGS_Sum<-function(writeGSRasters,
 
   indmat=cbind(rep(1:nrow(YSFplus1),ncol(YSFplus1)),as.vector(YSFplus1))
   
+
   GSrows=matrix(GS_LU[indmat],nrow=nrow(YSFplus1))
   
   colnames(GSrows)<-TimeNames
+
   
   
   GS_Summary<-cbind(U_AllCombs_TFI,GSrows)

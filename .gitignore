@@ -43,3 +43,5 @@ TFI_STATUS.bmat
 TFI_STATUS.desc.txt
 TFI_STATUS.nmscol.txt
 relaunch.R
+myAllCombs.rds
+.RDataTmp
