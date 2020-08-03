@@ -143,19 +143,23 @@ myAllCombs<-calcU_All_Combs(FHAnalysis,cropRasters)
 toc()
 # TFI calcuations new calc_TFI_2 ---------------------------------------------------------
 tic("calc_TFI_2")
-myTFI_2<-calc_TFI_2(FHanalysis =FHanalysis,#the selected FHanalysis object ( either through running analysis previously, or loading the rdata object.)
-                TFI_LUT,
-                cropRasters = cropRasters,
-                OutputRasters = "No")
-write.csv(myTFI_2,file.path(ResultsDir,"TFI_Summary_2.csv"))
+myTFI_2<-calc_TFI_2(FHanalysis,
+                    U_AllCombs_TFI=myAllCombs$U_AllCombs_TFI,
+                    Index_AllCombs=myAllCombs$Index_AllCombs,
+                    TFI_LUT,
+                    OutputRasters = makeTFIRasters)
+fwrite(myTFI_2,file.path(ResultsDir,"TFI_Summary_2.csv"),na="",row.names = F)
 toc()
 
 
 # BBTFI calculations ------------------------------------------------------
 tic("BBTFI calculations complete")
-myBBTFI<-calcBBTFI_2(FHanalysis, myAllCombs)
-write.csv(myBBTFI$BBTFI_LONG,file.path(ResultsDir,"BBTFI_LONG.csv"))
-write.csv(myBBTFI$BBTFI_WIDE,file.path(ResultsDir,"BBTFI_WIDE.csv"))
+myBBTFI<-calcBBTFI_2(FHanalysis,
+                     U_AllCombs_TFI=myAllCombs$U_AllCombs_TFI,
+                     Index_AllCombs=myAllCombs$Index_AllCombs,
+                     TFI_LUT)
+fwrite(myBBTFI$BBTFI_LONG,file.path(ResultsDir,"BBTFI_LONG.csv"),na="",row.names = F)
+fwrite(myBBTFI$BBTFI_WIDE,file.path(ResultsDir,"BBTFI_WIDE.csv"),na="",row.names = F)
 toc()
 
 # GS calculations ---------------------------------------------------------
@@ -170,8 +174,8 @@ GS_Summary<-makeGS_Sum(writeGSRasters,
                        writeYears=NULL)
 
 
-write.csv(GS_Summary$GS_Summary_wide,file.path(ResultsDir,"GS_Summary_VAT.csv"),na="",row.names = F)
-write.csv(GS_Summary$GS_Summary_Long,file.path(ResultsDir,"GS_Summary_Long.csv"),na="",row.names = F)
+fwrite(GS_Summary$GS_Summary_wide,file.path(ResultsDir,"GS_Summary_VAT.csv"),na="",row.names = F)
+fwrite(GS_Summary$GS_Summary_Long,file.path(ResultsDir,"GS_Summary_Long.csv"),na="",row.names = F)
 gc()
 toc()
 toc()

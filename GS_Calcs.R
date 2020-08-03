@@ -16,8 +16,8 @@ makeGS_LU<-function(EFG_TSF_4GS =myEFG_TSF_4GS){
  #############################################################
 makeGS_Sum<-function(writeGSRasters,
                      ResultsDir,
-                     U_AllCombs_TFI,
-                     Index_AllCombs,
+                     U_AllCombs_TFI =myAllCombs$U_AllCombs_TFI,
+                     Index_AllCombs=myAllCombs$Index_AllCombs,
                      FHanalysis,
                      writeYears=NULL) {
   TimeNames<-as.character(FHanalysis$TimeSpan)
@@ -43,8 +43,6 @@ makeGS_Sum<-function(writeGSRasters,
   
   colnames(GSrows)<-TimeNames
 
-  
-  
   GS_Summary<-cbind(U_AllCombs_TFI,GSrows)
   
   
