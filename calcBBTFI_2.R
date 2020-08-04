@@ -7,10 +7,9 @@
 calcBBTFI_2<-function(FHanalysis,
                       U_AllCombs_TFI=myAllCombs$U_AllCombs_TFI,
                       Index_AllCombs=myAllCombs$Index_AllCombs,
-                      TFI_LUT)#the dataframe read from a csv that gives the lookup table from EVD to MinTFI_LO, MinTFI_HI and MaxTFI)
+                      TFI_LUT,
+                      makeBBTFIrasters=makeBBTFIrasters )#the dataframe read from a csv that gives the lookup table from EVD to MinTFI_LO, MinTFI_HI and MaxTFI)
 {
-  
-  
   r<-FHanalysis$FH_IDr
   
   FH_ID<-values(r)
@@ -46,7 +45,7 @@ calcBBTFI_2<-function(FHanalysis,
   SEAS<-SEAS[U_AllCombs_TFI$FH_ID,]
   INTS<-INTS[U_AllCombs_TFI$FH_ID,]
   TYPE_HI<-TYPE_HI[U_AllCombs_TFI$FH_ID,]
-  TYPE_HI<-TYPE_HI[U_AllCombs_TFI$FH_ID,]
+  #TYPE_HI<-TYPE_HI[U_AllCombs_TFI$FH_ID,]
   TYPE1<-TYPE[U_AllCombs_TFI$FH_ID,]
   TYPE2<-TYPE2[U_AllCombs_TFI$FH_ID,]
   
@@ -60,26 +59,45 @@ calcBBTFI_2<-function(FHanalysis,
   #and those below the Hi TFI theshold( as determined by the TYPE of the first fire)
   BBTFI_COMB<-BB_LO_TFI_SEASON
   BBTFI_COMB[is.na(BB_LO_TFI_SEASON)]<-BB_HI_TFI_SEASON[is.na(BB_LO_TFI_SEASON)]
+  
   #cumulative number of times bbtfi events in each comination of EFG with fire history and grouping polygons
   cumBBTFI<-t(apply(!is.na(BBTFI_COMB),1,FUN = "cumsum"))
+  totalTimesBBTFI<-rowSums(!is.na(BBTFI_COMB))
+  #totalTimesBBTFI[totalTimesBBTFI==0]<-NA
+  #mininimum date in row determines first time that was burned below TFI
+  FirstBBTFI<-apply(BBTFI_COMB,1,min,na.rm=T )
+  FirstBBTFI[is.infinite(FirstBBTFI)]<-NA
   #need to set cells NA where NA in BBTFI
   cumBBTFI[is.na(BBTFI_COMB)]<-NA
-  print(colnames(cumBBTFI))
   colnames(cumBBTFI)<-gsub("SEAS","TimesBBTFI",colnames(cumBBTFI))
-  BBTFI_WIDE<-cbind(U_AllCombs_TFI,BBTFI_COMB,cumBBTFI)
   
-  BBTFI_LONG<-BBTFI_WIDE%>%
-    pivot_longer(all_of(names(BBTFI_WIDE)[(ncol(U_AllCombs_TFI)+1):ncol(BBTFI_WIDE)]),
+  # have called this combined item BBTFI_WIDEish because is is the same number of rows as the true wide item but cumBBTFI is in sequece for still not spread by year.
+  #BBTFI_WIDEish<-cbind(U_AllCombs_TFI,BBTFI_COMB,cumBBTFI,TYPE2,FirstBBTFI,totalTimesBBTFI)
+  BBTFI_WIDEish<-cbind(U_AllCombs_TFI,SEAS,cumBBTFI,TYPE2,FirstBBTFI,totalTimesBBTFI)
+  BBTFI_LONG<-BBTFI_WIDEish%>%#select(-FirstBBTFI,-totalTimesBBTFI)%>%
+    pivot_longer(all_of(names(BBTFI_WIDEish)[(ncol(U_AllCombs_TFI)+1):(ncol(BBTFI_WIDEish)-2)]),
                  names_to = c(".value", "SEQ"),
                  names_pattern = "([^0-9]+)([0-9]+)",
                  values_drop_na=T)
+                 
+  BBTFI_WIDE<-BBTFI_LONG%>%
+    select(-SEQ,-totalTimesBBTFI,-FirstBBTFI)%>%
+    pivot_wider(names_from = SEAS,values_from=c(TimesBBTFI,FireType),names_sort=T)
   
   BBTFI_LONG_Summary<- BBTFI_LONG%>%
-    group_by(EFG_NAME,FIRE_FMZ_NAME,FIRE_REGION_NAME,DELWP_REGION,SEAS,TimesBBTFI)%>%
+    group_by(PLM,FIRE_REGION_NAME,DELWP_REGION,EFG_NAME,FIRE_FMZ_NAME,SEAS,FireType,TimesBBTFI)%>%
     summarize(Hectares=sum(Hectares))
   
+  if(makeBBTFIrasters){
+        values(r)<-totalTimesBBTFI[Index_AllCombs]
+        writeRaster(r,file.path(ResultsDir,"TotalTimesBBTFI.tif"),overwrite=T,datatype="INT1U")
+        r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
+        values(r)<-FirstBBTFI[Index_AllCombs]
+        writeRaster(r,file.path(ResultsDir,"FirstBBTFI.tif"),overwrite=T,datatype="INT4U")
+        r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
+  }
   
-  return(list("BBTFI_WIDE"=BBTFI_WIDE,"BBTFI_LONG"=BBTFI_LONG_Summary))
+  return(list("BBTFI_WIDE"=BBTFI_WIDE,"BBTFI_LONG"=BBTFI_LONG_Summary,"BBTFI_WIDEish"=BBTFI_WIDEish))
   
   
 }            

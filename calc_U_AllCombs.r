@@ -46,6 +46,7 @@ U_AllCombs_TFI<-TFI_LUT[U_AllCombs]
 #have to reset the index to Index to retrun to the original order which is needed for cbinds below.
 setkey(U_AllCombs_TFI,"Index")
 U_AllCombs_TFI<-Join_Names(U_AllCombs_TFI)
+U_AllCombs_TFI$PLM[U_AllCombs_TFI$PLM==1]<-"Public Land"
 U_AllCombs_TFI$Hectares=U_AllCombs_TFI$nPixel*cellsToHectares()
 return(list("U_AllCombs_TFI"=U_AllCombs_TFI,"Index_AllCombs"=Index_AllCombs))
 }

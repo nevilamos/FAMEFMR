@@ -30,6 +30,7 @@ source("EcoResFunctionsFMRv2.r")
 source("TFI_functionsFMRv2.r")
 source("GS_Calcs.R")
 source("calc_U_AllCombs.r")
+source("calcBBTFI_2.R")
 tic("whole process time")
 #source("ButtonDisableHelpers.r")
 #Set the maximum size of files for upload/ download 
@@ -157,7 +158,8 @@ tic("BBTFI calculations complete")
 myBBTFI<-calcBBTFI_2(FHanalysis,
                      U_AllCombs_TFI=myAllCombs$U_AllCombs_TFI,
                      Index_AllCombs=myAllCombs$Index_AllCombs,
-                     TFI_LUT)
+                     TFI_LUT,
+                     makeBBTFIrasters=makeBBTFIrasters)
 fwrite(myBBTFI$BBTFI_LONG,file.path(ResultsDir,"BBTFI_LONG.csv"),na="",row.names = F)
 fwrite(myBBTFI$BBTFI_WIDE,file.path(ResultsDir,"BBTFI_WIDE.csv"),na="",row.names = F)
 toc()
