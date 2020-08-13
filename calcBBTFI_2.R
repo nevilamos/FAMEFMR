@@ -77,27 +77,53 @@ calcBBTFI_2<-function(FHanalysis,
   BBTFI_LONG<-BBTFI_WIDEish%>%#select(-FirstBBTFI,-totalTimesBBTFI)%>%
     pivot_longer(all_of(names(BBTFI_WIDEish)[(ncol(U_AllCombs_TFI)+1):(ncol(BBTFI_WIDEish)-2)]),
                  names_to = c(".value", "SEQ"),
-                 names_pattern = "([^0-9]+)([0-9]+)",
-                 values_drop_na=T)
-                 
+                 names_pattern = "([^0-9]+)([0-9]+)")
+  
   BBTFI_WIDE<-BBTFI_LONG%>%
     select(-SEQ,-totalTimesBBTFI,-FirstBBTFI)%>%
-    pivot_wider(names_from = SEAS,values_from=c(TimesBBTFI,FireType),names_sort=T)
+    pivot_wider(names_from = SEAS,
+                values_from=c(TimesBBTFI,FireType),
+                values_fn= sum,
+                names_sort=T)
+  #needed to deal with pivot_wider above returning list of list for non unique cases
+  for (i in grep("Hectares",names(BBTFI_WIDE)):ncol(BBTFI_WIDE)){
+    BBTFI_WIDE[,i]<-unlistPivot_wider(BBTFI_WIDE[,i])
+  }
+  
+  
   
   BBTFI_LONG_Summary<- BBTFI_LONG%>%
     group_by(PLM,FIRE_REGION_NAME,DELWP_REGION,EFG_NAME,FIRE_FMZ_NAME,SEAS,FireType,TimesBBTFI)%>%
     summarize(Hectares=sum(Hectares))
   
   if(makeBBTFIrasters){
-        values(r)<-totalTimesBBTFI[Index_AllCombs]
-        writeRaster(r,file.path(ResultsDir,"TotalTimesBBTFI.tif"),overwrite=T,datatype="INT1U")
-        r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
-        values(r)<-FirstBBTFI[Index_AllCombs]
-        writeRaster(r,file.path(ResultsDir,"FirstBBTFI.tif"),overwrite=T,datatype="INT4U")
-        r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
+    values(r)<-totalTimesBBTFI[Index_AllCombs]
+    writeRaster(r,file.path(ResultsDir,"BBTFI_Rasters","TotalTimesBBTFI.tif"),overwrite=T,datatype="INT1U",options="COMPRESS=LZW")
+    r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
+    print("Completed TotalTimesBBTFI.tif")
+    values(r)<-FirstBBTFI[Index_AllCombs]
+    writeRaster(r,file.path(ResultsDir,"BBTFI_Rasters","FirstBBTFI.tif"),overwrite=T,datatype="INT2S",options="COMPRESS=LZW")
+    r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
+    print("Completed FirstBBTFI.tif")
+    for(i in grep("^TimesBBTFI_",names(BBTFI_WIDE))){
+      myName<-paste0(names(BBTFI_WIDE)[i],".tif")
+      values(r)<-BBTFI_WIDE[[i]][Index_AllCombs]
+      writeRaster(r,file.path(ResultsDir,"BBTFI_Rasters",myName),overwrite=T,datatype="INT2S",options="COMPRESS=LZW")
+      print(paste("Completed",myName))
+      r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
+    }
   }
   
   return(list("BBTFI_WIDE"=BBTFI_WIDE,"BBTFI_LONG"=BBTFI_LONG_Summary,"BBTFI_WIDEish"=BBTFI_WIDEish))
   
   
-}            
+} 
+
+#supporting function to deal with pivot_wider returnin list of lists
+unlistPivot_wider<-function(X){
+  X[unlist(lapply(X , is.null))] <- NA
+  Y<-unlist(X)
+  return (Y)
+}
+
+

@@ -3,7 +3,7 @@
 
 rm(list=ls(all=TRUE))
 gc()
-tic("start all processes")
+
 # Load libraries and custom functions -------------------------------------
 
 
@@ -48,7 +48,7 @@ source("./settings.r")
 
 WD<-getwd()
 #cleans up old resultsdirs which are empty
-removeEmptyDirs(rootDir = "./")
+#removeEmptyDirs(rootDir = "./")
 
 
 
@@ -57,7 +57,7 @@ rm(d)
 dir.create(file.path(ResultsDir,"RA_Rasters"))
 dir.create(file.path(ResultsDir,"TFI_Rasters"))
 dir.create(file.path(ResultsDir,"GS_Rasters"))
-
+dir.create(file.path(ResultsDir,"BBTFI_Rasters"))
 # Lookup table for choice of Fire region/ state or adhoc polygon for analysis----------
 
 REG_LUT<-tibble(FIRE_REG = c(99, 1, 2, 3, 4, 5, 6, 7),
@@ -130,7 +130,7 @@ FHanalysis$name<-paste0("FH_Analysis_",outputFH)
 st_write(FHanalysis$OutDF,file.path(ResultsDir,paste0(FHanalysis$name,".shp")))
 
 
-cropRasters<-makeCropDetails(REG_NO = REGION_NO,RasterRes = RasterRes,PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,myPoly =clipPoly,generalRasterDir = "./InputGeneralRasters")
+  cropRasters<-makeCropDetails(REG_NO = REGION_NO,RasterRes = RasterRes,PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,myPoly =clipPoly,generalRasterDir = "./InputGeneralRasters")
 FHanalysis$FH_IDr<-fasterize(sf=FHanalysis$OutDF,raster =  cropRasters$Raster,field = "ID",fun="first")
 save(FHanalysis,cropRasters,file=file.path(ResultsDir,paste0(FHanalysis$name,RasterRes,".rdata")))
 

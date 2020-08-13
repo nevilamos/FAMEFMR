@@ -5,11 +5,11 @@
 
 
 #the integer value of the region number 1-6 for FFR regions,7 for user suppied adHoc polygon 99 for Statewide
-REGION_NO 			= 7 
+REGION_NO 			= 99 
 #path to the ad Hoc polygon if REGION_NO 			== 7
-adHocPolygon 		= "./rawFH/BBTFI_checkArea.shp"
+#adHocPolygon 		= "./rawFH/BBTFI_checkArea.shp"
 #path to your rawFH file ( output of the ARCGIS preprocessing tool)
-  rawFH 				= "./rawFH/BBTFI_check_clip_rawFH.shp"
+  rawFH 				= "./rawFH/FFRAU_FH2020_FAME_vg94Draft_JFMP_for_Eco_Assessment_Burnabclip2022_SEAS_0_Removed.shp"
 #path to custom species list if used
 customSpList 		= NULL
 #path to custom response list if used
@@ -21,13 +21,16 @@ myEFG_TSF_4GS= read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.
 #path to HDMVals225 file
 HDMVals225 			=	"./HDMS/HDMVals225.rdata"
 #whether to output species rasters
-writeSpRasters		= "Yes" # "No"
+writeSpRasters		= "No" # "No"
 #whether to output species rasters
-writeGSRasters		= "Yes" # "No"
+writeGSRasters		= "No" # "No"
 #if writeSpRasters		= "Yes" vector of years for which rasters are to be written
 yearsForRasters = NULL
 #whether to write TFI rasters
-makeTFIRasters = "Yes"
+makeTFIRasters = "N0"#Yes"
+
+#whether to output bbtfi rasters
+makeBBTFIrasters=TRUE#FALSE
 #"first season for which output is wanted ( four digit year as integer)
 #if NUll then second season in in history  is used cannot use first season because it has no interval, this may still fail if there is no overlap,
 start.SEASON		= 1980 

@@ -61,7 +61,7 @@ rm(d)
 dir.create(file.path(ResultsDir,"RA_Rasters"))
 dir.create(file.path(ResultsDir,"TFI_Rasters"))
 dir.create(file.path(ResultsDir,"GS_Rasters"))
-
+dir.create(file.path(ResultsDir,"BBTFI_Rasters"))
 # Lookup table for choice of Fire region/ state or adhoc polygon for analysis----------
 
 REG_LUT<-tibble(FIRE_REG = c(99, 1, 2, 3, 4, 5, 6, 7),
@@ -121,4 +121,6 @@ inputR<-inputRasters(x=RasterRes)
 outputFH<-file_path_sans_ext(basename(rawFH))
 
 load(file.path(ResultsDir,paste0("FH_Analysis_",outputFH,RasterRes,".rdata")))
-
+tic("make all combs object")
+myAllCombs<-calcU_All_Combs(FHAnalysis,cropRasters)
+toc()
