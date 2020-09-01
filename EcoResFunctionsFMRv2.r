@@ -146,24 +146,39 @@ makeCropDetails<-function(REG_NO=7,#REG_NO of defined region from input (1:6) or
 ###wLog###############################################################################
 
 # function to write Variable name and variable values to logFile ( specified in script ) to keep record of options chosen during the process.
-wLog<-function(x,y=myLogFile){
-  write(paste(deparse(substitute(x)), "=" ,x),y,append =T)
+#wLog<-function(x,y=myLogFile){
+#  write(paste(deparse(substitute(x)), "=" ,x),y,append =T)
+#}
+
+
+###notAllIN#######
+#function to check whether all values in vector are in in another vector of permitted values, retuns fals
+notAllIn<-function(x,v=V){
+  anyNA(unlist(lapply(x,match,v)))
 }
 ###FHProcess###############################################################################################################################
 
-#function calculates all inter-fire intervals time since fire for a sequence of years and output as rasters
+#function converts rawFH dataset into flattend for ( single non overlapping polygon attributed with unique fire sequences) calculates all inter-fire intervals time since fire for a sequence of years and output as rasters
 FHProcess<-function(flattenedFH ="path of the FlattenedFH file to use - a shapefile",
                     start.SEASON=NULL, #"first season for which output is wanted ( four digit year as integer)" if NUll then second season in in history  is used cannot use first season because it has no interval, this may still fail if there is no overlap,
                     end.SEASON=NULL, #"last season required if NULL then largest value in fire history scenario used"
                     OtherAndUnknown =  2# (2,1,NA)value to use for cases where fire type is "OTHER" or "UNKNOWN",1 ="BURN",2="BUSHFIRE",NA = Fire excluded from analysis default is 2 ("BUSHFIRE")
                     
 ){
-  myDF<-st_read(flattenedFH)[,c( "SEASON", "FIRETYPE")]
-  names(myDF)[1]<- "SEASON"
-  
-  min.SEASON<-sort(unique(myDF$SEASON))[2]# second season in fire history
-  
+  myDF<-st_read(flattenedFH)
+  # check that the input shapefile (flattenedFH) contains the two required fields and that these do not have a missing values
+  myDFNames<-names(myDF)
+  if((!"SEASON"%in% myDFNames)) stop ("raw FH does not contain field 'SEASON'")
+  if(anyNA(myDF$SEASON)) stop ("rawFH has missing values in  field 'SEASON'")
+  if((!"FIRETYPE"%in% myDFNames)) stop ("raw FH does not contain field 'SEASON'")
+  if(notAllIn(x=myDF$FIRETYPE,v=validFIRETYPE)) stop ("rawFH has missing  or invalid values in  field 'FIRETYPE'")
+
   #timespan ( range of consecutive years) for which Fire History sequences are calculated
+  #start and end season  for calcuation is determined by the min+1 and max values in the dataset,
+  #or if not null from start and end seasons defined in the settings file.
+  # the earliest start season is the date of a second season in the input data, next 3 lines prevent manual start
+  #season setting  less than this value, which would cause an error.
+  min.SEASON<-sort(unique(myDF$SEASON))[2]# second season in fire history
   if((is.null(start.SEASON))|(start.SEASON<min.SEASON)){
     start.SEASON=min.SEASON
   } 
@@ -176,19 +191,26 @@ FHProcess<-function(flattenedFH ="path of the FlattenedFH file to use - a shapef
   
   TimeSpan<-start.SEASON:max.SEASON
   
-  
+  #recodes FIRETYPE  to integer values value for Other and Unkonwn is set in settings file
   myDF$FIRETYPE_NO[myDF$FIRETYPE=="BURN"]<-1
   myDF$FIRETYPE_NO[myDF$FIRETYPE=="BUSHFIRE"]<-2
   myDF$FIRETYPE_NO[myDF$FIRETYPE=="OTHER"]<-OtherAndUnknown
   myDF$FIRETYPE_NO[myDF$FIRETYPE=="UNKNOWN"]<-OtherAndUnknown
   
+  #adds a field containing a string representation of the x and y values of the
+  #centroid of each polygon in myDF to use as a unique identifier for unique
+  #polygons in the FH analysis ( ie two sptailly identical polygons with
+  #different SEASON of Firetype values will share an uniqe xycoords string) this
+  #is used to get the wide format sequence for each spatially unique polygon )
   myDF<-add_xystring(myDF)
   
   myDF<-unique(myDF[,c("geometry",
                        "XYString",
                        "SEASON",
                        "FIRETYPE_NO")])
-  
+#orders the spatially unique polygons by SEASON then firetype and adds a
+#sequential number to them , this is what allows the flattening  and subsequent
+#reduction to the unique sequences of fires with no gaps using dplyr::spread ulitimately this should be updated to dplyr::pivot_wider reflecting changes in dpryr v1.0
   myDF<-myDF[with(myDF,order(XYString, SEASON, FIRETYPE_NO)),] 
   
   myDF$Sequence<-1 
@@ -214,17 +236,17 @@ FHProcess<-function(flattenedFH ="path of the FlattenedFH file to use - a shapef
   YearDF<-YearDF[,-1]
   YearDFNoGeom<-YearDF
   st_geometry(YearDFNoGeom)<-NULL
-  M<-as.matrix(YearDFNoGeom)
   
   
-  
+#Calculates all inter-fire intervals note by offsetting matrices by one column
   print ("calculating inter-fire intervals")
+  M<-as.matrix(YearDFNoGeom)
   Cols<-ncol(M)
   M[M==0]<-NA
   Interval<-M[,2:Cols]-M[,1:Cols-1]
   IntNames<-paste("INT",sprintf("%02d",1:(Cols-1)),sep="")
   colnames(Interval)<-IntNames
-  
+# binds these intervals back to the spatial dataframe with the fire date sequences in.  
   OutDF<-cbind(YearDF,Interval)
   
   
