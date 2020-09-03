@@ -158,30 +158,37 @@ notAllIn<-function(x,v=V){
 }
 ###FHProcess###############################################################################################################################
 
-#function converts rawFH dataset into flattend for ( single non overlapping polygon attributed with unique fire sequences) calculates all inter-fire intervals time since fire for a sequence of years and output as rasters
-FHProcess<-function(flattenedFH ="path of the FlattenedFH file to use - a shapefile",
+#function converts rawFH dataset into flattend format ( single non overlapping polygon attributed with unique fire sequences) calculates all inter-fire intervals time since fire for a sequence of years and output as rasters
+FHProcess<-function(rawFH ="path of the rawFH file to use - a shapefile",
                     start.SEASON=NULL, #"first season for which output is wanted ( four digit year as integer)" if NUll then second season in in history  is used cannot use first season because it has no interval, this may still fail if there is no overlap,
                     end.SEASON=NULL, #"last season required if NULL then largest value in fire history scenario used"
                     OtherAndUnknown =  2# (2,1,NA)value to use for cases where fire type is "OTHER" or "UNKNOWN",1 ="BURN",2="BUSHFIRE",NA = Fire excluded from analysis default is 2 ("BUSHFIRE")
                     
 ){
-  myDF<-st_read(flattenedFH)
-  # check that the input shapefile (flattenedFH) contains the two required fields and that these do not have a missing values
+  myDF<-st_read(rawFH)
+  # check that the input shapefile (rawFH) contains the two required fields and that these do not have a missing values
   myDFNames<-names(myDF)
   if((!"SEASON"%in% myDFNames)) stop ("raw FH does not contain field 'SEASON'")
   if(anyNA(myDF$SEASON)) stop ("rawFH has missing values in  field 'SEASON'")
   if((!"FIRETYPE"%in% myDFNames)) stop ("raw FH does not contain field 'SEASON'")
   if(notAllIn(x=myDF$FIRETYPE,v=validFIRETYPE)) stop ("rawFH has missing  or invalid values in  field 'FIRETYPE'")
-
+  
   #timespan ( range of consecutive years) for which Fire History sequences are calculated
   #start and end season  for calcuation is determined by the min+1 and max values in the dataset,
   #or if not null from start and end seasons defined in the settings file.
   # the earliest start season is the date of a second season in the input data, next 3 lines prevent manual start
   #season setting  less than this value, which would cause an error.
   min.SEASON<-sort(unique(myDF$SEASON))[2]# second season in fire history
-  if((is.null(start.SEASON))|(start.SEASON<min.SEASON)){
+  if(is.null(start.SEASON)){
     start.SEASON=min.SEASON
-  } 
+  } else {
+    if(start.SEASON<min.SEASON){
+      start.SEASON=min.SEASON
+    }else{
+      start.SEASON=start.SEASON
+    }
+    
+  }
   
   if(is.null(end.SEASON)){
     max.SEASON<-max(myDF$SEASON)
@@ -208,79 +215,58 @@ FHProcess<-function(flattenedFH ="path of the FlattenedFH file to use - a shapef
                        "XYString",
                        "SEASON",
                        "FIRETYPE_NO")])
-#orders the spatially unique polygons by SEASON then firetype and adds a
-#sequential number to them , this is what allows the flattening  and subsequent
-#reduction to the unique sequences of fires with no gaps using dplyr::spread ulitimately this should be updated to dplyr::pivot_wider reflecting changes in dpryr v1.0
+  #orders the spatially unique polygons by SEASON then firetype and adds a
+  #sequential number to them , this is what allows the flattening  and subsequent
+  #reduction to fire sequences witout interveneing no fire year
+ 
   myDF<-myDF[with(myDF,order(XYString, SEASON, FIRETYPE_NO)),] 
   
   myDF$Sequence<-1 
   myDF$Sequence<-unlist(lapply(split(myDF$Sequence, myDF$XYString), cumsum)) 
   
-  
-  print("Making wide format firetype")
-  TypeDF<-spread(myDF[,c("XYString","Sequence","FIRETYPE_NO")],Sequence,FIRETYPE_NO)
-  ReLabelColNo<-2:(ncol(TypeDF)-1)
-  names(TypeDF)[ReLabelColNo]<-paste("FireType",sprintf("%02d",as.numeric(names(TypeDF)[ReLabelColNo])),sep="")
-  TypeDF[is.na(TypeDF)]<-0
-  TypeDF<-TypeDF[,-1]
-  TypeDFNoGeom<-TypeDF
-  st_geometry(TypeDFNoGeom)<-NULL
-  FT<-as.matrix(TypeDFNoGeom)
-  
-  
-  print("Making wide format season")
-  YearDF<-spread(myDF[,c("XYString","Sequence",'SEASON')],Sequence,SEASON)
-  SEASNames<-paste("SEAS",sprintf("%02d",as.numeric(names(YearDF)[ReLabelColNo])),sep="")
-  names(YearDF)[ReLabelColNo]<-SEASNames
-  YearDF[is.na(YearDF)]<-0
-  YearDF<-YearDF[,-1]
-  YearDFNoGeom<-YearDF
-  st_geometry(YearDFNoGeom)<-NULL
-  
-  
-#Calculates all inter-fire intervals note by offsetting matrices by one column
-  print ("calculating inter-fire intervals")
-  M<-as.matrix(YearDFNoGeom)
-  Cols<-ncol(M)
-  M[M==0]<-NA
-  Interval<-M[,2:Cols]-M[,1:Cols-1]
+  #reduction to the unique sequences of fires with no gaps using dplyr::pivot_wider 
+  # in order to acheive this efficently the sf object made from the rawFH file is converted to a standard data frame iwtha geometry column then coverted back to an sf object at the end of the process
+  tic("Making OutDF")
+  OutDF<-myDF%>%
+    select(XYString,Sequence,FireType=FIRETYPE_NO,SEAS=SEASON)%>%
+    mutate(Sequence=sprintf("%02d",Sequence))%>%
+    as.data.frame%>%
+    pivot_wider(names_from = Sequence,values_from=c(FireType,SEAS),names_sep="")
+  # get just the names for the season  and FireType sequence columns
+  SEASNames<-names(OutDF)[grep(pattern = "SEAS",names(OutDF))]
+  FTNames<-names(OutDF)[grep(pattern = "FireType",names(OutDF))]
+  #Calculates all inter-fire intervals note by offsetting matrices by one column
+  SEAS_Matrix<-as.matrix(OutDF[,SEASNames])
+  FT_matrix<-as.matrix(OutDF[,FTNames])
+  Cols<-ncol(SEAS_Matrix)
+  SEAS_Matrix[SEAS_Matrix==0]<-NA
+  Interval<-SEAS_Matrix[,2:Cols]-SEAS_Matrix[,1:Cols-1]
   IntNames<-paste("INT",sprintf("%02d",1:(Cols-1)),sep="")
   colnames(Interval)<-IntNames
-# binds these intervals back to the spatial dataframe with the fire date sequences in.  
-  OutDF<-cbind(YearDF,Interval)
   
+  #Binds the intevals calcuated back to the main dataframe
+  OutDF<-cbind(OutDF,Interval)%>%
+    select(-XYString)
   
-  print("spatial join of wide format polygon datasets")
-  OutDF<-st_join(OutDF,TypeDF,join=st_equals)
-  #OutDF<-st_parallel(c(OutDF,TypeDF),st_join,join=st_equals,n_cores=4)
-  OutTab<-OutDF
-  st_geometry(OutTab)<-NULL
-  
-  
-  Year<-as.matrix(OutTab[,SEASNames])
-  
-  
-  print("making multicore cluster for parallel processing of TSF")
-  #Ncores<-8#detectCores()-2
-  cl<-makeCluster(Ncores)
-  registerDoParallel(cl, cores=Ncores)
-  
-  print("made cluster, now calcuating time since fire for each input year")
-  
-  LBY<-foreach(y=iter(TimeSpan),.combine = cbind,.packages ="Rfast" )%dopar%
+  OutDF<-st_as_sf(OutDF)
+  toc()
+ 
+  #calcuating the last burnt season for each sequences for each year 
+  #this process is duplicated here and in CALC_TFI2 function - ideally it should only be run once but it is pretty fast so probably does not matter tooo much.
+  #
+  LTR<-length(TimeSpan)
+  SEAS_Matrix[is.na(SEAS_Matrix)]<-0
+  LBY<-matrix(NA,nrow(SEAS_Matrix),LTR)
+  for(i in 1:LTR){
     try({
-      X<-Year
-      #X[X>=y]<-NA changed this line to deal with year shift issue.
-      X[X>y]<-NA
-      X[X==0]<-NA
-      LBY<-rowMaxs(X,value=T)
-      #LBY<-apply(X,1,max,na.rm=TRUE)
-      LBY[is.infinite(LBY)]<-NA
-      LBY
-      
+      y=TimeSpan[i]
+      LBY[,i]<-LBY_f(M=SEAS_Matrix,y)
+      #print(y)
       
     })
-  stopCluster(cl)
+  }
+  
+
   tYSF<-TimeSpan-t(LBY)
   YSF<-t(tYSF)
   YSFNames<-paste0("YSF",TimeSpan)
@@ -290,18 +276,23 @@ FHProcess<-function(flattenedFH ="path of the FlattenedFH file to use - a shapef
   colnames(LBY)<-LBYNames
   
   
-  print("calculating lookup matrix for getting last firetype by year")
-  LUM<-matrix(NA,nrow(M),max.SEASON)
-  for (i in 1:nrow(M)){
+  tic("calculating lookup matrix for getting last firetype by year")
+  SEAS_Matrix[SEAS_Matrix==0]<-NA
+  LUM<-matrix(NA,nrow(SEAS_Matrix),max.SEASON)
+  for (i in 1:nrow(SEAS_Matrix)){
     R<-i
-    C<-as.numeric(na.omit(M[i,]))
-    V<-(FT[i,(1:length(C))])
+    C<-as.numeric(na.omit(SEAS_Matrix[i,]))
+    V<-(FT_matrix[i,(1:length(C))])
     LUM[R,C]<-V
   }
-  LFT<-matrix(NA,nrow(M),length(TimeSpan))
-  for(i in 1:nrow(M)){
+  toc()
+  
+  tic("calculating last fire type")
+  LFT<-matrix(NA,nrow(SEAS_Matrix),LTR)
+  for(i in 1:nrow(SEAS_Matrix)){
     LFT[i,]<-LUM[i,LBY[i,]]}
   colnames(LFT)<-LFTNames
+  toc()
   
   OutDF<-cbind(OutDF,YSF)
   OutDF<-cbind(OutDF,LBY)
@@ -310,27 +301,16 @@ FHProcess<-function(flattenedFH ="path of the FlattenedFH file to use - a shapef
   print("completed making FH object")
   
   
-  # FH_outpath<-outputFH
-  # st_write(OutDF,outputFH)
-  # print("written FH to disk")
-  # 
-  # 
-  # 
-  # 
-  # # Using system command and gdal_rasterize since it is quicker than the R raster:rasterize 
-  # 
-  # outRaster <-FH_ID.tif
-  # 
-  # GDALRasterize(inVector=outputFH,outRaster=outRaster,ID<-"ID",TemplateRaster=CropDetails$Raster,datatype="INT4S")
   
   
   
-  
-  rm(ReLabelColNo,LUM,TypeDF,YearDF,TypeDFNoGeom,YearDFNoGeom)
   gc()
   results<-list(OutDF=OutDF,TimeSpan=TimeSpan,  YSFNames=YSFNames,LBYNames=LBYNames, LFTNames=LFTNames)
   return(results)
 }
+
+
+
 
 ###makeYSF_LFT_YEAR_RASTERS#########################################################################################
 #function to export rasters of TSF and YSF for all years # optional rest of script does not depend on these being made.
