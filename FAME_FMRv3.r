@@ -119,7 +119,7 @@ outputFH<-file_path_sans_ext(basename(rawFH))
 
 # FH_processing starts here ------------------------------------------------
 
-FHanalysis<-FHProcess(flattenedFH = rawFH,start.SEASON = start.SEASON,end.SEASON = NULL,OtherAndUnknown = OtherAndUnknown)
+FHanalysis<-FHProcess(rawFH = rawFH,start.SEASON = start.SEASON,end.SEASON = NULL,OtherAndUnknown = OtherAndUnknown)
 FHanalysis$FireScenario= rawFH
 FHanalysis$RasterRes = RasterRes
 FHanalysis$ClipPolygonFile = clipPoly
