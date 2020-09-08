@@ -47,7 +47,7 @@ calc_TFI_2<-function(FHanalysis,
   
   
   SEAS<-as.matrix(OutTab[,SEASFields])#The Season
-  SEAS[SEAS==0]<-NA
+  SEAS[is.na(SEAS)]<-0
   TYPE<-as.matrix(OutTab[,TYPEFields[]])#The type of the fire 
   
   TYPE_HI<-TYPE==2
