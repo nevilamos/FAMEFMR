@@ -73,7 +73,7 @@ calc_TFI_2<-function(FHanalysis,
       
       LBY_HI[,i]<-LBY_f(M=SEAS_HI,y)
       LBY_LO[,i]<-LBY_f(M=SEAS,y)##############This Should Maybe be SEAS_LO
-      print(y)
+      cat("\r",paste( "calculating LBY for", y))
       
     })
   }
@@ -124,17 +124,19 @@ calc_TFI_2<-function(FHanalysis,
   
 
   if (OutputRasters == "Yes"){
-    # #expand the TFI status values to raster vector for raster values save as filematrix - for future reference or reading into raster. --------------
-    # TFI_VAL_RASTER_VALS<-fm.create(file.path(ResultsDir,"TFI_VAL_RASTER_VALS"),nrow=length(Index_AllCombs),ncol=LTR)
-    # colnames(TFI_VAL_RASTER_VALS)<-TimeNames
-    # for(i in 1:LTR){
-    #   j=TimeNames[i]
-    #   TFI_VAL_RASTER_VALS[,i]<-TFI_VAL[Index_AllCombs,j]
-    #   print(j)
-    # }
-    # #if filematrix of raster values already made in order to open again----------------
-    #TFI_VAL_RASTER_VALS<-fm.open(file.path(ResultsDir,"TFI_VAL_RASTER_VALS"))
+    #Ratify allcombinations raster index allows creation and export of Tif with raster attribute table 
+    # that can be read by ARCGIS method from : https://gis.stackexchange.com/questions/257204/saving-geotiff-from-r
+
+    values(r)<-Index_AllCombs
+    rasterDatatype<-ifelse(max(Index_AllCombs)<=65534,'INT2S','INT4S')
+    r<-ratify(r)
+    colnames(TFI_VAL)<-paste0("TFI_",colnames(TFI_VAL))
+    levels(r)[[1]]<-cbind(levels(r)[[1]],as.data.frame(TFI_VAL))
+    levels(r)[[1]]%>%rename(VALUE =ID)%>%mutate(VALUE = as.integer(VALUE))%>% 
+      foreign::write.dbf(., 'TFI_BY_YEAR.tif.vat.dbf', 
+                         factor2char = TRUE, max_nchar = 254)
     
+    writeRaster(r,file.path(ResultsDir,"TFI_Rasters",'TFI_BY_YEAR.tif'), datatype = rasterDatatype,overwrite=T,options=c("COMPRESS=LZW", "TFW=YES"))
     # write the TFI Status tiffs for each year.-------------- 
     #should look at finding way to assign to stack or even to envi or similar directly - maybe talk to Pete Griff and Lachlan about this.
     
@@ -143,14 +145,14 @@ calc_TFI_2<-function(FHanalysis,
     #registerDoParallel(cl, cores=Ncores)
     #foreach(i=iter(1:LTR),.packages =c("raster","filematrix") )%dopar%{
     
-    for (i in 1:LTR){
-      j=TimeNames[i]
-      outR<-r
-      values(outR)<-TFI_VAL[Index_AllCombs,j]
-      writeRaster(outR,file.path(ResultsDir,"TFI_Rasters",paste0("TFI_VAL",j,".tif")),overwrite=T,datatype="INT1U")
-      rm(outR)
-      print(paste("Output TFI Raster", j))
-      gc()
+    # for (i in 1:LTR){
+    #   j=TimeNames[i]
+    #   outR<-r
+    #   values(outR)<-TFI_VAL[Index_AllCombs,j]
+    #   writeRaster(outR,file.path(ResultsDir,"TFI_Rasters",paste0("TFI_VAL",j,".tif")),overwrite=T,datatype="INT1U")
+    #   rm(outR)
+    #   cat("\r",paste("Output TFI Raster", j))
+    #   gc()
     }
     #stopImplicitCluster()
     
