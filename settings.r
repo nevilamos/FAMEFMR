@@ -5,11 +5,11 @@
 
 
 #the integer value of the region number 1-6 for FFR regions,7 for user suppied adHoc polygon 99 for Statewide
-REGION_NO 			= 99 
+REGION_NO 			= 7 
 #path to the ad Hoc polygon if REGION_NO 			== 7
-#adHocPolygon 		= "./rawFH/BBTFI_checkArea.shp"
+adHocPolygon 		= "./rawFH/MG.shp"
 #path to your rawFH file ( output of the ARCGIS preprocessing tool)
-  rawFH 				= "./rawFH/FFRAU_FH2020_FAME_vg94Draft_JFMP_for_Eco_Assessment_Burnabclip2022_SEAS_0_Removed.shp"
+  rawFH 				= "./rawFH/rawFH_FFRAU_FH_FAME_New_vg94_JFMP_2021_22_23_FAME_5mTolerance.shp"
 #path to custom species list if used
 customSpList 		= NULL
 #path to custom response list if used
@@ -19,18 +19,18 @@ RasterRes			= 225
 #sets the csv table containing 4GS info by years since fire
 myEFG_TSF_4GS= read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[,c('EFG_NO','GS4_NO',"YSF")]
 #path to HDMVals225 file
-HDMVals225 			=	"./HDMS/HDMVals225.rdata"
+#HDMVals225 			=	"./HDMS/HDMVals225.rdata"
 #whether to output species rasters
-writeSpRasters		= "No" # "No"
+writeSpRasters		= "Yes" # "No"
 #whether to output species rasters
-writeGSRasters		= "No" # "No"
+writeGSRasters		= "Yes" # "No"
 #if writeSpRasters		= "Yes" vector of years for which rasters are to be written
 yearsForRasters = NULL
 #whether to write TFI rasters
-makeTFIRasters = "N0"#Yes"
+makeTFIRasters = "Yes"#Yes"
 
 #whether to output bbtfi rasters
-makeBBTFIrasters=TRUE#FALSE
+makeBBTFIrasters=TRUE#FALSE#
 #"first season for which output is wanted ( four digit year as integer)
 #if NUll then second season in in history  is used cannot use first season because it has no interval, this may still fail if there is no overlap,
 start.SEASON		= 1980 
@@ -50,3 +50,6 @@ print(paste("Using",Ncores,"cores"))
 file.copy("settings.r",file.path(ResultsDir,"settings.r"))
 #change beleow to TRUE for abrreviated test ( on first two years only)
 Test=F
+
+#Valid values for rawFH FIRETYPE
+validFIRETYPE=c("BURN","BUSHFIRE","UNKNOWN","OTHER")

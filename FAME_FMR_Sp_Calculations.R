@@ -26,7 +26,7 @@ if(FHanalysis$RasterRes==225){
                                    myCropDetails = cropRasters)
 }
 
-# choice of default  or cutom species abundance values input files
+# choice of default  or custom species abundance values input files
 if(is.null(customResponseFile)){
   mySpGSResponses="./ReferenceTables/OrdinalExpertLong.csv" #default valeus ( from FFO database)
 }else{
@@ -42,9 +42,10 @@ AbundDataByGS<-AbundDataByGS[!is.na(AbundDataByGS$Abund),c("EFG_NO", "GS4_NO",  
 EFG_TSF_4GS <- read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[,c('EFG_NO','GS4_NO',"YSF")]
 AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS,   by=c('EFG_NO','GS4_NO'))
 
-###if species response by time since fire file is provided uncomment following
-#row This file must go u to 401 years since fire for all species in that case
+###if species response by time since fire file is provided uncomment following line and comment out section above back to last comment.
+#This file must go u to 401 years since fire for all species and follow the formatting of AbundDatLong object exactly.
 #the file will need to be defined in settings.
+
 #AbundDataLong<-read.csv(customAbundanceByTSF_EFG_FT_file)
 
 AbundDataLong<-AbundDataLong[order(AbundDataLong$VBA_CODE),]
@@ -53,26 +54,23 @@ LU_List<-makeLU_List(myHDMSpp_NO = HDMSpp_NO,
                       myAbundDataLong = AbundDataLong)
 
 
-SpYearSumm<-makeSppYearSum2(TimeSpan = FHanalysis$TimeSpan,
-                           myHDMSpp_NO = HDMSpp_NO,
-                           writeSpRasters = "No",
-                           myLU_List = LU_List,
-                           YSF_TSF_Dir = YSF_TSF_Dir,
-                           ResultsDir = ResultsDir,
-                           EFG = cropRasters$EFG,
-                           myCropDetails = cropRasters,
-                           HDMVals = HDMVals,
-                           myFHResults = FHanalysis,
-                           myYSF_LFT = tsf_ysf_mat,
-                           TaxonList = TaxonList,
-                           writeYears = yearsForRasters)
-write.csv(SpYearSumm,file.path(ResultsDir,"SpYearSumm.csv"),row.names=F)
-myBaseline<-ifelse(endBaseline>startBaseline,startBaseline:endBaseline,input$startBaseline)
+SpYearSummWide<-makeSppYearSum2(FHanalysis,
+                                      myHDMSpp_NO = HDMSpp_NO,
+                                      writeSpRasters = writeSpRasters,
+                                      myLU_List = LU_List,
+                                      ResultsDir = ResultsDir,
+                                      HDMVals = HDMVals,
+                                      TaxonList = TaxonList,
+                                      writeYears=NULL,
+                                      writeSp =NULL
+)
+myBaseline<-ifelse(endBaseline>startBaseline,startBaseline:endBaseline,startBaseline)
 
-myDeltaAbund<-calcDeltaAbund(SpYearSumm,
-               TimeSpan=FHanalysis$TimeSpan,
-               myBaseline,
-               ResultsDir,
-               HDMSpp_NO,
-               TaxonList)
+myDeltaAbund<-calcDeltaAbund(SpYearSummSpreadbyYear =SpYearSummWide,
+                          TimeSpan =FHanalysis$TimeSpan,
+                          myBaseline,
+                          ResultsDir,
+                          HDMSpp_NO,
+                          TaxonList)
+
 

@@ -332,9 +332,9 @@ makeSppYearSum2<-function(FHanalysis,
                           myLU_List = LU_List,
                           ResultsDir = ResultsDir,
                           HDMVals = HDMVals,
-                          TaxonList = myTaxonList,
+                          TaxonList = TaxonList,
                           writeYears=NULL,
-                          writeSp =NULL,
+                          writeSp =NULL
 ) {
   
   TimeRange<-as.integer(FHanalysis$TimeSpan)
@@ -352,6 +352,7 @@ makeSppYearSum2<-function(FHanalysis,
   SpYearSumm<-matrix(NA,nrow=(length(myHDMSpp_NO)),ncol=LTR,dimnames=list(as.character(myHDMSpp_NO),TimeNames))
   #loop through calcualtion of per cell speices abundance values and if flagged output of rasters of these values.
   for (sp in myHDMSpp_NO) {
+    print(sp)
     mySpp<-as.character(sp)
     #get the lookup array of abundance values from the list of species value lookup 
     LU = myLU_List[[mySpp]]
@@ -392,14 +393,17 @@ makeSppYearSum2<-function(FHanalysis,
     
   }
   #join species details from TaxonList  to the output tables
-  SpYearSummWide<-right_join(TaxonList%>%
-                               mutate(TAXON_ID=as.character(TAXON_ID))%>%
-                               #select(-HDMPath, -ShortName,-Include,-SigThreshold.x,-SigThreshold.y ),
-                               rownames_to_column(SpYearSumm),
-                             by=c("TAXON_ID"= "rowname"))
-  return(SpYearSummWide)
+  SpYearSumm<-rownames_to_column(as.data.frame(SpYearSumm))
+  names(SpYearSumm)[1]<-"TAXON_ID"
+  TL<-TaxonList%>%
+    mutate(TAXON_ID=as.character(TAXON_ID))
+  SpYearSummWide<-right_join(TL,SpYearSumm)
+  write.csv(SpYearSummWide,file.path(ResultsDir,"SpYearSummWide.csv"))
+  SpYearSummLong<-right_join(TL,SpYearSumm%>%pivot_longer(-TAXON_ID,names_to="SEASON",values_to="SUM_RAx100"))
+  write.csv(SpYearSummLong,file.path(ResultsDir,"SpYearSummLong.csv"))
   
-}
+  return(SpYearSummWide)
+  }
 
 
 ###calcDeltaAbund#######################################################################################
@@ -435,7 +439,7 @@ calcDeltaAbund<- function(SpYearSummSpreadbyYear =SpYearSummWide,
   Deltas<-as.matrix(SpYearSummSpreadbyYear[,as.character(TimeSpan[TimeSpan>SinceYear])]/Baseline)
   names(Deltas)<-paste(names(Deltas),"prop baseline")
   
-  # calcuatesw tow potential comparivie metrics , the total number of years below threshold and whether the last year is below threshold
+  # calcuates two potential comparivie metrics , the total number of years below threshold and whether the last year is below threshold
   NoLessthanThreshhold<-rowSums(Deltas<=SpYearSummSpreadbyYear$CombThreshold)
   LastLessThanThreshold<-Deltas[,ncol(Deltas)]<=SpYearSummSpreadbyYear$CombThreshold
   
@@ -455,33 +459,12 @@ calcDeltaAbund<- function(SpYearSummSpreadbyYear =SpYearSummWide,
   write.csv(ChangeRelativeToBaseline,
             file.path(ResultsDir,"SppSummChangeRelativetoBaseline.csv"),
             row.names=F)
+  return(ChangeRelativeToBaseline)
   
 }
 
 
-###makeSummaryGraphs####################################################################################################
-#provides  graphical summary of relative abundance by year( change in specie relative abundance over time)  and a plotly html file that allows hover over to show species names for each line
-#Maybe this should be made availble in the shiny ap as a default screen output.  Ideally with ability to select indivdual species lines for display  cannot work out how to define dropdown (species name(s) selected) dynamically)
-makeSummaryGraphs<-function(SpYearSumm,
-                            ResultsDir,
-                            HDMSpp_NO,
-                            outputFH){
-  
-  No_Of_Species<-length(unique(SpYearSumm$TAXON_ID))
-  pal=rainbow(10)
-  myPlot <- ggplot(data = SpYearSumm,
-                   aes(x = SEASON,
-                       y = SUM_RAx100,
-                       color=COMMON_NAME)) + 
-    geom_line()+
-    theme(legend.position="none") +
-    ggtitle(paste(outputFH,"\n",No_Of_Species,"Species\n"))
-  
-  
-  ggp<-ggplotly(myPlot,tooltip = "COMMON_NAME") 
-  htmlwidgets::saveWidget(as_widget(ggp), file.path(getwd(),ResultsDir,"SpYearSummGraph.html"))
-  #unlink(file.path(ResultsDir,SpYearSummGraph_files),recursive = T)
-}
+
 
 ###calcDraftSpList#####################################################################################################
 
@@ -562,7 +545,7 @@ calcSpp_EFG_LMU<-function(REG_NO,#REG_NO of defined region from input (1:6) or 0
 
 ###inputRasters-----------------------------------------------------------------------
 
-#get values of inputrasters depending on cellSize
+#get names of input rasters depending on cellSize
 inputRasters<-function(x=RasterRes){
   #General Input Rasters change name depending on Raster Res
   if (x==225){
@@ -605,7 +588,7 @@ cellsToHectares<-function(RasterMetres=RasterRes){
 }
 
 
-###FUNCTIONS NOT CURRENTLT USED ####################################################
+###FUNCTIONS NOT CURRENTLY USED ####################################################
 #st_parallel--------------------------------------------------------
 #possible parallel version of st_ functions  not yet expolored from
 # https://www.spatialanalytics.co.nz/post/2017/09/11/a-parallel-function-for-spatial-analysis-in-r/ 
@@ -835,4 +818,28 @@ rawTiffRead<-function(x=singlebandTiff,y=tiff_na_value){
   z[z==y]<-NA
   return(z)
   options(warn=0)
+}
+
+###makeSummaryGraphs####################################################################################################
+#provides  graphical summary of relative abundance by year( change in specie relative abundance over time)  and a plotly html file that allows hover over to show species names for each line
+#Maybe this should be made availble in the shiny ap as a default screen output.  Ideally with ability to select indivdual species lines for display  cannot work out how to define dropdown (species name(s) selected) dynamically)
+makeSummaryGraphs<-function(SpYearSumm,
+                            ResultsDir,
+                            HDMSpp_NO,
+                            outputFH){
+  
+  No_Of_Species<-length(unique(SpYearSumm$TAXON_ID))
+  pal=rainbow(10)
+  myPlot <- ggplot(data = SpYearSumm,
+                   aes(x = SEASON,
+                       y = SUM_RAx100,
+                       color=COMMON_NAME)) + 
+    geom_line()+
+    theme(legend.position="none") +
+    ggtitle(paste(outputFH,"\n",No_Of_Species,"Species\n"))
+  
+  
+  ggp<-ggplotly(myPlot,tooltip = "COMMON_NAME") 
+  htmlwidgets::saveWidget(as_widget(ggp), file.path(getwd(),ResultsDir,"SpYearSummGraph.html"))
+  #unlink(file.path(ResultsDir,SpYearSummGraph_files),recursive = T)
 }
