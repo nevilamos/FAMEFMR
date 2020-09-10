@@ -69,7 +69,7 @@ calcBBTFI_2<-function(FHanalysis,
   FirstBBTFI[is.infinite(FirstBBTFI)]<-NA
   #need to set cells NA where NA in BBTFI
   cumBBTFI[is.na(BBTFI_COMB)]<-NA
-  colnames(cumBBTFI)<-gsub("SEAS","TimesBBTFI",colnames(cumBBTFI))
+  colnames(cumBBTFI)<-gsub("SEAS","TBTFI",colnames(cumBBTFI))
   
   # have called this combined item BBTFI_WIDEish because is is the same number of rows as the true wide item but cumBBTFI is in sequece for still not spread by year.
   #BBTFI_WIDEish<-cbind(U_AllCombs_TFI,BBTFI_COMB,cumBBTFI,TYPE2,FirstBBTFI,totalTimesBBTFI)
@@ -82,7 +82,7 @@ calcBBTFI_2<-function(FHanalysis,
   BBTFI_WIDE<-BBTFI_LONG%>%
     select(-SEQ,-totalTimesBBTFI,-FirstBBTFI)%>%
     pivot_wider(names_from = SEAS,
-                values_from=c(TimesBBTFI,FireType),
+                values_from=c(TBTFI,FireType),
                 values_fn= sum,
                 names_sort=T)
   #needed to deal with pivot_wider above returning list of list for non unique cases
@@ -93,25 +93,38 @@ calcBBTFI_2<-function(FHanalysis,
   
   
   BBTFI_LONG_Summary<- BBTFI_LONG%>%
-    group_by(PLM,FIRE_REGION_NAME,DELWP_REGION,EFG_NAME,FIRE_FMZ_NAME,SEAS,FireType,TimesBBTFI)%>%
+    group_by(PLM,FIRE_REGION_NAME,DELWP_REGION,EFG_NAME,FIRE_FMZ_NAME,SEAS,FireType,TBTFI)%>%
     summarize(Hectares=sum(Hectares))
   
   if(makeBBTFIrasters){
-    values(r)<-totalTimesBBTFI[Index_AllCombs]
-    writeRaster(r,file.path(ResultsDir,"BBTFI_Rasters","TotalTimesBBTFI.tif"),overwrite=T,datatype="INT1U",options="COMPRESS=LZW")
-    r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
-    print("Completed TotalTimesBBTFI.tif")
-    values(r)<-FirstBBTFI[Index_AllCombs]
-    writeRaster(r,file.path(ResultsDir,"BBTFI_Rasters","FirstBBTFI.tif"),overwrite=T,datatype="INT2S",options="COMPRESS=LZW")
-    r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
-    print("Completed FirstBBTFI.tif")
-    for(i in grep("^TimesBBTFI_",names(BBTFI_WIDE))){
-      myName<-paste0(names(BBTFI_WIDE)[i],".tif")
-      values(r)<-BBTFI_WIDE[[i]][Index_AllCombs]
-      writeRaster(r,file.path(ResultsDir,"BBTFI_Rasters",myName),overwrite=T,datatype="INT2S",options="COMPRESS=LZW")
-      print(paste("Completed",myName))
-      r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
-    }
+
+
+    values(r)<-Index_AllCombs
+    rasterDatatype<-ifelse(max(Index_AllCombs)<=65534,'INT2S','INT4S')
+    r<-ratify(r)
+
+    levels(r)[[1]]<-cbind(levels(r)[[1]],as.data.frame(BBTFI_WIDE),FirstBBTFI,totalTimesBBTFI)
+    levels(r)[[1]]%>%rename(VALUE =ID)%>%mutate(VALUE = as.integer(VALUE))%>%
+      foreign::write.dbf(., file.path(ResultsDir,"BBTFI_Rasters",'BBTFI_BY_YEAR.tif.vat.dbf'),
+                         factor2char = TRUE, max_nchar = 254)
+
+    writeRaster(r,file.path(ResultsDir,"BBTFI_Rasters",'BBTFI_BY_YEAR.tif'), datatype = rasterDatatype,overwrite=T,options=c("COMPRESS=LZW", "TFW=YES"))
+
+    # values(r)<-totalTimesBBTFI[Index_AllCombs]
+    # writeRaster(r,file.path(ResultsDir,"BBTFI_Rasters","TotalTimesBBTFI.tif"),overwrite=T,datatype="INT1U",options="COMPRESS=LZW")
+    # r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
+    # print("Completed TotalTimesBBTFI.tif")
+    # values(r)<-FirstBBTFI[Index_AllCombs]
+    # writeRaster(r,file.path(ResultsDir,"BBTFI_Rasters","FirstBBTFI.tif"),overwrite=T,datatype="INT2S",options="COMPRESS=LZW")
+    # r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
+    # print("Completed FirstBBTFI.tif")
+    # for(i in grep("^TimesBBTFI_",names(BBTFI_WIDE))){
+    #   myName<-paste0(names(BBTFI_WIDE)[i],".tif")
+    #   values(r)<-BBTFI_WIDE[[i]][Index_AllCombs]
+    #   writeRaster(r,file.path(ResultsDir,"BBTFI_Rasters",myName),overwrite=T,datatype="INT2S",options="COMPRESS=LZW")
+    #   cat("\r",paste("Completed",myName))
+    #   r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
+    # }
   }
   
   return(list("BBTFI_WIDE"=BBTFI_WIDE,"BBTFI_LONG"=BBTFI_LONG_Summary,"BBTFI_WIDEish"=BBTFI_WIDEish))
@@ -119,7 +132,7 @@ calcBBTFI_2<-function(FHanalysis,
   
 } 
 
-#supporting function to deal with pivot_wider returnin list of lists
+#supporting function to deal with pivot_wider returning list of lists
 unlistPivot_wider<-function(X){
   X[unlist(lapply(X , is.null))] <- NA
   Y<-unlist(X)
