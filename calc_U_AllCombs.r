@@ -8,7 +8,6 @@ FH_ID<-values(r)
 r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
 gc()
 
-#names(FH_ID)<-"ID"
 
 PLM<-cropRasters$PLM
 EFG<-cropRasters$EFG
@@ -29,7 +28,7 @@ rm(AllCombs)
 gc()
 
 
-#get the number of pixels in each this can be used at the end of the process to calcualte area cases
+#get the number of pixels in each this can be used at the end of the process to calculate area cases
 nPixel<-as.vector(table(Index_AllCombs))
 #Add index column a and count of pixels to unique combs matrix
 Index<-1:nrow(U_AllCombs)
@@ -43,10 +42,15 @@ setkey(TFI_LUT,"EFG")
 U_AllCombs<-as.data.table(U_AllCombs)
 setkey(U_AllCombs,"EFG")
 U_AllCombs_TFI<-TFI_LUT[U_AllCombs]
-#have to reset the index to Index to retrun to the original order which is needed for cbinds below.
+#have to reset the index to Index to return to the original order which is needed for cbinds below.
 setkey(U_AllCombs_TFI,"Index")
 U_AllCombs_TFI<-Join_Names(U_AllCombs_TFI)
 U_AllCombs_TFI$PLM[U_AllCombs_TFI$PLM==1]<-"Public Land"
 U_AllCombs_TFI$Hectares=U_AllCombs_TFI$nPixel*cellsToHectares()
+
+
+
+
+
 return(list("U_AllCombs_TFI"=U_AllCombs_TFI,"Index_AllCombs"=Index_AllCombs))
 }

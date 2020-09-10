@@ -6,7 +6,7 @@
 # this file must follow the formatting of the deafualt species list 
 #is a non- zero abundance in the extent of the analysis
 #If rasters are added to or updated these files then the process to update the HDMValue filematrices must be run run using the script "makeHDM_Value_Matrices.r"
-
+tic()
 if(is.null(customSpList)){
   TaxonList <-read.csv("./ReferenceTables/DraftTaxonListStatewidev2.csv")#default species list
 }else{
@@ -14,8 +14,11 @@ if(is.null(customSpList)){
 }
 
 #filters the species to be considered in the analysis - these are flagged with the value "Yes" in the incude column in the input species list.
-HDMSpp_NO<<-TaxonList$TAXON_ID[TaxonList$Include=="Yes"]
-
+HDMSpp_NO<-TaxonList$TAXON_ID[TaxonList$Include=="Yes"]
+#Gets a subset of those for which rasters are to be written when WriteSpeciesRasters =="Yes" If this is NULL then all are written
+writeSp<-TaxonList$TAXON_ID[TaxonList$WriteSpeciesRaster=="Yes"]
+writeSp<-writeSp[writeSp%in%HDMSpp_NO]
+tic("time to read in species values")
 print("getting HDMvals")
 if(FHanalysis$RasterRes==225){
   load(paste0("./HDMS/HDMVals",RasterRes,".rdata"))
@@ -25,14 +28,14 @@ if(FHanalysis$RasterRes==225){
   HDMVals<<-makeHDMValsfromRasters(myHDMSpp_NO = HDMSpp_NO,
                                    myCropDetails = cropRasters)
 }
-
+toc()
 # choice of default  or custom species abundance values input files
 if(is.null(customResponseFile)){
   mySpGSResponses="./ReferenceTables/OrdinalExpertLong.csv" #default valeus ( from FFO database)
 }else{
   mySpGSResponses=customResponseFile # alternative user define custom abundance valuesin matching format
 }
-
+tic("making AbundDataLong")
 #the below lines inflate the input file containing species abundance by growth stage to a data frame (AbundDataLong) containing specieabundance (still stepped by growth stage)
 ###this sections would be skipped if a file for species response by time since fire ( rather than growth stage is provided ############
 AbundDataByGS = read.csv(mySpGSResponses)[,c("EFG_NO", "GS4_NO",  "FireType" , "Abund", "VBA_CODE")]  #Select the file giving the fauna relative abundance inputs you wish to use
@@ -49,11 +52,13 @@ AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS,   by=c('EFG_NO','GS4_NO'))
 #AbundDataLong<-read.csv(customAbundanceByTSF_EFG_FT_file)
 
 AbundDataLong<-AbundDataLong[order(AbundDataLong$VBA_CODE),]
-
+toc()
+tic("making Spp abund LU List")
 LU_List<-makeLU_List(myHDMSpp_NO = HDMSpp_NO,
                       myAbundDataLong = AbundDataLong)
+toc()
 
-
+tic("main species abundace calulations in makeSppYearSumm2")
 SpYearSummWide<-makeSppYearSum2(FHanalysis,
                                       myHDMSpp_NO = HDMSpp_NO,
                                       writeSpRasters = writeSpRasters,
@@ -62,15 +67,17 @@ SpYearSummWide<-makeSppYearSum2(FHanalysis,
                                       HDMVals = HDMVals,
                                       TaxonList = TaxonList,
                                       writeYears=NULL,
-                                      writeSp =NULL
+                                      writeSp =writeSp
 )
+toc()
 myBaseline<-ifelse(endBaseline>startBaseline,startBaseline:endBaseline,startBaseline)
-
+tic("calculate changes in relative abundance")
 myDeltaAbund<-calcDeltaAbund(SpYearSummSpreadbyYear =SpYearSummWide,
                           TimeSpan =FHanalysis$TimeSpan,
                           myBaseline,
                           ResultsDir,
                           HDMSpp_NO,
                           TaxonList)
-
+toc()
+toc()
 

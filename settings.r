@@ -4,14 +4,14 @@
 # if REGION_NO =7 then an adHocPolygon shapefile must also be provided ( again in the inputs directory.)
 
 
-#the integer value of the region number 1-6 for FFR regions,7 for user suppied adHoc polygon 99 for Statewide
+#the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon 99 for Statewide
 REGION_NO 			= 7 
 #path to the ad Hoc polygon if REGION_NO 			== 7
-adHocPolygon 		= "./rawFH/MG.shp"
+adHocPolygon 		= "./AdHocPolygons/DemoAdHocPolygon.shp"
 #path to your rawFH file ( output of the ARCGIS preprocessing tool)
-  rawFH 				= "./rawFH/rawFH_FFRAU_FH_FAME_New_vg94_JFMP_2021_22_23_FAME_5mTolerance.shp"
+  rawFH 				= "./rawFH/FRAU_FH_2020_DemoAdHocPolygon.shp"
 #path to custom species list if used
-customSpList 		= NULL
+customSpList 		= "./CustomCSV/DemoCustomSpeciesList.csv"
 #path to custom response list if used
 customResponseFile 	= NULL
 #raster resolution 75 or 225
@@ -22,7 +22,7 @@ myEFG_TSF_4GS= read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.
 #HDMVals225 			=	"./HDMS/HDMVals225.rdata"
 #whether to output species rasters
 writeSpRasters		= "Yes" # "No"
-#whether to output species rasters
+#whether to output GS rasters
 writeGSRasters		= "Yes" # "No"
 #if writeSpRasters		= "Yes" vector of years for which rasters are to be written
 yearsForRasters = NULL
@@ -33,14 +33,14 @@ makeTFIRasters = "Yes"#Yes"
 makeBBTFIrasters=TRUE#FALSE#
 #"first season for which output is wanted ( four digit year as integer)
 #if NUll then second season in in history  is used cannot use first season because it has no interval, this may still fail if there is no overlap,
-start.SEASON		= 1980 
+start.SEASON		= 2000 
 #value to use for cases where fire type is "OTHER" or "UNKNOWN",1 ="BURN",2="BUSHFIRE",NA = Fire excluded from analysis default is 2 ("BUSHFIRE")
 OtherAndUnknown 	= 2# (2,1,NA)
 #whether analysis should be undetaken only on public land
 PUBLIC_LAND_ONLY	=	FALSE
-#start and end baseline years if single year then the two values should be equal
-startBaseline =1990
-endBaseline =1990
+#start and end baseline years for calcuation of change in abundance relative to baseline if single year then the two values should be equal
+startBaseline =2000
+endBaseline =2000
 
 Ncores=4
 print(paste("Using",Ncores,"cores"))
