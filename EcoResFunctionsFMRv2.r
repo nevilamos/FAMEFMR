@@ -202,7 +202,7 @@ FHProcess<-function(rawFH ="path of the rawFH file to use - a shapefile",
   #orders the spatially unique polygons by SEASON then firetype and adds a
   #sequential number to them , this is what allows the flattening  and subsequent
   #reduction to fire sequences witout interveneing no fire year
- 
+  
   myDF<-myDF[with(myDF,order(XYString, SEASON, FIRETYPE_NO)),] 
   
   myDF$Sequence<-1 
@@ -234,7 +234,7 @@ FHProcess<-function(rawFH ="path of the rawFH file to use - a shapefile",
   
   OutDF<-st_as_sf(OutDF)
   toc()
- 
+  
   #calcuating the last burnt season for each sequences for each year 
   #this process is duplicated here and in CALC_TFI2 function - ideally it should only be run once but it is pretty fast so probably does not matter tooo much.
   #
@@ -334,7 +334,7 @@ makeSppYearSum2<-function(FHanalysis,
                           HDMVals = HDMVals,
                           TaxonList = TaxonList,
                           writeYears=NULL,
-                          writeSp =NULL
+                          writeSp =writeSp
 ) {
   
   TimeRange<-as.integer(FHanalysis$TimeSpan)
@@ -345,6 +345,7 @@ makeSppYearSum2<-function(FHanalysis,
   r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
   TimeSpan<-FHanalysis$TimeSpan
   myDF<-FHanalysis$OutDF
+  if(is.null(writeYears)){writeYears=TimeSpan}else{writeYears<-writeYears[writeYears%in%TimeSpan]}
   #remove geometry FHanalysis DF to create a standard dataframe so columns can be subset without "stciky geometry of origina spatial Features data frame
   st_geometry(myDF)<-NULL
   
@@ -352,7 +353,7 @@ makeSppYearSum2<-function(FHanalysis,
   SpYearSumm<-matrix(NA,nrow=(length(myHDMSpp_NO)),ncol=LTR,dimnames=list(as.character(myHDMSpp_NO),TimeNames))
   #loop through calcualtion of per cell speices abundance values and if flagged output of rasters of these values.
   for (sp in myHDMSpp_NO) {
-    print(sp)
+    cat("\r",paste( "calculating abundances for",sp))
     mySpp<-as.character(sp)
     #get the lookup array of abundance values from the list of species value lookup 
     LU = myLU_List[[mySpp]]
@@ -362,7 +363,7 @@ makeSppYearSum2<-function(FHanalysis,
     YSF_M<-as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID,FHanalysis$YSFNames])+1
     LFT_M<-as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID,FHanalysis$LFTNames])
     EFG_M<-matrix(myAllCombs$U_AllCombs_TFI$EFG,nrow(YSF_M),ncol(YSF_M))
-    #looks up the cell-wise psecies values for for the species abundance balues by ineces in array
+    #looks up the cell-wise species values for for the species abundance balues by id neces in array
     Spp_M<-array(LU[cbind(as.vector(YSF_M),as.vector(EFG_M),as.vector( LFT_M))],dim=dim(YSF_M))
     #Multiplies these values by cell-wise HDM values - effectively masking out values where the species does not occur.
     Spp_Val_Cell_Year<-Spp_M[myAllCombs$Index_AllCombs,]*HDM_Vector
@@ -377,8 +378,10 @@ makeSppYearSum2<-function(FHanalysis,
     #this is by far the most time consuming part of the FAME processing
     
     if(writeSpRasters=="Yes"){
-      for(myYear in as.character(writeYears))
+      for(myYear in as.character(writeYears)){
+        cat("\r",paste ("writing species abund rasters for",myYear))
         if (sp%in%writeSp|is.null(writeSp)){
+          OutTif<-file.path(ResultsDir,"RA_Rasters",paste0("Spp",sp,"_",myYear,".tif"))
           emptySpraster <- r
           values(emptySpraster) <- Spp_Val_Cell_Year[,myYear]
           writeRaster(emptySpraster,
@@ -388,9 +391,10 @@ makeSppYearSum2<-function(FHanalysis,
                       overwrite = TRUE
           )
         }
+      }
+      
+      
     }
-    
-    
   }
   #join species details from TaxonList  to the output tables
   SpYearSumm<-rownames_to_column(as.data.frame(SpYearSumm))
@@ -403,7 +407,7 @@ makeSppYearSum2<-function(FHanalysis,
   write.csv(SpYearSummLong,file.path(ResultsDir,"SpYearSummLong.csv"))
   
   return(SpYearSummWide)
-  }
+}
 
 
 ###calcDeltaAbund#######################################################################################
@@ -420,7 +424,7 @@ calcDeltaAbund<- function(SpYearSummSpreadbyYear =SpYearSummWide,
                           HDMSpp_NO,
                           TaxonList)
 {
-
+  
   #to get % of baseline need to define which columns provide the baseline ( one or mean of several using apply (mean)) then divide remaining values by this column.
   if (length(myBaseline==1)){
     Baseline<-SpYearSummSpreadbyYear[,as.character(myBaseline)]
@@ -579,7 +583,7 @@ Join_Names<-function(myDF,#dataframe or similar containing indices for the LUTS 
                      LUTS=c("TFI_LUT","TFI_LUT","FIREFMZ_LUT","REG_LUT","DELWP_LUT")){
   for(i in LUTS){
     try(myDF<-left_join(myDF,get(i)))}
-    return (myDF)
+  return (myDF)
 }
 
 # Function calclulate multiplier form cells to hecatres for cell resolution in Metres ( usually from RasterRes in settings file)----------
@@ -720,7 +724,7 @@ makeSppYearSum<-function(TimeSpan = rv$FHanalysis$TimeSpan,
                          writeSp =NULL) {
   SpYearSumm <- NULL
   for (year in TimeSpan) {
-    print(paste("Starting sp abund for",year))
+    cat("\r",paste("Starting sp abund for",year))
     myYSF <- paste0("YSF", year)
     YSF <- myYSF_LFT[, myYSF] + 1
     myLFT <- paste0("LFT", year)
@@ -731,7 +735,7 @@ makeSppYearSum<-function(TimeSpan = rv$FHanalysis$TimeSpan,
     RegMaskVal <- YSF + EFG + LFT    #+RGN    
     M<-cbind(YSF,EFG,LFT)
     for (sp in myHDMSpp_NO) {
-      #print(sp)
+      #cat(sp)
       LU = myLU_List[[as.character(sp)]]
       SpMask <- HDMVals[, as.character(sp)]
       SpMask[SpMask==0]<-NA #this row is needed so that next evaluates the masking cells correctly because NA + FALSE=FALSE not NA
@@ -745,10 +749,10 @@ makeSppYearSum<-function(TimeSpan = rv$FHanalysis$TimeSpan,
       Out[getVals]<-as.integer(LU[M[getVals,]]*100)
       
       if(writeSpRasters=="Yes"){
-        
-        
-        if(year%in%writeYears|is.null(writeYears)){
-          if (sp%in%writeSp|is.null(writeSp)){
+        if (sp%in%writeSp|is.null(writeSp)){
+          
+          if(year%in%writeYears|is.null(writeYears)){
+            
             emptySpraster <- myCropDetails$Raster
             values(emptySpraster) <- as.vector(Out)
             writeRaster(
@@ -764,15 +768,15 @@ makeSppYearSum<-function(TimeSpan = rv$FHanalysis$TimeSpan,
       spYrres <- c(sp, year, sum(Out, na.rm = T))
       SpYearSumm <- rbind(SpYearSumm, spYrres)
     }
-    print(paste("Finished",year))
+    cat("\r",paste("Finished",year))
     
   }
   colnames(SpYearSumm)<-c("TAXON_ID",	"SEASON",	"SUM_RAx100")
   SpYearSumm<-as.data.frame(SpYearSumm)
   SpTotals<-SpYearSumm%>%group_by(TAXON_ID)%>%summarize(total = sum(SUM_RAx100))
   SpGterThan0<-SpTotals$TAXON_ID[SpTotals$total>0]
-  #print(names(SpYearSumm))
-  #print(head(SpGterThan0))
+  #cat(names(SpYearSumm))
+  #cat(head(SpGterThan0))
   SpYearSumm<-SpYearSumm[SpYearSumm$TAXON_ID%in%SpGterThan0,]
   
   SpYearSumm<-left_join(SpYearSumm,TaxonList)
