@@ -133,7 +133,8 @@ calc_TFI_2<-function(FHanalysis,
     colnames(TFI_VAL)<-paste0("TFI_",colnames(TFI_VAL))
     levels(r)[[1]]<-cbind(levels(r)[[1]],as.data.frame(TFI_VAL))
     levels(r)[[1]]%>%rename(VALUE =ID)%>%mutate(VALUE = as.integer(VALUE))%>% 
-        foreign::write.dbf(., file.path(ResultsDir,"TFI_Rasters",'TFI_BY_YEAR.tif.vat.dbf'), 
+
+        foreign::write.dbf(., file.path(ResultsDir,"TFI_Rasters",'TFI_BY_YEAR.tif.vat.dbf'),
                          factor2char = TRUE, max_nchar = 254)
     
     writeRaster(r,file.path(ResultsDir,"TFI_Rasters",'TFI_BY_YEAR.tif'), datatype = rasterDatatype,overwrite=T,options=c("COMPRESS=LZW", "TFW=YES"))
