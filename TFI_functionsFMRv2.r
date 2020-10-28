@@ -4,20 +4,8 @@
 ############################################################################
 
 
-## FUNCTION Join_Names ------------------------------------------------------                #####----- this is a duplicate.  already in FHanalysisTFI_GS_calculations
-# Function joins Lookup tables to dataframe containing ID_NO: Name combinations              #####----- delete and move generic scripts to generic functions script
-# at the moment the LUTS are hard wired.
-
-Join_Names <- function(myDF,   #dataframe or similar containing indices for the LUTS listed 
-                       LUTS = c("TFI_LUT","TFI_LUT","FIREFMZ_LUT","REG_LUT","DELWP_LUT")){
-  for(i in LUTS){
-    try(myDF <- left_join(myDF,get(i)))}
-  return (myDF)
-}
-
-
 ## FUNCTION LBY_f -----------------------------------------------------------
-# Function to calculate last burnt year (lby) from matrix of rows of fire season
+# Function to calculate last burnt year (LBY) from matrix of rows of fire season
 # iterating by year (y) used in calc_TFI_2
 LBY_f < -function(M, y){
   M[M > y | M == 0] <- NA
@@ -142,12 +130,12 @@ calc_TFI_2 <- function(FHanalysis,
   TFI_Summary <- left_join(TFI_Summary, TFI_STATUS_LUT)
   
   # raster output
-  #Ratify allcombinations raster index allows creation and export of Tif with raster attribute table 
+  #Ratify all combinations raster index allows creation and export of Tif with raster attribute table 
   # that can be read by ARCGIS method from : https://gis.stackexchange.com/questions/257204/saving-geotiff-from-r
 
     if (OutputRasters == "Yes"){
       values(r) <- Index_AllCombs
-      rasterDatatype <- ifelse(max(Index_AllCombs) <= 65534, 'INT2S', 'INT4S')
+      rasterDatatype <- ifelse(max(Index_AllCombs) <= 65534, 'INT2S', 'INT4S') #selects the most efficient datatype depending on the size of integers in the input
       r <- ratify(r)
       colnames(TFI_VAL) <- paste0("TFI_", colnames(TFI_VAL))
       levels(r)[[1]] <- cbind(levels(r)[[1]], as.data.frame(TFI_VAL))
@@ -155,11 +143,15 @@ calc_TFI_2 <- function(FHanalysis,
         rename(VALUE = ID) %>%
           mutate(VALUE = as.integer(VALUE)) %>%
             foreign::write.dbf(.,
-                               file.path(ResultsDir, "TFI_Rasters", 'TFI_BY_YEAR.tif.vat.dbf'),
+                               file.path(ResultsDir,
+                                         "TFI_Rasters",
+                                         'TFI_BY_YEAR.tif.vat.dbf'),
                                factor2char = TRUE,
                                max_nchar = 254)
       writeRaster(r,
-                  file.path(ResultsDir, "TFI_Rasters", "TFI_BY_YEAR.tif"),
+                  file.path(ResultsDir,
+                            "TFI_Rasters",
+                            "TFI_BY_YEAR.tif"),
                   datatype = rasterDatatype,
                   overwrite=TRUE,
                   options=c("COMPRESS=LZW", "TFW=YES"))
