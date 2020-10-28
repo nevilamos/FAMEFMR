@@ -1,93 +1,93 @@
-
-#Functions used in EcoRes1 calculation of Fire History Interval and spatial realtive abundance related to fire history.
+############################################################################
+# Functions used in EcoResFunctionsFMR are the calculation of Fire History
+# Interval and spatial realtive abundance related to fire history.
 # written by nevil.amos@delwp.vic.gov.au
+############################################################################
 
 
-################################################################################
-#revove all empty  directories in a path----------------------------
-
-removeEmptyDirs<-function(rootDir="./Results"){
+## FUNCTION TO REMOVE ALL EMPTY DIRECTORIES IN A PATH ----------------------
+removeEmptyDirs <- function(rootDir="./Results"){
   
-  dirList <- list.dirs(rootDir)[-1]#makes sure the root results direcotry is not deleted
+  dirList <- list.dirs(rootDir)[-1] #[-1] makes sure the root results direcotry is not deleted
   if(length(dirList)>0){
-    delList<-dirList[sapply(dirList, function(x) length(list.files(x))==0)]
-    while((length(delList)>0) & (length(dirList)>0)){ 
-      unlink(delList,recursive=T)
-      dirList<-list.dirs(rootDir)[-1]
-      delList<-dirList[sapply(dirList, function(x) length(list.files(x))==0)]
+    delList <- dirList[sapply(dirList, function(x) length(list.files(x)) == 0)]
+    while((length(delList)>0) & (length(dirList)>0)){                        
+      unlink(delList, recursive = TRUE)
+      dirList <- list.dirs(rootDir)[-1]
+      delList <- dirList[sapply(dirList, function(x) length(list.files(x)) == 0)]
+      }
     }
   }
-}
-
-# add xy string -----------------------------------------------------------
 
 
-#adds string of xy of centroids of polygons to allow for rearrangement of  associated data in flattened fire history
-add_xystring<-function(myDF){
-  #function to add xystring of polygon centroids to SF polygon object
+## ADD XY CENTROID STRING --------------------------------------------------
+# Adds string of xy of centroids of polygons to shapefile polygon object in dataframe
+# allows for rearrangement of associated data in flattened fire history
+
+add_xystring <- function(myDF){
   require(dplyr)
-  Coords<-as.data.frame(do.call(rbind,st_geometry(st_centroid(myDF))))
-  names(Coords)<-c("X","Y")
-  XYString<-paste(Coords$X,Coords$Y,sep="")
-  x<-mutate(myDF,XYString)
+  Coords <- as.data.frame(do.call(rbind,st_geometry(st_centroid(myDF))))
+  names(Coords) <- c("X","Y")
+  XYString <- paste(Coords$X, Coords$Y, sep = "")
+  x <- mutate(myDF, XYString)
   return(x)
-  
-}
+  }
 
-###get_Spp_No#############################################################################
+## GET VIC SPP ID No. FROM HDM PATHS ---------------------------------------
 #extracts four or five digit species numbers from  HDM paths
-get_Spp_No<-function(x="Vector of Sp file Pathnames"){
+get_Spp_No <- function(x = "Vector of Sp file Pathnames"){
   Fnames= basename(x)
   pos = regexpr("[0-9][0-9][0-9][0-9]+", Fnames)
-  myEnd=pos-1+attr(pos,"match.length")
-  y=as.numeric(substr(Fnames,pos,myEnd))
+  myEnd = pos-1+attr(pos, "match.length")
+  y = as.numeric(substr(Fnames, pos, myEnd))
   return(y)
-}
+  }
 
 
-###makeCropDetails############################################################################
-# function to get the minimum bounding box of the cells with non NA values in a raster and save them to crop other rasters to same extent
-#also creates some rasters cropped to correct extent for instance for region and EFG
-#also gets indeces of cells to "clip raster of same extent as crop to the shape provided 
+## MAKE RASTER CROP --------------------------------------------------------
+# function to get the minimum bounding box of the cells with non NA values in
+# a raster and save them to crop other rasters to same extent.
+# also creates some rasters cropped to correct extent for instance for region and EFG
+# also gets indeces of cells to "clip raster of same extent as crop to the shape provided 
 
-makeCropDetails<-function(REG_NO=7,#REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),
-                          RasterRes=RasterRes,
-                          PUBLIC_LAND_ONLY="YES",
-                          myPoly=clipPoly,#shapefile ofLF_REGIONs( default)or  adhoc region,
+makeCropDetails <- function(REG_NO = 7,              #see look up table REG_LUT for values
+                          RasterRes = RasterRes,
+                          PUBLIC_LAND_ONLY = "YES",
+                          myPoly = clipPoly,         #shapefile of LF_REGIONs (default) or adhoc region,
                           generalRasterDir = "./InputGeneralRasters"
 ){
-  inputR<-inputRasters(RasterRes)
-  inR<-raster(file.path(generalRasterDir,inputR$REGION.tif))
-  Template<-inR
-  values(Template)<-NA
+  inputR <- inputRasters(RasterRes)
+  inR <- raster(file.path(generalRasterDir, inputR$REGION.tif))
+  Template <- inR
+  values(Template) <- NA
+  
   #determines which file to use for masking to regions
-  if(REG_NO%in%1:6){
-    Shape<-read_sf(myPoly)
-    Shape<-Shape[Shape$REGION_NO==REG_NO,]
-    cn<-cellnumbers(Template,Shape)
-    cn<-cn$cell_
-    RGN<-Template
-    values(RGN)[cn]<-REG_NO
-    
-  }
-  if(REG_NO==99){
-    Shape<-read_sf(myPoly)
-    cn<-cellnumbers(Template,Shape)
-    cn<-cn$cell_
-    RGN<-inR
-    #values(RGN)[cn]<-REG_NO
-  }
-  if(REG_NO ==7){
-    Shape<-read_sf(myPoly)
-    cn<-cellnumbers(Template,Shape)
-    cn<-cn$cell_
-    RGN<-Template
-    values(RGN)[cn]<-REG_NO
-  }
+  if(REG_NO %in% 1:6){
+    Shape <- read_sf(myPoly)
+    Shape <- Shape[Shape$REGION_NO == REG_NO,]
+    cn <- cellnumbers(Template, Shape)
+    cn <- cn$cell_
+    RGN <- Template
+    values(RGN)[cn] <- REG_NO
+    }
   
+  if(REG_NO == 99){
+    Shape <- read_sf(myPoly)
+    cn <- cellnumbers(Template,Shape)
+    cn <- cn$cell_
+    RGN <- inR
+    #values(RGN)[cn] <- REG_NO
+    }
   
-  
-  x=RGN
+  if(REG_NO == 7){
+    Shape <- read_sf(myPoly)
+    cn <- cellnumbers(Template, Shape)
+    cn <- cn$cell_
+    RGN <- Template
+    values(RGN)[cn] <- REG_NO
+    }
+  # set parameters for 
+  x = RGN
   x.matrix <- is.na(as.matrix(x))
   colNotNA <- which(colSums(x.matrix) != nrow(x))
   rowNotNA <- which(rowSums(x.matrix) != ncol(x))
@@ -95,501 +95,609 @@ makeCropDetails<-function(REG_NO=7,#REG_NO of defined region from input (1:6) or
                    r1 = rowNotNA[1],
                    r2 = rowNotNA[length(rowNotNA)],
                    c1 = colNotNA[1],
-                   c2 = colNotNA[length(colNotNA)])
+                   c2 = colNotNA[length(colNotNA)]
+                   )
   
+  # crop rasters
+  RGN_ras <- crop(RGN, Extent)
+  FIREFMZ_ras <- crop(raster(file.path(generalRasterDir, inputR$FIREFMZ.tif)), Extent)
+  DELWP_ras <- crop(raster(file.path(generalRasterDir, inputR$DELWP.tif)), Extent)
+  EFG_ras <- crop(raster(file.path(generalRasterDir, inputR$EFG.tif)), Extent)
+  IDX <- values(crop(raster(file.path(generalRasterDir, inputR$IDX.tif)), Extent))
+  PLM_ras <- crop(raster(file.path(generalRasterDir, inputR$PLM_GEN.tif)), Extent)
+  EFG_ras <- mask(EFG_ras, RGN_ras)
   
-  RGN_ras<-crop(RGN,Extent)
-  FIREFMZ_ras<-crop(raster(file.path(generalRasterDir,inputR$FIREFMZ.tif)),Extent)
-  DELWP_ras<-crop(raster(file.path(generalRasterDir,inputR$DELWP.tif)),Extent)
-  EFG_ras<-crop(raster(file.path(generalRasterDir,inputR$EFG.tif)),Extent)
-  IDX<-values(crop(raster(file.path(generalRasterDir,inputR$IDX.tif)),Extent))
-  PLM_ras<-crop(raster(file.path(generalRasterDir,inputR$PLM_GEN.tif)),Extent)
-  EFG_ras<-mask(EFG_ras,RGN_ras)
-  # if choice has been made to restrict to public land ( default) then EFG is masked to public land
+  # if choice has been made to restrict to public land (default) then EFG is masked to public land
   if(PUBLIC_LAND_ONLY == "YES"){
-    EFG_ras<-mask(EFG_ras,PLM_ras)
-    DELWP_ras<-mask(DELWP_ras,PLM_ras)
-    FIREFMZ_ras<-mask(FIREFMZ_ras,PLM_ras)
-  }
-  PLMVals<-as.integer(values(PLM_ras))
-  EFGvals<-as.integer(values(EFG_ras))
-  RGNvals<-as.integer(values(RGN_ras))
-  FIREFMZvals<-as.integer(values(FIREFMZ_ras))
-  DELWPvals<-as.integer(values(DELWP_ras))
-  
-  
-  CropDetails<-list("Raster" = RGN_ras,
-                    "Extent"=Extent,
-                    "clipIDX"=cn,
-                    "EFG"=EFGvals,
-                    "RGN"=RGNvals,
-                    "IDX"=IDX,
-                    "DELWP"=DELWPvals,
-                    "FIREFMZ"=FIREFMZvals,
-                    "PLM"=PLMVals)
-  return(CropDetails)
-  
-}
-
-
-
-
-
-###notAllIN#######
-#function to check whether all values in vector are in in another vector of permitted values, retuns fals
-notAllIn<-function(x,v=V){
-  anyNA(unlist(lapply(x,match,v)))
-}
-###FHProcess###############################################################################################################################
-
-#function converts rawFH dataset into flattend format ( single non overlapping polygon attributed with unique fire sequences) calculates all inter-fire intervals time since fire for a sequence of years and output as rasters
-FHProcess<-function(rawFH ="path of the rawFH file to use - a shapefile",
-                    start.SEASON=NULL, #"first season for which output is wanted ( four digit year as integer)" if NUll then second season in in history  is used cannot use first season because it has no interval, this may still fail if there is no overlap,
-                    end.SEASON=NULL, #"last season required if NULL then largest value in fire history scenario used"
-                    OtherAndUnknown =  2# (2,1,NA)value to use for cases where fire type is "OTHER" or "UNKNOWN",1 ="BURN",2="BUSHFIRE",NA = Fire excluded from analysis default is 2 ("BUSHFIRE")
-                    
-){
-  myDF<-st_read(rawFH)
-  # check that the input shapefile (rawFH) contains the two required fields and that these do not have a missing values
-  myDFNames<-names(myDF)
-  if((!"SEASON"%in% myDFNames)) stop ("raw FH does not contain field 'SEASON'")
-  if(anyNA(myDF$SEASON)) stop ("rawFH has missing values in  field 'SEASON'")
-  if((!"FIRETYPE"%in% myDFNames)) stop ("raw FH does not contain field 'SEASON'")
-  if(notAllIn(x=myDF$FIRETYPE,v=validFIRETYPE)) stop ("rawFH has missing  or invalid values in  field 'FIRETYPE'")
-  
-  #timespan ( range of consecutive years) for which Fire History sequences are calculated
-  #start and end season  for calcuation is determined by the min+1 and max values in the dataset,
-  #or if not null from start and end seasons defined in the settings file.
-  # the earliest start season is the date of a second season in the input data, next 3 lines prevent manual start
-  #season setting  less than this value, which would cause an error.
-  min.SEASON<-sort(unique(myDF$SEASON))[2]# second season in fire history
-  if(is.null(start.SEASON)){
-    start.SEASON=min.SEASON
-  } else {
-    if(start.SEASON<min.SEASON){
-      start.SEASON=min.SEASON
-    }else{
-      start.SEASON=start.SEASON
+    EFG_ras <- mask(EFG_ras, PLM_ras)
+    DELWP_ras <- mask(DELWP_ras, PLM_ras)
+    FIREFMZ_ras <- mask(FIREFMZ_ras, PLM_ras)
     }
-    
+  
+  # set values as integers for rasters
+  PLMVals <- as.integer(values(PLM_ras))
+  EFGvals <- as.integer(values(EFG_ras))
+  RGNvals <- as.integer(values(RGN_ras))
+  FIREFMZvals <- as.integer(values(FIREFMZ_ras))
+  DELWPvals <- as.integer(values(DELWP_ras))
+  
+  # create list of values for function output
+  CropDetails <- list("Raster" = RGN_ras,
+                    "Extent" = Extent,
+                    "clipIDX" = cn,
+                    "EFG" = EFGvals,
+                    "RGN" = RGNvals,
+                    "IDX" = IDX,
+                    "DELWP" = DELWPvals,
+                    "FIREFMZ" = FIREFMZvals,
+                    "PLM" = PLMVals
+                    )
+  
+  # end of raster crop function
+  return(CropDetails)
+}
+
+
+## FUNCTION notAllIN -------------------------------------------------------
+# function to check whether all values in vector are in another vector of
+# permitted values, retuns FALSE
+notAllIn <- function(x, v = V){
+  anyNA(unlist(lapply(x, match, v)))
+}
+
+## FIRE HISTORY FUNCTION TO FLATTEN DATA -----------------------------------
+# function converts rawFH dataset into flattened format
+# (single non overlapping polygon attributed with unique fire sequences)
+# calculates all inter-fire intervals time since fire for a sequence of years
+# and output as rasters
+FHProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
+                    start.SEASON = NULL,    # first season for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
+                    end.SEASON = NULL,      # last season required, if NULL then largest value in fire history scenario used
+                    OtherAndUnknown = 2     # ## link to look up table FIRETYPE_LUT?? ## Default is 2 ("BUSHFIRE").  (2,1,NA) value to use for cases where fire type is: "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis.
+                                                                            #####----- the OtherAndUnknown default should be NA? currently you include bushfires (unless otherwise stated)
+){
+  # read in shapefile
+  myDF <- st_read(rawFH)
+  
+  # check that the input shapefile (rawFH) contains the two required fields
+  # and that these do not have a missing values
+  myDFNames <- names(myDF)
+  if((!"SEASON" %in% myDFNames)) stop ("rawFH shapefile does not contain field 'SEASON'")
+  if(anyNA(myDF$SEASON)) stop ("rawFH shapefile has missing values in  field 'SEASON'")
+  if((!"FIRETYPE"%in% myDFNames)) stop ("rawFH shapefile does not contain field 'FIRETYPE'")
+  if(notAllIn(x = myDF$FIRETYPE, v = validFIRETYPE)) stop ("rawFH shapefile has missing or invalid values in field 'FIRETYPE'")
+  
+  # timespan (range of consecutive years) for which Fire History sequences are calculated
+  # from start and end seasons defined in the settings file
+  # else if NULL; start and end season for calcuation is determined by the min+1 and max values in the dataset
+    # the earliest start season is the date of a second season in the input data (min+1), next 3 lines prevent manual start
+    # season setting less than this value, which would cause an error.
+  min.SEASON<-sort(unique(myDF$SEASON))[2] # second season in fire history
+  if(is.null(start.SEASON)){
+    start.SEASON = min.SEASON
+  } else {
+      if(start.SEASON < min.SEASON){
+        start.SEASON = min.SEASON
+  } else {
+      start.SEASON = start.SEASON
+      }
   }
   
   if(is.null(end.SEASON)){
-    max.SEASON<-max(myDF$SEASON)
+    max.SEASON <- max(myDF$SEASON)
   } else {
     max.SEASON = end.SEASON
   }
   
   TimeSpan<-start.SEASON:max.SEASON
   
-  #recodes FIRETYPE  to integer values value for Other and Unkonwn is set in settings file
-  myDF$FIRETYPE_NO[myDF$FIRETYPE=="BURN"]<-1
-  myDF$FIRETYPE_NO[myDF$FIRETYPE=="BUSHFIRE"]<-2
-  myDF$FIRETYPE_NO[myDF$FIRETYPE=="OTHER"]<-OtherAndUnknown
-  myDF$FIRETYPE_NO[myDF$FIRETYPE=="UNKNOWN"]<-OtherAndUnknown
+  # recode FIRETYPE to integer values value for Other and Unkonwn is set in settings file   #####-----can the look up table be used?
+  myDF$FIRETYPE_NO[myDF$FIRETYPE == "BURN"] <- 1
+  myDF$FIRETYPE_NO[myDF$FIRETYPE == "BUSHFIRE"] <- 2
+  myDF$FIRETYPE_NO[myDF$FIRETYPE == "OTHER"] <- OtherAndUnknown
+  myDF$FIRETYPE_NO[myDF$FIRETYPE == "UNKNOWN"] <- OtherAndUnknown            #####-----currently set to 2 (bushfire)
   
-  #adds a field containing a string representation of the x and y values of the
-  #centroid of each polygon in myDF to use as a unique identifier for unique
-  #polygons in the FH analysis ( ie two sptailly identical polygons with
-  #different SEASON of Firetype values will share an uniqe xycoords string) this
-  #is used to get the wide format sequence for each spatially unique polygon )
-  myDF<-add_xystring(myDF)
+  # add a field containing a string representation of the x and y values of the
+  # centroid of each polygon in myDF to use as a unique identifier for unique
+  # polygons in the FH analysis (ie two sptailly identical polygons with
+  # different SEASON of Firetype values will share an uniqe xycoords string) this
+  # is used to get the wide format sequence for each spatially unique polygon
+  myDF <- add_xystring(myDF)
   
+  
+  # filter spatial dataframe by unique polygons
   myDF<-unique(myDF[,c("geometry",
                        "XYString",
                        "SEASON",
-                       "FIRETYPE_NO")])
-  #orders the spatially unique polygons by SEASON then firetype and adds a
-  #sequential number to them , this is what allows the flattening  and subsequent
-  #reduction to fire sequences witout interveneing no fire year
+                       "FIRETYPE_NO")
+                    ]
+               )
   
+  # order the spatially unique polygons by SEASON then firetype
+  # adds a sequential number to them, this is what allows the flattening and subsequent
+  # reduction to fire sequences without an intervening no fire year
   myDF<-myDF[with(myDF,order(XYString, SEASON, FIRETYPE_NO)),] 
   
   myDF$Sequence<-1 
   myDF$Sequence<-unlist(lapply(split(myDF$Sequence, myDF$XYString), cumsum)) 
   
-  #reduction to the unique sequences of fires with no gaps using dplyr::pivot_wider 
-  # in order to acheive this efficently the sf object made from the rawFH file is converted to a standard data frame iwtha geometry column then coverted back to an sf object at the end of the process
+  # reduction to the unique sequences of fires with no gaps using dplyr::pivot_wider 
+  # in order to acheive this efficently the sf object made from the rawFH file is converted
+  # to a standard data frame with a geometry column then coverted back to an sf object at the end of the process
   tic("Making OutDF")
-  OutDF<-myDF%>%
-    select(XYString,Sequence,FireType=FIRETYPE_NO,SEAS=SEASON)%>%
-    mutate(Sequence=sprintf("%02d",Sequence))%>%
-    as.data.frame%>%
-    pivot_wider(names_from = Sequence,values_from=c(FireType,SEAS),names_sep="")
-  # get just the names for the season  and FireType sequence columns
-  SEASNames<-names(OutDF)[grep(pattern = "SEAS",names(OutDF))]
-  FTNames<-names(OutDF)[grep(pattern = "FireType",names(OutDF))]
-  #Calculates all inter-fire intervals note by offsetting matrices by one column
-  SEAS_Matrix<-as.matrix(OutDF[,SEASNames])
-  FT_matrix<-as.matrix(OutDF[,FTNames])
-  Cols<-ncol(SEAS_Matrix)
-  SEAS_Matrix[SEAS_Matrix==0]<-NA
-  Interval<-SEAS_Matrix[,2:Cols]-SEAS_Matrix[,1:Cols-1]
-  IntNames<-paste("INT",sprintf("%02d",1:(Cols-1)),sep="")
-  colnames(Interval)<-IntNames
+  OutDF <- myDF %>%
+    select(XYString, Sequence, FireType = FIRETYPE_NO, SEAS = SEASON) %>%
+      mutate(Sequence = sprintf("%02d", Sequence)) %>%
+        as.data.frame %>%
+          pivot_wider(names_from = Sequence, values_from = c(FireType, SEAS), names_sep="")
   
-  #Binds the intevals calcuated back to the main dataframe
-  OutDF<-cbind(OutDF,Interval)%>%
+  # get just the names for the season and FireType sequence columns
+  SEASNames <- names(OutDF)[grep(pattern = "SEAS", names(OutDF))]
+  FTNames <- names(OutDF)[grep(pattern = "FireType", names(OutDF))]
+  
+  # calculates all inter-fire intervals note by offsetting matrices by one column
+  SEAS_Matrix <- as.matrix(OutDF[, SEASNames])
+  FT_matrix <- as.matrix(OutDF[, FTNames])
+  Cols <- ncol(SEAS_Matrix)
+  SEAS_Matrix[SEAS_Matrix == 0] <- NA
+  Interval <- SEAS_Matrix[,2:Cols] - SEAS_Matrix[,1:Cols-1]
+  IntNames <- paste("INT", sprintf("%02d", 1:(Cols-1)), sep = "")
+  colnames(Interval) <- IntNames
+  
+  # bind the intervals calcuated back to the main dataframe
+  OutDF <- cbind(OutDF, Interval) %>%
     select(-XYString)
   
-  OutDF<-st_as_sf(OutDF)
-  toc()
+  OutDF <- st_as_sf(OutDF)
+  toc("Making OutDF")
   
-  #calcuating the last burnt season for each sequences for each year 
-  #this process is duplicated here and in CALC_TFI2 function - ideally it should only be run once but it is pretty fast so probably does not matter tooo much.
-  #
-  LTR<-length(TimeSpan)
-  SEAS_Matrix[is.na(SEAS_Matrix)]<-0
-  LBY<-matrix(NA,nrow(SEAS_Matrix),LTR)
+  # calcuating the last burnt season for each sequences for each year 
+  # this process is duplicated here and in CALC_TFI2 function
+  # ideally it should only be run once but it is pretty fast so probably does not matter too much.
+  LTR <- length(TimeSpan)
+  SEAS_Matrix[is.na(SEAS_Matrix)] <- 0
+  LBY <- matrix(NA, nrow(SEAS_Matrix), LTR)
   for(i in 1:LTR){
     try({
-      y=TimeSpan[i]
-      LBY[,i]<-LBY_f(M=SEAS_Matrix,y)
+      y = TimeSpan[i]
+      LBY[,i] <- LBY_f(M = SEAS_Matrix, y)
       #print(y)
-      
     })
   }
   
-  #subtraction leads to matrix transpostion which needs to be retransposed in the next couple of lines
-  tYSF<-TimeSpan-t(LBY)
-  YSF<-t(tYSF)
+  # subtraction leads to matrix transpostion which needs to be retransposed in the next couple of lines
+  tYSF <- TimeSpan-t(LBY)
+  YSF <- t(tYSF)
   
-  YSFNames<-paste0("YSF",TimeSpan)
-  LBYNames<-paste0("LBY",TimeSpan)
-  LFTNames<-paste0("LFT",TimeSpan)
-  colnames(YSF)<-YSFNames
-  colnames(LBY)<-LBYNames
+  # name matrix columns
+  YSFNames <- paste0("YSF", TimeSpan)
+  LBYNames <- paste0("LBY", TimeSpan)
+  LFTNames <- paste0("LFT", TimeSpan)
+  colnames(YSF) <- YSFNames
+  colnames(LBY) <- LBYNames
   
-  
+  # Create matrix used for getting last firetype by year
   tic("calculating lookup matrix for getting last firetype by year")
-  SEAS_Matrix[SEAS_Matrix==0]<-NA
-  LUM<-matrix(NA,nrow(SEAS_Matrix),max.SEASON)
+  SEAS_Matrix[SEAS_Matrix == 0] <- NA
+  LUM <- matrix(NA, nrow(SEAS_Matrix), max.SEASON)
   for (i in 1:nrow(SEAS_Matrix)){
-    R<-i
-    C<-as.numeric(na.omit(SEAS_Matrix[i,]))
-    V<-(FT_matrix[i,(1:length(C))])
-    LUM[R,C]<-V
+    R <- i
+    C <- as.numeric(na.omit(SEAS_Matrix[i,]))
+    V <- (FT_matrix[i,(1:length(C))])
+    LUM[R,C] <- V
   }
-  toc()
+  toc("calculating lookup matrix for getting last firetype by year")
   
+  # Calculate last fire type
   tic("calculating last fire type")
-  LFT<-matrix(NA,nrow(SEAS_Matrix),LTR)
+  LFT <- matrix(NA, nrow(SEAS_Matrix), LTR)
   for(i in 1:nrow(SEAS_Matrix)){
-    LFT[i,]<-LUM[i,LBY[i,]]}
-  colnames(LFT)<-LFTNames
-  toc()
+    LFT[i,] <- LUM[i, LBY[i,]]
+    }
+  colnames(LFT) <- LFTNames
+  toc("calculating last fire type")
   
-  OutDF<-cbind(OutDF,YSF)
-  OutDF<-cbind(OutDF,LBY)
-  OutDF<-cbind(OutDF,LFT)
-  OutDF$ID<-as.integer(rownames(OutDF))
-  print("completed making FH object")
+  # put together output dataframe
+  OutDF <- cbind(OutDF, YSF)
+  OutDF <- cbind(OutDF, LBY)
+  OutDF <- cbind(OutDF, LFT)
+  OutDF$ID <- as.integer(rownames(OutDF))
+  print("Completed making FH object")
   
-  
-  
-  
-  
+  # clean memory
   gc()
-  results<-list(OutDF=OutDF,TimeSpan=TimeSpan,  YSFNames=YSFNames,LBYNames=LBYNames, LFTNames=LFTNames)
+  
+  # compile output and return
+  results <- list(OutDF = OutDF, TimeSpan = TimeSpan, YSFNames = YSFNames,
+                  LBYNames = LBYNames, LFTNames = LFTNames)
   return(results)
 }
 
-
-
-
-###makeLU_List#############################################################################################
-# function creates a list of Lookup arrays for each taxon(VBA_CODE/TAXON_ID) for  YSF x EFGNO x FireTypeNo these are then used in
-makeLU_List<- function(myHDMSpp_NO=HDMSpp_NO,#
-                       myAbundDataLong=ExpertDataLong){
-  
-  
+## FUNCTION TO GENERATE LISTS OF LOOKUP ARRAYS FOR EACH TAXON --------------
+# function creates a list of Lookup arrays for each taxon(VBA_CODE/TAXON_ID)
+# for  YSF x EFGNO x FireTypeNo these are then used in
+makeLU_List <- function(myHDMSpp_NO = HDMSpp_NO,
+                        myAbundDataLong = ExpertDataLong){
   
   myList <- list() 
   for(i in myHDMSpp_NO){
-    
-    y<-myAbundDataLong[myAbundDataLong$VBA_CODE==i,]
-    b=(y$YSF)+1
-    c=y$EFG_NO
-    d=y$FireTypeNo
-    e=y$Abund
-    x<-array(NA,dim=c(max(b),40,4))
+    y <- myAbundDataLong[myAbundDataLong$VBA_CODE == i,]
+    b = (y$YSF) + 1
+    c = y$EFG_NO
+    d = y$FireTypeNo
+    e = y$Abund
+    x <- array(NA, dim = c(max(b), 40, 4))
     for(j in 1:nrow(y)){
-      x[b[j],c[j],d[j]]<-e[j]
+      x[b[j],c[j],d[j]] <- e[j]
     }
-    myList[[as.character(i)]]<-x
+    myList[[as.character(i)]] <- x
     rm(y)
   }
   return(myList)
 }
 
-###makeSppYearSum2#######################################################
-#function returns summary of species summed relative abundances by year
-#also if writeSpRasters==TRUE it writes species raster for each year (slows processing)
-#may require excessive ram to run statewide at 75m resolution.
-makeSppYearSum2<-function(FHanalysis,
-                          myHDMSpp_NO = HDMSpp_NO,
-                          writeSpRasters = writeSpRasters,
-                          myLU_List = LU_List,
-                          ResultsDir = ResultsDir,
-                          HDMVals = HDMVals,
-                          TaxonList = TaxonList,
-                          writeYears=NULL,
-                          writeSp =writeSp
-) {
+## FUNCTION makeSppYearSum2 ------------------------------------------------
+# function returns summary of species summed relative abundances by year
+# if writeSpRasters == TRUE, it writes species raster for each year (slows processing)
+# may require excessive ram to run statewide at 75m resolution.
+makeSppYearSum2 <- function(FHanalysis,
+                            myHDMSpp_NO = HDMSpp_NO,
+                            writeSpRasters = writeSpRasters,
+                            myLU_List = LU_List,
+                            ResultsDir = ResultsDir,
+                            HDMVals = HDMVals,
+                            TaxonList = TaxonList,
+                            writeYears = NULL,
+                            writeSp = writeSp) {
   
-  TimeRange<-as.integer(FHanalysis$TimeSpan)
-  TimeNames<-as.character(FHanalysis$TimeSpan)
-  LTR<-length(TimeRange)
-  r<-FHanalysis$FH_IDr
+  # set time range for analysis
+  TimeRange <- as.integer(FHanalysis$TimeSpan)
+  TimeNames <- as.character(FHanalysis$TimeSpan)
+  LTR <- length(TimeRange)
   
-  r<-raster(nrows=nrow(r), ncols=ncol(r),ext=extent(r),crs=crs(r),vals=NULL)
-  TimeSpan<-FHanalysis$TimeSpan
-  myDF<-FHanalysis$OutDF
-  if(is.null(writeYears)){writeYears=TimeSpan}else{writeYears<-writeYears[writeYears%in%TimeSpan]}
-  #remove geometry FHanalysis DF to create a standard dataframe so columns can be subset without "stciky geometry of origina spatial Features data frame
-  st_geometry(myDF)<-NULL
+  # WHAT IS FH_IDr - Fire History r                                             #####-----comment-----#####
+  r <- FHanalysis$FH_IDr
+  # define r raster metadata
+  r <- raster(nrows = nrow(r),
+              ncols = ncol(r),
+              ext = extent(r),
+              crs = crs(r),
+              vals = NULL)
   
-  #create empty matrix with rownames containing HDM TAXON ID numbers and column names of the years ( SEASONS) to house the Species abundance data for each year.
-  SpYearSumm<-matrix(NA,nrow=(length(myHDMSpp_NO)),ncol=LTR,dimnames=list(as.character(myHDMSpp_NO),TimeNames))
-  #loop through calcualtion of per cell speices abundance values and if flagged output of rasters of these values.
+  # determine what years to write out (each year or timespan)
+  TimeSpan <- FHanalysis$TimeSpan
+    myDF<-FHanalysis$OutDF
+  if(is.null(writeYears)){
+    writeYears = TimeSpan}else
+    {writeYears <- writeYears[writeYears %in% TimeSpan]
+      }
+  
+  # remove geometry FHanalysis DF to create a standard dataframe so columns can be subset
+  # without sticky geometry of original spatial Features data frame
+  st_geometry(myDF) <- NULL
+  
+  # create empty matrix with rownames containing HDM TAXON ID numbers and column names of the years (SEASONS)
+  # used to house the Species abundance data for each year
+  SpYearSumm <- matrix(NA, nrow = (length(myHDMSpp_NO)), ncol = LTR, dimnames = list(as.character(myHDMSpp_NO), TimeNames))
+  
+  # loop through calculation of per cell species abundance values
+  # output raster values of flagged spp
   for (sp in myHDMSpp_NO) {
-    cat("\r",paste( "calculating abundances for",sp))
-    mySpp<-as.character(sp)
+    cat("\r", paste( "calculating abundances for", sp))
+    mySpp <- as.character(sp)
+    
     #get the lookup array of abundance values from the list of species value lookup 
     LU = myLU_List[[mySpp]]
-    #gets the HDMVals for the relevant species from the matrix of HDMvalues by species. values multiplied by 100 so that they can later be converted to integer if necessarywithout losing small values
-    HDM_Vector<-as.vector(HDMVals[,grep(as.character(sp),colnames(HDMVals))])*100
-    #makes matrices of YSF,EFG,and LFT to use in lookup from LU array
-    YSF_M<-as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID,FHanalysis$YSFNames])+1
-    LFT_M<-as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID,FHanalysis$LFTNames])
-    EFG_M<-matrix(myAllCombs$U_AllCombs_TFI$EFG,nrow(YSF_M),ncol(YSF_M))
-    #looks up the cell-wise species values for for the species abundance balues by id neces in array
-    Spp_M<-array(LU[cbind(as.vector(YSF_M),as.vector(EFG_M),as.vector( LFT_M))],dim=dim(YSF_M))
-    #Multiplies these values by cell-wise HDM values - effectively masking out values where the species does not occur.
-    Spp_Val_Cell_Year<-Spp_M[myAllCombs$Index_AllCombs,]*HDM_Vector
-    colnames(Spp_Val_Cell_Year)<-TimeNames
-    #get the sum of cell values for each year for the species
-    #put them in the compilation data frame
-    SpYearSumm[mySpp,]<-colSums(Spp_Val_Cell_Year,na.rm=T)
     
+    # gets the HDMVals for the relevant species from the matrix of HDMvalues by species.
+    # values multiplied by 100 so that they can later be converted to integer if necessary without losing small values
+    HDM_Vector<-as.vector(HDMVals[, grep(as.character(sp), colnames(HDMVals))]) * 100
+    
+    # makes matrices of YSF, EFG, and LFT to use in lookup from LU array
+    YSF_M <- as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID, FHanalysis$YSFNames]) + 1
+    LFT_M <- as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID, FHanalysis$LFTNames])
+    EFG_M <- matrix(myAllCombs$U_AllCombs_TFI$EFG, nrow(YSF_M), ncol(YSF_M))
+    
+    # looks up the cell-wise species values for for the species abundance values by id neces in array
+    Spp_M <- array(LU[cbind(as.vector(YSF_M), as.vector(EFG_M), as.vector( LFT_M))],
+                   dim = dim(YSF_M))
+    
+    # Multiplies these values by cell-wise HDM values 
+    #effectively masking out values where the species does not occur.
+    Spp_Val_Cell_Year <- Spp_M[myAllCombs$Index_AllCombs,] * HDM_Vector
+    colnames(Spp_Val_Cell_Year) <- TimeNames
+    
+    # get the sum of cell values for each year for the species
+    # put them in the compilation data frame
+    SpYearSumm[mySpp,] <- colSums(Spp_Val_Cell_Year, na.rm = TRUE)
+    
+    #clean memory
     gc()
-    #if writing species rasters is desired ( set in settings)
-    #next section writesout species rasters
-    #this is by far the most time consuming part of the FAME processing
     
-    if(writeSpRasters=="Yes"){
+    # if writing species rasters is desired (function setting writeSpRasters == "Yes")
+    # write out species rasters
+    # this is by far the most time consuming part of the FAME processing
+    
+    if(writeSpRasters == "Yes"){
       for(myYear in as.character(writeYears)){
-        cat("\r",paste ("writing species abund rasters for",myYear))
-        if (sp%in%writeSp|is.null(writeSp)){
-          OutTif<-file.path(ResultsDir,"RA_Rasters",paste0("Spp",sp,"_",myYear,".tif"))
+        cat("\r", paste("writing species abund rasters for", myYear))
+        if (sp %in% writeSp|is.null(writeSp)){
+          OutTif <- file.path(ResultsDir, "RA_Rasters", paste0("Spp", sp, "_", myYear, ".tif"))
           emptySpraster <- r
-          values(emptySpraster) <- Spp_Val_Cell_Year[,myYear]
+          values(emptySpraster) <- Spp_Val_Cell_Year[, myYear]
           writeRaster(emptySpraster,
                       OutTif,
                       options = c("COMPRESS=LZW", "TFW=YES"),
                       datatype = 'INT1U',
                       overwrite = TRUE
-          )
+                      )
         }
       }
-      
-      
     }
-  }
-  #join species details from TaxonList  to the output tables
-  SpYearSumm<-rownames_to_column(as.data.frame(SpYearSumm))
-  names(SpYearSumm)[1]<-"TAXON_ID"
-  TL<-TaxonList%>%
-    mutate(TAXON_ID=as.character(TAXON_ID))
-  SpYearSummWide<-right_join(TL,SpYearSumm)
-  write.csv(SpYearSummWide,file.path(ResultsDir,"SpYearSummWide.csv"))
-  SpYearSummLong<-right_join(TL,SpYearSumm%>%pivot_longer(-TAXON_ID,names_to="SEASON",values_to="SUM_RAx100"))
-  write.csv(SpYearSummLong,file.path(ResultsDir,"SpYearSummLong.csv"))
+  } # end species raster cell abundance calcs loop
   
+  # join species details from TaxonList  to the output tables
+  SpYearSumm <- rownames_to_column(as.data.frame(SpYearSumm))
+  names(SpYearSumm)[1] <- "TAXON_ID"
+  TL <- TaxonList %>%
+    mutate(TAXON_ID = as.character(TAXON_ID))
+  SpYearSummWide <- right_join(TL, SpYearSumm)
+  write.csv(SpYearSummWide,
+            file.path(ResultsDir, "SpYearSummWide.csv"))
+  SpYearSummLong <- right_join(TL, SpYearSumm %>%
+                                 pivot_longer(-TAXON_ID, names_to = "SEASON", values_to = "SUM_RAx100"))
+  write.csv(SpYearSummLong, file.path(ResultsDir, "SpYearSummLong.csv"))
+  
+  # return makeSppYearSum2 function
   return(SpYearSummWide)
 }
 
 
-###calcDeltaAbund#######################################################################################
+## FUNCTION calcDeltaAbund -------------------------------------------------
+# Calculates baseline RA based on input baseline years and deviation from a
+# baseline (either a single year or a several years, usually a sequence
+# eg 1980-1990) for each  year.
+# output written to CSV "SppSummChangeRelativetoBaseline.csv" 
 
-#Calculates baseline RA based on input baseline years and deviation from  a
-#baseline ( either a single year or a several years, usually a sequence eg
-#1980-1990) for each  year, output written to CSV file.
-#"SppSummChangeRelativetoBaseline.csv" 
-
-calcDeltaAbund<- function(SpYearSummSpreadbyYear =SpYearSummWide,
-                          TimeSpan =FHanalysis$TimeSpan,
-                          myBaseline,
-                          ResultsDir,
-                          HDMSpp_NO,
-                          TaxonList)
-{
+calcDeltaAbund <- function(SpYearSummSpreadbyYear = SpYearSummWide,
+                           TimeSpan = FHanalysis$TimeSpan,
+                           myBaseline,
+                           ResultsDir,
+                           HDMSpp_NO,
+                           TaxonList)
+  {
   
-  #to get % of baseline need to define which columns provide the baseline ( one or mean of several using apply (mean)) then divide remaining values by this column.
-  if (length(myBaseline==1)){
-    Baseline<-SpYearSummSpreadbyYear[,as.character(myBaseline)]
+  # to get % of baseline need to define which columns provide the baseline
+  # (one or mean of several using apply (mean)) then divide remaining values by this column.
+  if (length(myBaseline == 1)){
+    Baseline <- SpYearSummSpreadbyYear[, as.character(myBaseline)]
   } else {
-    Baseline<-apply(SpYearSummSpreadbyYear[,as.character(myBaseline)],1,mean)
+    Baseline <- apply(SpYearSummSpreadbyYear[, as.character(myBaseline)], 1, mean)
   }
-  SpYearSummSpreadbyYear$Baseline<-Baseline
-  # gets the integer value for current year used in next line so that changes to baseline
-  #are only displayed for future years or if no future years then years since baseline.
-  ThisYear<-as.integer(format(Sys.Date(), "%Y"))
-  SinceYear<-ifelse(sum(TimeSpan>ThisYear)>0,
+  
+  #add baseline data to dataframe
+  SpYearSummSpreadbyYear$Baseline <- Baseline
+  
+  # get integer value for current year. Used so that changes to baseline
+  # are only displayed for future years or if no future years then years since baseline.
+  ThisYear <- as.integer(format(Sys.Date(), "%Y"))
+  
+  SinceYear <- ifelse(sum(TimeSpan > ThisYear) > 0,
                     ThisYear,
-                    max(myBaseline))
+                    max(myBaseline)
+                    )
   
-  #calcualtes th changes from baseline
-  Deltas<-as.matrix(SpYearSummSpreadbyYear[,as.character(TimeSpan[TimeSpan>SinceYear])]/Baseline)
-  names(Deltas)<-paste(names(Deltas),"prop baseline")
+  # calculate the changes from baseline
+  Deltas <- as.matrix(SpYearSummSpreadbyYear[, as.character(TimeSpan[TimeSpan > SinceYear])] / Baseline)
+  names(Deltas) <- paste(names(Deltas), "prop baseline")
   
-  # calcuates two potential comparivie metrics , the total number of years below threshold and whether the last year is below threshold
-  NoLessthanThreshhold<-rowSums(Deltas<=SpYearSummSpreadbyYear$CombThreshold)
-  LastLessThanThreshold<-Deltas[,ncol(Deltas)]<=SpYearSummSpreadbyYear$CombThreshold
+  # calcuates two potential comparitive metrics;
+  # the total number of years below threshold, and whether the last year is below threshold
+  NoLessthanThreshhold <- rowSums(Deltas <= SpYearSummSpreadbyYear$CombThreshold)
+  LastLessThanThreshold <- Deltas[,ncol(Deltas)] <= SpYearSummSpreadbyYear$CombThreshold
   
   #Subsets input columns and appends results to make an output table
-  ChangeRelativeToBaseline<-cbind(SpYearSummSpreadbyYear[,c("TAXON_ID",
-                                                            #"ShortName",
-                                                            "COMMON_NAME",
-                                                            "NAME",
-                                                            "DIVNAME",
-                                                            "EPBC_ACT_STATUS",
-                                                            "VIC_ADVISORY_STATUS",
-                                                            "CombThreshold")],
-                                  Deltas,
-                                  NoLessthanThreshhold,
-                                  LastLessThanThreshold)
-  #wirtes the table to file
+  ChangeRelativeToBaseline <- cbind(SpYearSummSpreadbyYear[,c("TAXON_ID",
+                                                              #"ShortName",    #####-----delelte-----######
+                                                              "COMMON_NAME",
+                                                              "NAME",
+                                                              "DIVNAME",
+                                                              "EPBC_ACT_STATUS",
+                                                              "VIC_ADVISORY_STATUS",
+                                                              "CombThreshold")],
+                                    Deltas,
+                                    NoLessthanThreshhold,
+                                    LastLessThanThreshold
+                                    )
+  
+  #writes the table to file
   write.csv(ChangeRelativeToBaseline,
-            file.path(ResultsDir,"SppSummChangeRelativetoBaseline.csv"),
-            row.names=F)
+            file.path(ResultsDir, "SppSummChangeRelativetoBaseline.csv"),
+            row.names = FALSE)
+  
   return(ChangeRelativeToBaseline)
-  
 }
 
 
+## FUNCTION calcDraftSpList -------------------------------------------------
+# Calculate the proportion of cells for the HDM in the region for each species
+# works by using the indices of the standard dimesions of raster that are in
+# the supplied shapefile region boundary
 
-
-###calcDraftSpList#####################################################################################################
-
-#Calculate the proportion of cells for the HDM in the region for each species works by using the indices of the standard dimesions 
-#raster that are in the supplied shapefile region boundary
-calcDraftSpList<-function(REG_NO,#REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),
-                          RasterRes=225,
-                          PUBLIC_LAND_ONLY="YES",
-                          myPoly=myPoly,#shapefile ofLF_REGIONs( default)or  adhoc region,
-                          generalRasterDir = "./InputGeneralRasters",
-                          splist ="./ReferenceTables/DraftTaxonListStatewidev2.csv",
-                          HDMVals=HDMVals225){
+calcDraftSpList <- function(REG_NO,  # can this match look up table REG_LUT     #REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),
+                            RasterRes = 225,                                    ######-----'RasterRes' of 225 is defined in settings.  Change to that?
+                            PUBLIC_LAND_ONLY = "YES",
+                            myPoly = myPoly,       #shapefile of LF_REGIONs (default) or adhoc region,   ######-----should this be clipPoly for consistency?
+                            generalRasterDir = "./InputGeneralRasters",
+                            splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
+                            HDMVals = HDMVals225){                          ######-----HDMVals225 is commented out in settings, and not called anywhere prior.
   load(HDMVals)
-  REG_NO<-as.integer(as.numeric(REG_NO))
-  splist<-read.csv(splist)
-  CropDetails<-makeCropDetails(REG_NO=REG_NO,
-                               RasterRes=RasterRes,
-                               PUBLIC_LAND_ONLY=PUBLIC_LAND_ONLY,
-                               myPoly=myPoly,
-                               generalRasterDir = "./InputGeneralRasters"
-  )
+  REG_NO <- as.integer(as.numeric(REG_NO))                                  ######-----go straight to int? rather than wrap the numeric
+  splist <- read.csv(splist)
+  CropDetails <- makeCropDetails(REG_NO = REG_NO,
+                                 RasterRes = RasterRes,
+                                 PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,
+                                 myPoly = myPoly,
+                                 generalRasterDir = "./InputGeneralRasters"
+                                 )
   
-  cellsInArea<-colSums(HDMVals[CropDetails$clipIDX,])
-  cellsInState<-colSums(HDMVals)
-  areaProp<-signif(cellsInArea/cellsInState,digits = 2)
-  TAXON_ID<-as.numeric(colnames(HDMVals))
-  myDF<-data.frame(TAXON_ID,cellsInState,cellsInArea,areaProp)
-  myDF<-left_join(splist,myDF)
+  # get cells in polygon 
+  cellsInArea <- colSums(HDMVals[CropDetails$clipIDX,])
+  cellsInState <- colSums(HDMVals)
+
+  # calc proportion
+  areaProp <- signif(cellsInArea / cellsInState, digits = 2)
+  # pull data into dataframe
+  TAXON_ID <- as.numeric(colnames(HDMVals))
+  myDF <- data.frame(TAXON_ID, cellsInState, cellsInArea, areaProp)
+  myDF <- left_join(splist, myDF)
   return(myDF)
-}
+  }
 
-###calcSppEFGLM#####################################################################################
 
-#Calculate the species in each EFG in given area for GSO calcuations. works by using the indices of the standard dimesions 
-#raster that are in the supplied shapefile region boundary ( via function makeCropDetails)
-calcSpp_EFG_LMU<-function(REG_NO,#REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),
-                          RasterRes=225,
-                          PUBLIC_LAND_ONLY="YES",
-                          myPoly=myPoly,#shapefile ofLF_REGIONs( default)or  adhoc region,
-                          generalRasterDir = "./InputGeneralRasters",
-                          splist ="./ReferenceTables/DraftTaxonListStatewidev2.csv",
-                          HDMVals=HDMVals225,
-                          EFGRas=EFGRas,
-                          TFI_LUT=TFI_LUT){
-  options(stringsAsFactors = F)
-  load(HDMVals)
-  mySpList<-read.csv(splist)[,c( "TAXON_ID","COMMON_NAME","NAME")]
-  EFG<-values(raster(EFGRas))
-  REG_NO<-as.integer(as.numeric(REG_NO))
-  CropDetails<-makeCropDetails(REG_NO=REG_NO,
-                               RasterRes=RasterRes,
-                               PUBLIC_LAND_ONLY=PUBLIC_LAND_ONLY,
-                               myPoly=myPoly,
-                               generalRasterDir = "./InputGeneralRasters"
-  )
+## FUNCTION calcSppEFGLM ----------------------------------------------------
+# Calculate the species in each EFG in given area for GSO calcuations. 
+# works by using the indices of the standard dimesions raster that are in the
+# supplied shapefile region boundary (via function makeCropDetails)
+calcSpp_EFG_LMU <- function(REG_NO,#REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),     ######-----sync to regions look up table?
+                            RasterRes = 225,                                 ######-----'RasterRes' of 225 is defined in settings.  Change to that?
+                            PUBLIC_LAND_ONLY = "YES",                        ######-----consistency for this across, T/F, Y/N
+                            myPoly = myPoly,#shapefile ofLF_REGIONs( default)or  adhoc region,  ######-----should this be clippoly for consistency?
+                            generalRasterDir = "./InputGeneralRasters",
+                            splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
+                            HDMVals = HDMVals225,                            ######-----HDMVals225 is commented out in settings, and not called anywhere prior.
+                            EFGRas = EFGRas,                                 ######-----EFGRas isn't defined anywhere prior
+                            TFI_LUT = TFI_LUT){
   
-  EFG<-EFG[CropDetails$clipIDX]
-  EFG[is.na(EFG)]<-99
-  HDMVals<-HDMVals[CropDetails$clipIDX,]
-  mode(EFG)<-"integer"
-  A<-aggregate.Matrix(HDMVals,EFG,fun='sum')
-  myDf<-as.data.frame(as.matrix(A))
-  myDf$EFG_NO<-as.integer(rownames(myDf))
-  myDf<-gather(myDf,key = "TAXON_ID","CellCount",-EFG_NO)
-  myDf<-myDf[myDf$CellCount>0,]
-  myDf$TAXON_ID<-as.integer(myDf$TAXON_ID)
-  myDf$EFG<-as.integer(myDf$EFG)
-  myDf$ha<-myDf$CellCount*5.0625
-  myDf<-left_join(myDf,TFI_LUT[,c("EFG","EFG_NAME")],by=c("EFG_NO"="EFG"))
-  myDf<-left_join(myDf,mySpList)
-  EFG_AREAS<-as.data.frame(table(EFG))
-  EFG_AREAS$ha<-EFG_AREAS$Freq*((RasterRes/100)^2)
-  EFG_AREAS$EFG<-as.numeric(levels(EFG_AREAS$EFG))
-  EFG_AREAS<-right_join(TFI_LUT[,c("EFG","EFG_NAME")],EFG_AREAS,by="EFG")
-  write.csv(EFG_AREAS,file.path(ResultsDir,"EFG_AREAS.csv"),row.names = F)
-  write.csv(myDf,file.path(ResultsDir,"Spp_EFG_LMU.csv"),row.names = F)
-}
+  options(stringsAsFactors = FALSE)                                          ######-----delete? this is done at start of FAME_FMR_FHanalysisTFI_GS_calculations
+  # load HDM data
+  load(HDMVals)
+  # read in species list
+  mySpList <- read.csv(splist)[,c( "TAXON_ID","COMMON_NAME","NAME")]
+  EFG <- values(raster(EFGRas))
+  REG_NO <- as.integer(as.numeric(REG_NO))                                   ######-----go straight to int? rather than wrap the numeric
+  CropDetails <- makeCropDetails(REG_NO = REG_NO,
+                                 RasterRes = RasterRes,
+                                 PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,
+                                 myPoly = myPoly,
+                                 generalRasterDir = "./InputGeneralRasters"
+                                 )
+  
+  # crop EFG and HDMVals
+  EFG <- EFG[CropDetails$clipIDX]
+  EFG[is.na(EFG)] <- 99
+  HDMVals <- HDMVals[CropDetails$clipIDX,]
+  mode(EFG) <- "integer"
+  
+  # write spp EFG LMU csv
+  A <- aggregate.Matrix(HDMVals, EFG ,fun = 'sum')
+  myDf <- as.data.frame(as.matrix(A))
+  myDf$EFG_NO <- as.integer(rownames(myDf))
+  myDf <- gather(myDf, key = "TAXON_ID", "CellCount", -EFG_NO)
+  myDf <- myDf[myDf$CellCount > 0,]
+  myDf$TAXON_ID <- as.integer(myDf$TAXON_ID)
+  myDf$EFG <- as.integer(myDf$EFG)                                              ######-----possible to bundle up the interger transforms into single line
+  myDf$ha <- myDf$CellCount * 5.0625                                            ######-----cellsToHectares??  where does 5.0625 come from? cells are 225 (or 75) and neither multiply to 1ha. 5.0625 = 2.25^2 is it interchangeable if raters are 225 or 75?  --- should this be cellsToHectares function?
+  myDf <- left_join(myDf, TFI_LUT[,c("EFG","EFG_NAME")], by = c("EFG_NO" = "EFG"))
+  myDf <- left_join(myDf, mySpList)
+  write.csv(myDf, file.path(ResultsDir, "Spp_EFG_LMU.csv"), row.names = FALSE)  
+  # write EFG areas csv  
+  EFG_AREAS <- as.data.frame(table(EFG))
+  EFG_AREAS$ha <- EFG_AREAS$Freq*((RasterRes / 100) ^ 2)
+  EFG_AREAS$EFG <- as.numeric(levels(EFG_AREAS$EFG))
+  EFG_AREAS <- right_join(TFI_LUT[,c("EFG", "EFG_NAME")], EFG_AREAS, by = "EFG")
+  write.csv(EFG_AREAS, file.path(ResultsDir, "EFG_AREAS.csv"), row.names = FALSE)
+  }
 
-###inputRasters-----------------------------------------------------------------------
 
-#get names of input rasters depending on cellSize
-inputRasters<-function(x=RasterRes){
+## FUNCTION inputrasters ----------------------------------------------------
+# get names of input rasters depending on cellSize
+
+inputRasters <- function(x = RasterRes){
   #General Input Rasters change name depending on Raster Res
-  if (x==225){
-    REGION.tif<-"LF_REGION_225.tif"
-    EFG.tif<-"EFG_NUM_225.tif"
-    PLM_GEN.tif<-"PLM_GEN_225.tif"
-    IDX.tif<-"IndexVals225.tif"
-    FIREFMZ.tif<-"FIRE_FMZ_225.tif"
-    DELWP.tif<-"DELWP_REGION_225.tif"
+  if (x == 225){
+    y <- list(REGION.tif <- "LF_REGION_225.tif",
+              EFG.tif <- "EFG_NUM_225.tif",
+              PLM_GEN.tif <- "PLM_GEN_225.tif",
+              IDX.tif <- "IndexVals225.tif",
+              FIREFMZ.tif <- "FIRE_FMZ_225.tif",
+              DELWP.tif <- "DELWP_REGION_225.tif"
+              )
     
   }else{  
-    REGION.tif<-"LF_REGION_75.tif"
-    EFG.tif<-"EFG_NUM_75.tif"
-    PLM_GEN.tif<-"PLM_GEN_75.tif"
-    IDX.tif<-"IndexVals75.tif"
-    FIREFMZ.tif<-"FIRE_FMZ_75.tif"
-    DELWP.tif<-"DELWP_REGION_75.tif"
+    y <- list(REGION.tif <- "LF_REGION_75.tif",
+              EFG.tif <- "EFG_NUM_75.tif",
+              PLM_GEN.tif <- "PLM_GEN_75.tif",
+              IDX.tif <- "IndexVals75.tif",
+              FIREFMZ.tif <- "FIRE_FMZ_75.tif",
+              DELWP.tif <- "DELWP_REGION_75.tif"
+              )
   }
-  y <-list("REGION.tif"=REGION.tif,
-           "EFG.tif"=EFG.tif,
-           "PLM_GEN.tif"=PLM_GEN.tif,
-           "IDX.tif"=IDX.tif,
-           "FIREFMZ.tif"=FIREFMZ.tif,
-           "DELWP.tif"=DELWP.tif)
   return(y)
-}
+  }
 
-# Function joins Lookup tables to DF containing ID_NO :Name combinations at the moment the LUTS are hard wired.
 
-Join_Names<-function(myDF,#dataframe or similar containing indices for the LUTS listed 
-                     LUTS=c("TFI_LUT","TFI_LUT","FIREFMZ_LUT","REG_LUT","DELWP_LUT")){
+## FUNCTION Join_Names ------------------------------------------------------
+# Function joins Lookup tables to dataframe containing ID_NO: Name combinations
+# at the moment the LUTS are hard wired.
+
+Join_Names <- function(myDF,   #dataframe or similar containing indices for the LUTS listed 
+                       LUTS = c("TFI_LUT","TFI_LUT","FIREFMZ_LUT","REG_LUT","DELWP_LUT")){
   for(i in LUTS){
-    try(myDF<-left_join(myDF,get(i)))}
+    try(myDF <- left_join(myDF,get(i)))}
   return (myDF)
 }
 
-# Function calclulate multiplier form cells to hecatres for cell resolution in Metres ( usually from RasterRes in settings file)----------
-cellsToHectares<-function(RasterMetres=RasterRes){
-  (RasterMetres/100)^2
+
+## FUNCTION cellsToHectares -------------------------------------------------
+# Function to calclulate multiplier from cells to hecatres
+# cell resolution in Metres (usually from RasterRes in settings file)
+cellsToHectares <- function(RasterMetres = RasterRes){
+  (RasterMetres / 100) ^ 2
 }
+
+
+## FUNCTION Join_Names ------------------------------------------------------
+# Function makes a matrix of HDM values(1,NA) constrained to those cells that
+# are indexed in the cropped area 
+makeHDMValsfromRasters <- function(myHDMSpp_NO = HDMSpp_NO,
+                                   myCropDetails = cropRasters
+){
+  HDMPaths <- dir(myCropDetails$HDM_RASTER_PATH, full.names=TRUE, pattern = ".tif$")
+  HDMPaths <- HDMPaths[get_Spp_No(HDMPaths) %in% 
+                         myHDMSpp_NO]
+  
+  print("reading HDMvalues")
+  
+  #Ncores<-8                                                                #####-----delete.  set in settings.
+  # set up parallel processing
+  cl<-makeCluster(Ncores)
+  registerDoParallel(cl, cores=Ncores)
+  
+  myHDMVals <- foreach(i = iter(HDMPaths),.combine = cbind,.packages = "raster") %dopar% {
+    myVals <- values(raster(i))[myCropDetails$IDX]
+    myVals}
+  stopCluster(cl)
+  
+  colnames(myHDMVals) <- as.character(get_Spp_No(HDMPaths))
+  return(myHDMVals)
+}
+
+makeHDMVals <- function(myHDMSpp_NO = HDMSpp_NO,
+                        myCropDetails = cropRasters,
+                        RasterRes = FHanalysis$RasterRes){
+  load(paste0("./HDMS/HDMVals", RasterRes, ".rdata"))
+  myHDMVals <- HDMVals[myCropDetails$IDX, as.character(myHDMSpp_NO)]
+  return(myHDMVals)
+}
+
+
+
+
+
+
+
+
 
 
 ###FUNCTIONS NOT CURRENTLY USED ####################################################
@@ -598,7 +706,7 @@ cellsToHectares<-function(RasterMetres=RasterRes){
 # https://www.spatialanalytics.co.nz/post/2017/09/11/a-parallel-function-for-spatial-analysis-in-r/ 
 #and https://www.spatialanalytics.co.nz/post/2018/04/01/fixing-st-par/
 #for linux only
-#latest info on this on github suggests that there are not likely to be eay spoeed gains of parallell at the moment (July 2020)
+#latest info on this on github suggests that there are not likely to be eay spoeed gains of parallel at the moment (July 2020)
 # https://github.com/r-spatial/sf/issues/611
 
 # Paralise any simple features analysis.
@@ -773,7 +881,9 @@ makeSppYearSum<-function(TimeSpan = rv$FHanalysis$TimeSpan,
   }
   colnames(SpYearSumm)<-c("TAXON_ID",	"SEASON",	"SUM_RAx100")
   SpYearSumm<-as.data.frame(SpYearSumm)
-  SpTotals<-SpYearSumm%>%group_by(TAXON_ID)%>%summarize(total = sum(SUM_RAx100))
+  SpTotals<-SpYearSumm %>% 
+    group_by(TAXON_ID) %>% 
+      summarize(total = sum(SUM_RAx100))
   SpGterThan0<-SpTotals$TAXON_ID[SpTotals$total>0]
   #cat(names(SpYearSumm))
   #cat(head(SpGterThan0))
@@ -783,35 +893,7 @@ makeSppYearSum<-function(TimeSpan = rv$FHanalysis$TimeSpan,
   return(SpYearSumm)
 }
 
-###makeHDMVals######################################################################
-#makes a matrix of HDM values(1,NA) constrained to those cells that are indexed in the cropped area 
-makeHDMValsfromRasters<-function(myHDMSpp_NO=HDMSpp_NO,
-                                 myCropDetails=cropRasters
-){
-  HDMPaths<-dir(myCropDetails$HDM_RASTER_PATH,full.names=T,pattern =".tif$")
-  HDMPaths<-HDMPaths[get_Spp_No(HDMPaths)%in%myHDMSpp_NO]
-  
-  print("reading HDMvalues")
-  
-  #Ncores<-8
-  
-  cl<-makeCluster(Ncores)
-  registerDoParallel(cl, cores=Ncores)
-  myHDMVals<-foreach(i=iter(HDMPaths),.combine = cbind,.packages="raster")%dopar%{
-    myVals<-values(raster(i))[myCropDetails$IDX]
-    myVals}
-  stopCluster(cl)
-  
-  colnames(myHDMVals)<-as.character(get_Spp_No(HDMPaths))
-  return(myHDMVals)
-}
-makeHDMVals<-function(myHDMSpp_NO=HDMSpp_NO,
-                      myCropDetails=cropRasters,
-                      RasterRes=FHanalysis$RasterRes){
-  load(paste0("./HDMS/HDMVals",RasterRes,".rdata"))
-  myHDMVals<-HDMVals[myCropDetails$IDX,as.character(myHDMSpp_NO)]
-  return(myHDMVals)
-}
+
 
 # rawTiffRead -----------------------------------------------------------
 
