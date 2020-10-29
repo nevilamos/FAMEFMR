@@ -57,7 +57,7 @@ makeGS_Sum <- function(writeGSRasters,                                      ####
   
   # populate output  
   GS_Summary_Long <- GS_Summary %>%
-    select(-c(MIN_LO_TFI, MIN_HI_TFI, MAX_TFI, Index, FH_ID, FIRE_REG, FIREFMZ, DELWP)) %>% # remvoe these columns from U_AllCombs_TFI
+    dplyr::select(-c(MIN_LO_TFI, MIN_HI_TFI, MAX_TFI, Index, FH_ID, FIRE_REG, FIREFMZ, DELWP)) %>% # remvoe these columns from U_AllCombs_TFI
       pivot_longer(all_of(TimeNames), names_to = "SEASON", values_to = "GS") %>%
         group_by(EFG, EFG_NAME, PLM ,FIRE_FMZ_NAME, FIRE_FMZ_SHORT_NAME, FIRE_REGION_NAME, DELWP_REGION, SEASON, GS) %>%
           summarise(Pixels = sum(nPixel), Hectares = sum(Hectares))

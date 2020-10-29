@@ -7,7 +7,7 @@
 ## FUNCTION LBY_f -----------------------------------------------------------
 # Function to calculate last burnt year (LBY) from matrix of rows of fire season
 # iterating by year (y) used in calc_TFI_2
-LBY_f < -function(M, y){
+LBY_f <- function(M, y){
   M[M > y | M == 0] <- NA
   LBY <- Rfast::rowMaxs(M, value = TRUE)
   LBY[is.infinite(LBY)] <- NA
@@ -108,7 +108,7 @@ calc_TFI_2 <- function(FHanalysis,
   
   #This next section is only run for debgging unusual TFI statuses it allows their isolation at the level of unique combination of fire history and EFG ----
   # Check_TFI<-cbind(TFI_VAL,U_AllCombs_TFI) %>%
-  #     select(-FIRE_REG,-FIREFMZ,-PLM,-DELWP) %>%
+  #     dplyr::select(-FIRE_REG,-FIREFMZ,-PLM,-DELWP) %>%
   #       pivot_longer(all_of(TimeNames),names_to="SEASON",values_to="TFI_VAL") %>%
   #         filter(!TFI_VAL%in%c(-99,0,1,5)) %>%
   #           group_by(EFG,MIN_LO_TFI,MIN_HI_TFI,MAX_TFI,EFG_NAME,Index,FH_ID, SEASON,TFI_VAL) %>%

@@ -80,7 +80,7 @@ calcBBTFI_2 <- function(FHanalysis,
   
   # cumulative number of times bbtfi events in each comination of EFG with fire history and grouping polygons
   cumBBTFI <- t(apply(!is.na(BBTFI_COMB), 1, FUN = "cumsum"))
-  totalTimesBBTFI < -rowSums(!is.na(BBTFI_COMB))
+  totalTimesBBTFI <-rowSums(!is.na(BBTFI_COMB))
   #totalTimesBBTFI[totalTimesBBTFI==0]<-NA                                 #####-----remove
   # mininimum date in row determines first time that was burned below TFI
   FirstBBTFI <- apply(BBTFI_COMB, 1, min, na.rm = TRUE )
@@ -100,7 +100,7 @@ calcBBTFI_2 <- function(FHanalysis,
                                names_pattern = "([^0-9]+)([0-9]+)")
   
   BBTFI_WIDE <- BBTFI_LONG %>%
-    select(-SEQ,-totalTimesBBTFI,-FirstBBTFI) %>%
+    dplyr::select(-SEQ,-totalTimesBBTFI,-FirstBBTFI) %>%
       pivot_wider(names_from = SEAS,
                   values_from = c(TBTFI, FireType),
                   values_fn = sum,

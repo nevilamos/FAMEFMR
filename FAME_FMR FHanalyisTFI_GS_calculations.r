@@ -6,7 +6,7 @@ gc()
 options(stringsAsFactors = FALSE)
 library(data.table)
 library(doParallel)
-library(dplyr)
+library(tidyverse)
 library(fasterize)
 library(filematrix)
 library(foreach)
@@ -17,15 +17,16 @@ library(sf)
 library(tabularaster)
 library(tcltk)
 library(tictoc)
-library(tidyr)
 library(tools)
 
 # loads functions used in TFI and RA calculations
+source("Utility_Functions.R")# brief description  
 source("EcoResFunctionsFMRv2.r")  # brief description                       #####-----comment-----#####
 source("TFI_functionsFMRv2.r")  # brief description                         #####-----comment-----#####
 source("GS_Calcs.R")  # brief description                                   #####-----comment-----#####
 source("calc_U_AllCombs.r")  # brief description                            #####-----comment-----#####
-source("calcBBTFI_2.R")  # brief description                                #####-----comment-----#####
+source("calcBBTFI_2.R")
+                              #####-----comment-----#####
 #source("ButtonDisableHelpers.r")                                           #####-----delete------#####
 
 ## SET THE MAXIMUM SIZE OF FILES FOR UPLOAD / DOWNLOAD----------------------#####-----delete------#####
@@ -130,7 +131,7 @@ inputR <- inputRasters(x = RasterRes)
 outputFH <- file_path_sans_ext(basename(rawFH))
 
 
-toc("initial setup")
+toc()#"initial setup")
 
 
 ## -------------------------------------------------------------------------
@@ -158,7 +159,7 @@ st_write(FHanalysis$OutDF,
          file.path(ResultsDir, paste0(FHanalysis$name, ".shp"))
          )
 
-toc("main FH analysis processing")
+toc()#"main FH analysis processing")
 
 ## Crop output rasters ------------------------------------------------------
 tic("cropraster processing")
@@ -179,7 +180,7 @@ save(FHanalysis,cropRasters,
      file = file.path(ResultsDir, paste0(FHanalysis$name,RasterRes,".rdata"))
      )
 
-toc("cropraster processing")
+toc()#"cropraster processing")
 
 
 ## Combine all fire sequence data--------------------------------------------
@@ -193,7 +194,7 @@ tic("make all combs object")
 # run function to calculate all combinations (function from calc_U_AllCombs)
 myAllCombs <- calcU_All_Combs(FHAnalysis, cropRasters)
 
-toc("make all combs object")
+toc()#"make all combs object")
 
 
 ## Time between Fire Intervals (TFI) calculations ---------------------------
@@ -211,7 +212,7 @@ fwrite(myTFI_2,
        row.names = FALSE
        )
 
-toc("calc_TFI_2")
+toc()#"calc_TFI_2")
 
 
 ## BBTFI calculations -----------------------------------------------------
@@ -238,7 +239,7 @@ fwrite(myBBTFI$BBTFI_WIDE,
        row.names = FALSE
        )
 
-toc("BBTFI calculations complete")
+toc()#"BBTFI calculations complete")
 
 
 ## Gxxxx Sxxxx (GS) calculations ------------------------------------------
@@ -267,7 +268,7 @@ fwrite(GS_Summary$GS_Summary_Long,
        row.names = FALSE
        )
 
-toc("GS calculations")
+toc()#"GS calculations complete")
 
 
 ## Garbage collection to free up memory -----------------------------------

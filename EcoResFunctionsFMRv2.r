@@ -184,7 +184,7 @@ FHProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
   # to a standard data frame with a geometry column then coverted back to an sf object at the end of the process
   tic("Making OutDF")
   OutDF <- myDF %>%
-    select(XYString, Sequence, FireType = FIRETYPE_NO, SEAS = SEASON) %>%
+    dplyr::select(XYString, Sequence, FireType = FIRETYPE_NO, SEAS = SEASON) %>%
     mutate(Sequence = sprintf("%02d", Sequence)) %>%
     as.data.frame %>%
     pivot_wider(names_from = Sequence, values_from = c(FireType, SEAS), names_sep="")
@@ -204,10 +204,10 @@ FHProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
   
   # bind the intervals calcuated back to the main dataframe
   OutDF <- cbind(OutDF, Interval) %>%
-    select(-XYString)
+    dplyr::select(-XYString)
   
   OutDF <- st_as_sf(OutDF)
-  toc("Making OutDF")
+  toc()#"Making OutDF")
   
   # calcuating the last burnt season for each sequences for each year 
   # this process is duplicated here and in CALC_TFI2 function
@@ -244,7 +244,7 @@ FHProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
     V <- (FT_matrix[i,(1:length(C))])
     LUM[R,C] <- V
   }
-  toc("calculating lookup matrix for getting last firetype by year")
+  toc()#"calculating lookup matrix for getting last firetype by year"
   
   # Calculate last fire type
   tic("calculating last fire type")
@@ -253,7 +253,7 @@ FHProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
     LFT[i,] <- LUM[i, LBY[i,]]
   }
   colnames(LFT) <- LFTNames
-  toc("calculating last fire type")
+  toc()#"calculating last fire type")
   
   # put together output dataframe
   OutDF <- cbind(OutDF, YSF)
@@ -568,27 +568,27 @@ calcSpp_EFG_LMU <- function(REG_NO,#REG_NO of defined region from input (1:6) or
 }
 
 
-## FUNCTION inputrasters ----------------------------------------------------
+## FUNCTION inputRasters ----------------------------------------------------
 # get names of input rasters depending on cellSize
 
 inputRasters <- function(x = RasterRes){
   #General Input Rasters change name depending on Raster Res
   if (x == 225){
-    y <- list(REGION.tif <- "LF_REGION_225.tif",
-              EFG.tif <- "EFG_NUM_225.tif",
-              PLM_GEN.tif <- "PLM_GEN_225.tif",
-              IDX.tif <- "IndexVals225.tif",
-              FIREFMZ.tif <- "FIRE_FMZ_225.tif",
-              DELWP.tif <- "DELWP_REGION_225.tif"
+    y <- list(REGION.tif = "LF_REGION_225.tif",
+              EFG.tif = "EFG_NUM_225.tif",
+              PLM_GEN.tif = "PLM_GEN_225.tif",
+              IDX.tif = "IndexVals225.tif",
+              FIREFMZ.tif = "FIRE_FMZ_225.tif",
+              DELWP.tif = "DELWP_REGION_225.tif"
     )
     
   }else{  
-    y <- list(REGION.tif <- "LF_REGION_75.tif",
-              EFG.tif <- "EFG_NUM_75.tif",
-              PLM_GEN.tif <- "PLM_GEN_75.tif",
-              IDX.tif <- "IndexVals75.tif",
-              FIREFMZ.tif <- "FIRE_FMZ_75.tif",
-              DELWP.tif <- "DELWP_REGION_75.tif"
+    y <- list(REGION.tif = "LF_REGION_75.tif",
+              EFG.tif = "EFG_NUM_75.tif",
+              PLM_GEN.tif = "PLM_GEN_75.tif",
+              IDX.tif = "IndexVals75.tif",
+              FIREFMZ.tif = "FIRE_FMZ_75.tif",
+              DELWP.tif = "DELWP_REGION_75.tif"
     )
   }
   return(y)

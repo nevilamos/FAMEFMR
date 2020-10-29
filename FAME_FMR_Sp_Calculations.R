@@ -43,7 +43,7 @@ if(FHanalysis$RasterRes == 225){
                                      )
 }
 
-toc("time to read in species values")
+toc()#"time to read in species values")
 
 
 ## Make species abundance data ---------------------------------------------
@@ -72,14 +72,14 @@ AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS, by=c('EFG_NO','GS4_NO'))
 #AbundDataLong<-read.csv(customAbundanceByTSF_EFG_FT_file)                                                                   #####----- see comment above (line60) about tidying this up
 
 AbundDataLong <- AbundDataLong[order(AbundDataLong$VBA_CODE),]
-toc("making AbundDataLong")
+toc()#"making AbundDataLong")
 
 
 ## Make species abundance data look up list---------------------------------
 tic("making Spp abund LU List")
 LU_List <- makeLU_List(myHDMSpp_NO = HDMSpp_NO,
                        myAbundDataLong = AbundDataLong)
-toc("making Spp abund LU List")
+toc()#"making Spp abund LU List")
 
 
 ## Main species abundance calculations -------------------------------------
@@ -95,7 +95,7 @@ SpYearSummWide <- makeSppYearSum2(FHanalysis,
                                   writeSp =writeSp
                                   )
 
-toc("main species abundace calulations in makeSppYearSum2")
+toc()#"main species abundace calulations in makeSppYearSum2")
 
 ## Calculate changes in relative abundance ---------------------------------
 myBaseline <- ifelse(endBaseline > startBaseline, startBaseline:endBaseline, startBaseline)
@@ -107,7 +107,7 @@ myDeltaAbund <- calcDeltaAbund(SpYearSummSpreadbyYear = SpYearSummWide,
                                ResultsDir,
                                HDMSpp_NO,
                                TaxonList)
-toc("calculate changes in relative abundance")
+toc()#"calculate changes in relative abundance")
 
 
 toc()
