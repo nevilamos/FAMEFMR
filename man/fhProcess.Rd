@@ -13,7 +13,7 @@ fhProcess(
 )
 }
 \arguments{
-\item{rawFH}{}
+\item{rawFH}{path to the input fire history shapefile usually  provided in settings}
 
 \item{start.SEASON}{integer First SEASON for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)}
 
@@ -43,7 +43,8 @@ overlap the function constructs unique non-overlapping polygon of their
 intersections ( and non intersecting areas ) and attributes each polygon with
 sequential fire SEASON (SEAS01, SEAS02 ...) and corresponding FIRETYPE
 (TYPE01,TYPE02 ...)
-@details It then calculates all the intervals between sequential fires, and Time Since
+
+It then calculates all the intervals between sequential fires, and Time Since
 fire (TSF) and Last Fire Type (LFT) and Last burnt year (LBY) for each SEASON as defined in the input
 arguments, these values are append to the output sf polygon dataframe.
 }

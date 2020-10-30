@@ -1,21 +1,14 @@
-############################################################################
-# Functions used in EcoResFunctionsFMR are the calculation of Fire History
-# Interval and spatial relative abundance related to fire history.
-# written by nevil.amos@delwp.vic.gov.au
-############################################################################
-
-
 #' Generate list of species abundance lookup arrays
-#' @details function creates a list of Lookup arrays for each taxon(VBA_CODE/TAXON_ID) for  YSF x EFGNO x FireTypeNo these are then used in spatial calcuation of specie abundace functions
+#' @details function creates a list of Lookup arrays for each taxon (VBA_CODE/TAXON_ID) for  YSF x EFGNO x FireTypeNo these are then used in spatial calcuation of specie abundace functions
 #'
-#' @param myHDMSpp_NO vector of VBA IDs for species to be incuded in analysis
+#' @param myHDMSpp_NO vector of VBA IDs for species to be included in analysis
 #' @param myAbundDataLong long format input lookup table of species abundance x YSF xEFG_NO x FIRETYPE_NO
 #'
 #' @return list of 3D arrays named by TAXON_ID of relative abundance value for YSF x EFG x FIRETYPE_NO
 #' @export
 #'
 make_Spp_LU_list <- function(myHDMSpp_NO = HDMSpp_NO,
-                        myAbundDataLong = ExpertDataLong){
+                             myAbundDataLong = ExpertDataLong){
 
   myList <- list()
   for(i in myHDMSpp_NO){
@@ -34,10 +27,32 @@ make_Spp_LU_list <- function(myHDMSpp_NO = HDMSpp_NO,
   return(myList)
 }
 
-## FUNCTION makeSppYearSum2 ------------------------------------------------
-# function returns summary of species summed relative abundances by year
-# if writeSpRasters == TRUE, it writes species raster for each year (slows processing)
-# may require excessive ram to run statewide at 75m resolution.
+#' Species' relative abundance calculation and summary
+#' @details Calculates the relative abundance of species for each raster cell in
+#'   analysis and summaries these as summed abundance each season. Optionally it
+#'   also write relative abundance rasters for species to disk
+#' @param FHanalysis list containing all the fire history spatial attributes
+#'   created by function fhProcess
+#' @param myHDMSpp_NO vector of TAXON_IDs for species to be included in output
+#' @param writeSpRasters logical: whether to also write species abundance
+#'   rasters to disk
+#' @param myLU_List list of species abundance lookup arrays created by function
+#'   make_Spp_LU_list()
+#' @param ResultsDir path of directory where results will be written usually
+#'   generated  by FAME script
+#' @param HDMVals matrix of cell values for Habitat Distribution Model rasters
+#'   for (at least) all TAXON_ID in myHDMSpp_NO generally provided in settings
+#'   file and read loaded by FAME script
+#' @param TaxonList data.frame of species attributes ( read from default or user
+#'   provided .csv)
+#' @param writeYears  vector for SEASONS for which rasters are to be written
+#'   otherwise if writeSpRasters == TRUE, if writeYears == NULL then all SEASONS
+#'   are written out
+#' @param writeSp vector of TAXON_IDs provided if only subset of species rasters
+#'   are required as output.
+#'
+#' @return data frame wide format summary of relative abundance of species by SEASONS
+#' @export
 makeSppYearSum2 <- function(FHanalysis,
                             myHDMSpp_NO = HDMSpp_NO,
                             writeSpRasters = writeSpRasters,
@@ -56,13 +71,13 @@ makeSppYearSum2 <- function(FHanalysis,
   # WHAT IS FH_IDr - Fire History r                                             #####-----comment-----#####
   r <- FHanalysis$FH_IDr
   # define r raster metadata
-  r <- raster(nrows = nrow(r),
-              ncols = ncol(r),
-              ext = extent(r),
-              crs = crs(r),
-              vals = NULL)
+  r <- raster::raster(nrows = nrow(r),
+                      ncols = ncol(r),
+                      ext = extent(r),
+                      crs = crs(r),
+                      vals = NULL)
 
-  # determine what years to write out (each year or timespan)
+  # determine what years to write out (each year or TimeSpan)
   TimeSpan <- FHanalysis$TimeSpan
   myDF<-FHanalysis$OutDF
   if(is.null(writeYears)){
@@ -72,7 +87,7 @@ makeSppYearSum2 <- function(FHanalysis,
 
   # remove geometry FHanalysis DF to create a standard dataframe so columns can be subset
   # without sticky geometry of original spatial Features data frame
-  st_geometry(myDF) <- NULL
+  sf::st_geometry(myDF) <- NULL
 
   # create empty matrix with rownames containing HDM TAXON ID numbers and column names of the years (SEASONS)
   # used to house the Species abundance data for each year
@@ -97,7 +112,9 @@ makeSppYearSum2 <- function(FHanalysis,
     EFG_M <- matrix(myAllCombs$U_AllCombs_TFI$EFG, nrow(YSF_M), ncol(YSF_M))
 
     # looks up the cell-wise species values for for the species abundance values by id neces in array
-    Spp_M <- array(LU[cbind(as.vector(YSF_M), as.vector(EFG_M), as.vector( LFT_M))],
+    Spp_M <- array(LU[cbind(as.vector(YSF_M),
+                            as.vector(EFG_M),
+                            as.vector( LFT_M))],
                    dim = dim(YSF_M))
 
     # Multiplies these values by cell-wise HDM values
@@ -112,22 +129,22 @@ makeSppYearSum2 <- function(FHanalysis,
     #clean memory
     gc()
 
-    # if writing species rasters is desired (function setting writeSpRasters == "Yes")
+    # if writing species rasters is desired (function setting writeSpRasters == TRUE)
     # write out species rasters
     # this is by far the most time consuming part of the FAME processing
 
-    if(writeSpRasters == "Yes"){
+    if(writeSpRasters == TRUE){
       for(myYear in as.character(writeYears)){
         cat("\r", paste("writing species abund rasters for", myYear))
         if (sp %in% writeSp|is.null(writeSp)){
           OutTif <- file.path(ResultsDir, "RA_Rasters", paste0("Spp", sp, "_", myYear, ".tif"))
           emptySpraster <- r
-          values(emptySpraster) <- Spp_Val_Cell_Year[, myYear]
-          writeRaster(emptySpraster,
-                      OutTif,
-                      options = c("COMPRESS=LZW", "TFW=YES"),
-                      datatype = 'INT1U',
-                      overwrite = TRUE
+          raster::values(emptySpraster) <- Spp_Val_Cell_Year[, myYear]
+          raster::writeRaster(emptySpraster,
+                              OutTif,
+                              options = c("COMPRESS=LZW", "TFW=YES"),
+                              datatype = 'INT1U',
+                              overwrite = TRUE
           )
         }
       }
@@ -138,12 +155,12 @@ makeSppYearSum2 <- function(FHanalysis,
   SpYearSumm <- rownames_to_column(as.data.frame(SpYearSumm))
   names(SpYearSumm)[1] <- "TAXON_ID"
   TL <- TaxonList %>%
-    mutate(TAXON_ID = as.character(TAXON_ID))
-  SpYearSummWide <- right_join(TL, SpYearSumm)
+    dplyr::mutate(TAXON_ID = as.character(TAXON_ID))
+  SpYearSummWide <- dplyr::right_join(TL, SpYearSumm)
   write.csv(SpYearSummWide,
             file.path(ResultsDir, "SpYearSummWide.csv"))
-  SpYearSummLong <- right_join(TL, SpYearSumm %>%
-                                 pivot_longer(-TAXON_ID, names_to = "SEASON", values_to = "SUM_RAx100"))
+  SpYearSummLong <- dplyr::right_join(TL, SpYearSumm %>%
+                                        tidyr::pivot_longer(-TAXON_ID, names_to = "SEASON", values_to = "SUM_RAx100"))
   write.csv(SpYearSummLong, file.path(ResultsDir, "SpYearSummLong.csv"))
 
   # return makeSppYearSum2 function
@@ -157,24 +174,35 @@ makeSppYearSum2 <- function(FHanalysis,
 # eg 1980-1990) for each  year.
 # output written to CSV "SppSummChangeRelativetoBaseline.csv"
 
-calcDeltaAbund <- function(SpYearSummSpreadbyYear = SpYearSummWide,
-                           TimeSpan = FHanalysis$TimeSpan,
+#' Summary of changes in relative abundance
+#' @details Calculates the change in relative abundance compared to a baseline SEASON or mean of SEASONS
+#' @param SpYearSumm data.frame output by function makeSppYearSum2()
+#' @param FHanalysis list containing all the fire history spatial attributes created by function fhProcess
+#' @param myBaseline integer single SEASON or sequence of SEASons used to create the baseline relative species abundance for comparison of change
+#' @param ResultsDir path of directory where results will be written usually generated by FAME script
+#' @param HDMSpp_NO path of directory where results will be written usually generated by FAME script
+#' @param TaxonList data.frame of species attributes ( read from default or user provided .csv)
+#'
+#' @return data frame wide format summary chance in relative abundance of species SEASON
+#' @export
+calcDeltaAbund <- function(SpYearSumm = SpYearSummWide,
+                           FHanalysis,
                            myBaseline,
                            ResultsDir,
                            HDMSpp_NO,
                            TaxonList)
 {
-
+  TimeSpan = FHanalysis$TimeSpan
   # to get % of baseline need to define which columns provide the baseline
   # (one or mean of several using apply (mean)) then divide remaining values by this column.
   if (length(myBaseline == 1)){
-    Baseline <- SpYearSummSpreadbyYear[, as.character(myBaseline)]
+    Baseline <- SpYearSumm[, as.character(myBaseline)]
   } else {
-    Baseline <- apply(SpYearSummSpreadbyYear[, as.character(myBaseline)], 1, mean)
+    Baseline <- apply(SpYearSumm[, as.character(myBaseline)], 1, mean)
   }
 
   #add baseline data to dataframe
-  SpYearSummSpreadbyYear$Baseline <- Baseline
+  SpYearSumm$Baseline <- Baseline
 
   # get integer value for current year. Used so that changes to baseline
   # are only displayed for future years or if no future years then years since baseline.
@@ -186,23 +214,22 @@ calcDeltaAbund <- function(SpYearSummSpreadbyYear = SpYearSummWide,
   )
 
   # calculate the changes from baseline
-  Deltas <- as.matrix(SpYearSummSpreadbyYear[, as.character(TimeSpan[TimeSpan > SinceYear])] / Baseline)
+  Deltas <- as.matrix(SpYearSumm[, as.character(TimeSpan[TimeSpan > SinceYear])] / Baseline)
   names(Deltas) <- paste(names(Deltas), "prop baseline")
 
   # calcuates two potential comparitive metrics;
   # the total number of years below threshold, and whether the last year is below threshold
-  NoLessthanThreshhold <- rowSums(Deltas <= SpYearSummSpreadbyYear$CombThreshold)
-  LastLessThanThreshold <- Deltas[,ncol(Deltas)] <= SpYearSummSpreadbyYear$CombThreshold
+  NoLessthanThreshhold <- rowSums(Deltas <= SpYearSumm$CombThreshold)
+  LastLessThanThreshold <- Deltas[,ncol(Deltas)] <= SpYearSumm$CombThreshold
 
   #Subsets input columns and appends results to make an output table
-  ChangeRelativeToBaseline <- cbind(SpYearSummSpreadbyYear[,c("TAXON_ID",
-                                                              #"ShortName",    #####-----delelte-----######
-                                                              "COMMON_NAME",
-                                                              "NAME",
-                                                              "DIVNAME",
-                                                              "EPBC_ACT_STATUS",
-                                                              "VIC_ADVISORY_STATUS",
-                                                              "CombThreshold")],
+  ChangeRelativeToBaseline <- cbind(SpYearSumm[,c("TAXON_ID",
+                                                  "COMMON_NAME",
+                                                  "NAME",
+                                                  "DIVNAME",
+                                                  "EPBC_ACT_STATUS",
+                                                  "VIC_ADVISORY_STATUS",
+                                                  "CombThreshold")],
                                     Deltas,
                                     NoLessthanThreshhold,
                                     LastLessThanThreshold
@@ -233,10 +260,10 @@ calcDraftSpList <- function(REG_NO,  # can this match look up table REG_LUT     
   REG_NO <- as.integer(as.numeric(REG_NO))                                  ######-----go straight to int? rather than wrap the numeric
   splist <- read.csv(splist)
   CropDetails <- cropNAborder (REG_NO = REG_NO,
-                                 RasterRes = RasterRes,
-                                 PUBLIC_LAND_ONLY,
-                                 myPoly = myPoly,
-                                 generalRasterDir = "./InputGeneralRasters"
+                               RasterRes = RasterRes,
+                               PUBLIC_LAND_ONLY,
+                               myPoly = myPoly,
+                               generalRasterDir = "./InputGeneralRasters"
   )
 
   # get cells in polygon
@@ -254,8 +281,8 @@ calcDraftSpList <- function(REG_NO,  # can this match look up table REG_LUT     
 
 
 ## FUNCTION calcSppEFGLM ----------------------------------------------------
-# Calculate the species in each EFG in given area for GSO calcuations.
-# works by using the indices of the standard dimesions raster that are in the
+# Calculate the species in each EFG in given area for GSO calculations.
+# works by using the indices of the standard dimensions raster that are in the
 # supplied shapefile region boundary (via function cropNAborder )
 calcSpp_EFG_LMU <- function(REG_NO,#REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),     ######-----sync to regions look up table?
                             RasterRes = 225,                                 ######-----'RasterRes' of 225 is defined in settings.  Change to that?
@@ -275,10 +302,10 @@ calcSpp_EFG_LMU <- function(REG_NO,#REG_NO of defined region from input (1:6) or
   EFG <- values(raster(EFGRas))
   REG_NO <- as.integer(as.numeric(REG_NO))                                   ######-----go straight to int? rather than wrap the numeric
   CropDetails <- cropNAborder (REG_NO = REG_NO,
-                                 RasterRes = RasterRes,
-                                 PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,
-                                 myPoly = myPoly,
-                                 generalRasterDir = "./InputGeneralRasters"
+                               RasterRes = RasterRes,
+                               PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,
+                               myPoly = myPoly,
+                               generalRasterDir = "./InputGeneralRasters"
   )
 
   # crop EFG and HDMVals
@@ -295,7 +322,7 @@ calcSpp_EFG_LMU <- function(REG_NO,#REG_NO of defined region from input (1:6) or
   myDf <- myDf[myDf$CellCount > 0,]
   myDf$TAXON_ID <- as.integer(myDf$TAXON_ID)
   myDf$EFG <- as.integer(myDf$EFG)                                              ######-----possible to bundle up the interger transforms into single line
-  myDf$ha <- myDf$CellCount * 5.0625                                            ######-----cellsToHectares??  where does 5.0625 come from? cells are 225 (or 75) and neither multiply to 1ha. 5.0625 = 2.25^2 is it interchangeable if raters are 225 or 75?  --- should this be cellsToHectares function?
+  myDf$ha <- myDf$CellCount * cellsToHectares()                                            ######-----cellsToHectares??  where does 5.0625 come from? cells are 225 (or 75) and neither multiply to 1ha. 5.0625 = 2.25^2 is it interchangeable if raters are 225 or 75?  --- should this be cellsToHectares function?
   myDf <- left_join(myDf, TFI_LUT[,c("EFG","EFG_NAME")], by = c("EFG_NO" = "EFG"))
   myDf <- left_join(myDf, mySpList)
   write.csv(myDf, file.path(ResultsDir, "Spp_EFG_LMU.csv"), row.names = FALSE)

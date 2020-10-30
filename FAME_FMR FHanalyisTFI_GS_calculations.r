@@ -247,7 +247,7 @@ tictoc::toc()#"BBTFI calculations complete")
 tictoc::tic("GS calculations")
 
 #run function to calculate GS data (function from GS_Calcs)
-GS_Summary <- makeGS_Sum(writeGSRasters,
+GS_Summary <- makeGS_Summary(writeGSRasters,
                          ResultsDir,
                          U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
                          Index_AllCombs = myAllCombs$Index_AllCombs,

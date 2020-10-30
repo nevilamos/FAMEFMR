@@ -284,11 +284,11 @@ makeSppYearSum2 <- function(FHanalysis,
     #clean memory
     gc()
 
-    # if writing species rasters is desired (function setting writeSpRasters == "Yes")
+    # if writing species rasters is desired (function setting writeSpRasters == TRUE)
     # write out species rasters
     # this is by far the most time consuming part of the FAME processing
 
-    if(writeSpRasters == "Yes"){
+    if(writeSpRasters == TRUE){
       for(myYear in as.character(writeYears)){
         cat("\r", paste("writing species abund rasters for", myYear))
         if (sp %in% writeSp|is.null(writeSp)){

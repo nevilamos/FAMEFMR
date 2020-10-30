@@ -29,17 +29,18 @@ RasterRes = 225
 # path to HDMVals225 file
 #HDMVals225	=	"./HDMS/HDMVals225.rdata"                                     #####-----DELETE-----#####
 
-# whether to output species rasters ("Yes" or "No")                         #####-----should this be no? seems odd to say yes here, and null below-----#####
-writeSpRasters = "Yes"
+# whether to output species rasters logical
+writeSpRasters = TRUE
 
-# if writeSpRasters = "Yes", vector of years for which rasters are to be written
+# if writeSpRasters == TRUE, vector for SEASONS for which rasters are to be written - if all years are not required.
+#otherwise if yearsForRasters == NULL then all SEASONS are written out
 yearsForRasters = NULL
 
-# whether to output GS rasters ("Yes" or "No")
-writeGSRasters = "Yes"
+# whether to output GS rasters logical
+writeGSRasters = TRUE
 
-# whether to write TFI rasters ("Yes" or "No")
-makeTFIRasters = "Yes"
+# whether to write TFI rasters logical
+makeTFIRasters = TRUE
 
 # whether to output bbtfi rasters ("True" or "False")                       #####-----make yes or no for consistency-----#####
 makeBBTFIrasters = TRUE
