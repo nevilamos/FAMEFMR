@@ -13,7 +13,7 @@
 # is a non- zero abundance in the extent of the analysis
 # If rasters are added to or updated these files then the process to update
 # the HDMValue filematrices must be run run using the script "makeHDM_Value_Matrices.r"           #####----- does the user know this prior to running Fame? can it be a True/False setting that triggers the script? doest appear to be called/sourced anywhere.
-tic()
+tictoc::tic()
 if(is.null(customSpList)){
   TaxonList <- read.csv("./ReferenceTables/DraftTaxonListStatewidev2.csv")   #default species list
 }else{
@@ -31,7 +31,7 @@ writeSp <- writeSp[writeSp %in% HDMSpp_NO]
 
 
 ## Read in species values --------------------------------------------------
-tic("time to read in species values")
+tictoc::tic("time to read in species values")
 print("getting HDMvals")
 if(FHanalysis$RasterRes == 225){
   load(paste0("./HDMS/HDMVals", RasterRes, ".rdata"))
@@ -43,7 +43,7 @@ if(FHanalysis$RasterRes == 225){
                                      )
 }
 
-toc()#"time to read in species values")
+tictoc::toc()#"time to read in species values")
 
 
 ## Make species abundance data ---------------------------------------------
@@ -53,7 +53,7 @@ if(is.null(customResponseFile)){
 }else{
   mySpGSResponses = customResponseFile                           # alternative user defined custom abundance values in matching format
 }
-tic("making AbundDataLong")
+tictoc::tic("making AbundDataLong")
 
 # the below lines inflate the input file containing species abundance by growth stage
 # to a data frame (AbundDataLong) containing species abundance (still stepped by growth stage)
@@ -72,18 +72,18 @@ AbundDataLong = merge(AbundDataByGS, EFG_TSF_4GS, by=c('EFG_NO','GS4_NO'))
 #AbundDataLong<-read.csv(customAbundanceByTSF_EFG_FT_file)                                                                   #####----- see comment above (line60) about tidying this up
 
 AbundDataLong <- AbundDataLong[order(AbundDataLong$VBA_CODE),]
-toc()#"making AbundDataLong")
+tictoc::toc()#"making AbundDataLong")
 
 
 ## Make species abundance data look up list---------------------------------
-tic("making Spp abund LU List")
-LU_List <- makeLU_List(myHDMSpp_NO = HDMSpp_NO,
+tictoc::tic("making Spp abund LU List")
+LU_List <- make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO,
                        myAbundDataLong = AbundDataLong)
-toc()#"making Spp abund LU List")
+tictoc::toc()#"making Spp abund LU List")
 
 
 ## Main species abundance calculations -------------------------------------
-tic("main species abundace calulations in makeSppYearSum2")
+tictoc::tic("main species abundace calulations in makeSppYearSum2")
 SpYearSummWide <- makeSppYearSum2(FHanalysis,
                                   myHDMSpp_NO = HDMSpp_NO,
                                   writeSpRasters = writeSpRasters,
@@ -95,11 +95,11 @@ SpYearSummWide <- makeSppYearSum2(FHanalysis,
                                   writeSp =writeSp
                                   )
 
-toc()#"main species abundace calulations in makeSppYearSum2")
+tictoc::toc()#"main species abundace calulations in makeSppYearSum2")
 
 ## Calculate changes in relative abundance ---------------------------------
 myBaseline <- ifelse(endBaseline > startBaseline, startBaseline:endBaseline, startBaseline)
-tic("calculate changes in relative abundance")
+tictoc::tic("calculate changes in relative abundance")
 
 myDeltaAbund <- calcDeltaAbund(SpYearSummSpreadbyYear = SpYearSummWide,
                                TimeSpan =FHanalysis$TimeSpan,
@@ -107,8 +107,8 @@ myDeltaAbund <- calcDeltaAbund(SpYearSummSpreadbyYear = SpYearSummWide,
                                ResultsDir,
                                HDMSpp_NO,
                                TaxonList)
-toc()#"calculate changes in relative abundance")
+tictoc::toc()#"calculate changes in relative abundance")
 
 
-toc()
+tictoc::toc()
 

@@ -1,8 +1,8 @@
 ## -------------------------------------------------------------------------
 ## R Default Settings for FAMEv1.0.1 batch process--------------------------
 # At the moment this does not run the aspatial GSO tool, it runs all the
-# spatial TFI and GSO calcuations. 
-# if customSppList and customAbundanceLU = NULL then the default files are used. 
+# spatial TFI and GSO calcuations.
+# if customSppList and customAbundanceLU = NULL then the default files are used.
 # if REGION_NO = 7 then an adHocPolygon shapefile must also be provided (inputs directory)
 ## -------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ rawFH = "./rawFH/FRAU_FH_2020_DemoAdHocPolygon.shp"
 customSpList = "./CustomCSV/DemoCustomSpeciesList.csv"
 
 ## RASTER SETTINGS ---------------------------------------------------------
-# raster resolution 75 or 225                                               
+# raster resolution 75 or 225
 RasterRes = 225
 
 # path to HDMVals225 file
@@ -84,7 +84,7 @@ validFIRETYPE = c("BURN","BUSHFIRE","UNKNOWN","OTHER")
 # NA = Fire excluded from analysis default is 2 ("BUSHFIRE")                 #####-----should add NA to lut for consistency? (even if not used)-----#####
 OtherAndUnknown = 2  # (2,1,NA)                                              #####-----this appears to include other and unknown firetypes as bushfires-----#####
 
-# whether analysis should be undetaken only on public land
+# whether analysis should be undertaken only on public land
 PUBLIC_LAND_ONLY = FALSE                                                     #####-----consistency throughout - True/False, yest/no-----#####
 
 # import 4gs table from csv (contains 4gs info by years since fire)
@@ -94,7 +94,7 @@ myEFG_TSF_4GS = read.csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2
 Ncores = 4
 print(paste("Using", Ncores, "cores"))
 
-# change below to TRUE for abrreviated test (on first two years only)
+# change below to TRUE for abbreviated test (on first two years only)
 Test = FALSE
 
 

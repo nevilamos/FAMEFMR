@@ -34,7 +34,7 @@ source("GS_Calcs.R")
 source("calcBBTFI_2.R")
 
 #source("calc_TFI_2.r")
-tic("whole process time")
+tictoc::tic("whole process time")
 
 #source("ButtonDisableHelpers.r")
 #Set the maximum size of files for upload/ download 
@@ -42,7 +42,7 @@ tic("whole process time")
 #options(shiny.maxRequestSize=2*1024^3) 
 
 # Load all settings and input files and tables ----------------------------
-tic("whole process time")
+tictoc::tic("whole process time")
 source("./settings.r")
 
 
@@ -121,6 +121,6 @@ inputR<-inputRasters(x=RasterRes)
 outputFH<-file_path_sans_ext(basename(rawFH))
 
 load(file.path(ResultsDir,paste0("FH_Analysis_",outputFH,RasterRes,".rdata")))
-tic("make all combs object")
+tictoc::tic("make all combs object")
 myAllCombs<-calcU_All_Combs(FHAnalysis,cropRasters)
-toc()
+tictoc::toc()

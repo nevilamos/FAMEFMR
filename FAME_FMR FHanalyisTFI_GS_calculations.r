@@ -33,10 +33,10 @@ source("calcBBTFI_2.R")
 #options(shiny.maxRequestSize=2*1024^3)                                     #####-----delete------#####
 
 ## START A TIMER FOR WHOLE ANALYSIS-----------------------------------------
-tic("whole process time")
+tictoc::tic("whole process time")
 
 ## LOAD INITIAL SETTINGS, INPUT FILES AND TABLES----------------------------
-tic("initial setup")
+tictoc::tic("initial setup")
 source("./settings.r") # imports initial settings and filepaths
 
 ## MAKE RESULTS DIRECTORIES ------------------------------------------------
@@ -131,16 +131,16 @@ inputR <- inputRasters(x = RasterRes)
 outputFH <- file_path_sans_ext(basename(rawFH))
 
 
-toc()#"initial setup")
+tictoc::toc()#"initial setup")
 
 
 ## -------------------------------------------------------------------------
 ## Fire History processing -------------------------------------------------
 print("Started Main FHanalysis")
-tic("main FH analysis processing")
+tictoc::tic("main FH analysis processing")
 
 # Run Fire History analysis (function from EcoResFunctionsFMR)
-FHanalysis <- FHProcess(rawFH = rawFH,
+FHanalysis <- fhProcess(rawFH = rawFH,
                         start.SEASON = start.SEASON,
                         end.SEASON = NULL,
                         OtherAndUnknown = OtherAndUnknown)                  #####-----use look up table if modified-----#####
@@ -159,12 +159,12 @@ st_write(FHanalysis$OutDF,
          file.path(ResultsDir, paste0(FHanalysis$name, ".shp"))
          )
 
-toc()#"main FH analysis processing")
+tictoc::toc()#"main FH analysis processing")
 
 ## Crop output rasters ------------------------------------------------------
-tic("cropraster processing")
+tictoc::tic("cropraster processing")
 # crop rasters (function from EcoResFunctionsFMR)
-cropRasters <- makeCropDetails(REG_NO = REGION_NO,
+cropRasters <- cropNAborder (REG_NO = REGION_NO,
                                RasterRes = RasterRes,
                                PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,
                                myPoly =clipPoly,
@@ -180,7 +180,7 @@ save(FHanalysis,cropRasters,
      file = file.path(ResultsDir, paste0(FHanalysis$name,RasterRes,".rdata"))
      )
 
-toc()#"cropraster processing")
+tictoc::toc()#"cropraster processing")
 
 
 ## Combine all fire sequence data--------------------------------------------
@@ -190,16 +190,16 @@ toc()#"cropraster processing")
 #load(file.path(ResultsDir,paste0("FH_Analysis_",outputFH,RasterRes,".rdata")))#####-----delete------#####
 #does "All combinations of fire sequences (FH_ID) and EFG plus chosen polygons #####-----delete------#####
 
-tic("make all combs object")
+tictoc::tic("make all combs object")
 # run function to calculate all combinations (function from calc_U_AllCombs)
 myAllCombs <- calcU_All_Combs(FHAnalysis, cropRasters)
 
-toc()#"make all combs object")
+tictoc::toc()#"make all combs object")
 
 
 ## Time between Fire Intervals (TFI) calculations ---------------------------
 # TFI calculations (new calc_TFI_2)                                            #####-----can you version control this 'new', and remove _2/new reference------#####
-tic("calc_TFI_2")
+tictoc::tic("calc_TFI_2")
 # run function to calculate TFI rasters (function from TFI_functionsFMR)
 myTFI_2 <- calc_TFI_2(FHanalysis,
                       U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
@@ -212,12 +212,12 @@ fwrite(myTFI_2,
        row.names = FALSE
        )
 
-toc()#"calc_TFI_2")
+tictoc::toc()#"calc_TFI_2")
 
 
 ## BBTFI calculations -----------------------------------------------------
 # description                                                              #####-----comment-----#####
-tic("BBTFI calculations complete")
+tictoc::tic("BBTFI calculations complete")
 # run function to calculate BBTFI (function from )
 myBBTFI <- calcBBTFI_2(FHanalysis,
                        U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
@@ -239,12 +239,12 @@ fwrite(myBBTFI$BBTFI_WIDE,
        row.names = FALSE
        )
 
-toc()#"BBTFI calculations complete")
+tictoc::toc()#"BBTFI calculations complete")
 
 
 ## Gxxxx Sxxxx (GS) calculations ------------------------------------------
 # description                                                              #####-----comment-----#####
-tic("GS calculations")
+tictoc::tic("GS calculations")
 
 #run function to calculate GS data (function from GS_Calcs)
 GS_Summary <- makeGS_Sum(writeGSRasters,
@@ -268,7 +268,7 @@ fwrite(GS_Summary$GS_Summary_Long,
        row.names = FALSE
        )
 
-toc()#"GS calculations complete")
+tictoc::toc()#"GS calculations complete")
 
 
 ## Garbage collection to free up memory -----------------------------------
