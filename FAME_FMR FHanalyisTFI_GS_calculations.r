@@ -237,12 +237,11 @@ tictoc::toc()#"BBTFI calculations complete")
 tictoc::tic("GS calculations")
 
 #run function to calculate GS data (function from GS_Calcs)
-GS_Summary <- makeGS_Summary(writeGSRasters,
-                             ResultsDir,
+GS_Summary <- makeGS_Summary(FHanalysis,
                              U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
-                             Index_AllCombs = myAllCombs$Index_AllCombs,
-                             FHanalysis,
-                             writeYears = NULL)
+                             Index_AllCombs = myAllCombs$Index_AllCombs
+                             #writeYears = NULL
+                             )
 
 # write GS Summary VAT data
 fwrite(GS_Summary$GS_Summary_wide,
