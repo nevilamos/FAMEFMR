@@ -39,14 +39,14 @@ makeGS_LU <- function(EFG_TSF_4GS = myEFG_TSF_4GS){
 #'   season grouped by EFG, EFG_NAME, PLM ,FIRE_FMZ_NAME, FIRE_REGION_NAME,
 #'   DELWP_REGION.
 #' @export
-makeGS_Summary <- function(
-  FHanalysis,
-  U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
-  Index_AllCombs = myAllCombs$Index_AllCombs) {
+makeGS_Summary <- function(FHanalysis,
+                           U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
+                           Index_AllCombs = myAllCombs$Index_AllCombs)
+  {
 
   TimeNames <- as.character(FHanalysis$TimeSpan)
   GS_LU <- makeGS_LU() ####----- does this change between runs? i.e. is the csv input a user input that can change.
-                      #####  Potentially yes so keep for now ( input .csv can be defined in settings file)
+  #####  Potentially yes so keep for now ( input .csv can be defined in settings file)
 
   # get the FHAnalysis sf polygon data frame ( containing all the fire history attributes) created by function fhProcess
   # and convert to a data.frame
@@ -72,7 +72,7 @@ makeGS_Summary <- function(
   # populate output
   GS_Summary_Long <- GS_Summary %>%
     dplyr::select(-c(MIN_LO_TFI, MIN_HI_TFI, MAX_TFI, Index, FH_ID, FIRE_REG, FIREFMZ, DELWP)) %>%
-    dplyr::pivot_longer(all_of(TimeNames),
+    tidyr::pivot_longer(all_of(TimeNames),
                         names_to = "SEASON",
                         values_to = "GS") %>%
     dplyr::group_by(EFG, EFG_NAME, PLM ,FIRE_FMZ_NAME, FIRE_FMZ_SHORT_NAME, FIRE_REGION_NAME, DELWP_REGION, SEASON, GS) %>%
