@@ -14,6 +14,7 @@
 #' @param y numeric  SEASON
 #'
 #' @return matrix  of last burned year row for each unique fire history column for each SEASON
+#' @import raster
 #' @export
 LBY_f <- function(M, y){
   M[M > y | M == 0] <- NA
@@ -172,9 +173,8 @@ calc_TFI_2 <- function(FHanalysis,
     rasterDatatype <- ifelse(max(Index_AllCombs) <= 65534, 'INT2S', 'INT4S') #selects the most efficient datatype depending on the size of integers in the input
     r <- raster::ratify(r)
     colnames(TFI_VAL) <- paste0("TFI_", colnames(TFI_VAL))
-    print(raster::levels(r)[[1]])
-    raster::levels(r)[[1]] <- cbind(raster::levels(r)[[1]], as.data.frame(TFI_VAL))
-    raster::levels(r)[[1]] %>%
+    levels(r)[[1]] <- cbind(levels(r)[[1]], as.data.frame(TFI_VAL))
+    levels(r)[[1]] %>%
       dplyr::rename(VALUE = ID) %>%
       dplyr::mutate(VALUE = as.integer(VALUE)) %>%
       foreign::write.dbf(.,

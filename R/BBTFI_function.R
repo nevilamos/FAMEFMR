@@ -11,7 +11,7 @@
 #'   "MIN_LO_TFI","MIN_HI_TFI","MAX_TFI","EFG_NAME", read from settings
 #' @param makeBBTFIrasters logical whether or not to export rasters for BBTFI to
 #'   disk
-#'
+#' @import raster
 #' @return list containing:
 #' \itemize{
 #' \item the date sequence matrix for each cell of the raster
