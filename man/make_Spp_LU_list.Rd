@@ -9,14 +9,18 @@ make_Spp_LU_list(myHDMSpp_NO = HDMSpp_NO, myAbundDataLong = ExpertDataLong)
 \arguments{
 \item{myHDMSpp_NO}{vector of VBA IDs for species to be included in analysis}
 
-\item{myAbundDataLong}{long format input lookup table of species abundance x YSF xEFG_NO x FIRETYPE_NO}
+\item{myAbundDataLong}{long format input lookup table of species abundance x
+YSF xEFG_NO x FIRETYPE_NO}
 }
 \value{
-list of 3D arrays named by TAXON_ID of relative abundance value for YSF x EFG x FIRETYPE_NO
+list of 3D arrays named by TAXON_ID of relative abundance value for
+YSF x EFG x FIRETYPE_NO
 }
 \description{
 Generate list of species abundance lookup arrays
 }
 \details{
-function creates a list of Lookup arrays for each taxon (VBA_CODE/TAXON_ID) for  YSF x EFGNO x FireTypeNo these are then used in spatial calcuation of specie abundace functions
+function creates a list of Lookup arrays for each taxon
+(VBA_CODE/TAXON_ID) for  YSF x EFGNO x FireTypeNo these are then used in
+spatial calculation of species abundance functions
 }

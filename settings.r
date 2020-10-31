@@ -1,5 +1,5 @@
 ## -------------------------------------------------------------------------
-## R Default Settings for FAMEv1.0.1 batch process--------------------------
+## R Default Settings for FAMEv2.0 batch process--------------------------
 # At the moment this does not run the aspatial GSO tool, it runs all the
 # spatial TFI and GSO calcuations.
 # if customSppList and customAbundanceLU = NULL then the default files are used.
@@ -27,7 +27,7 @@ customSpList = "./CustomCSV/DemoCustomSpeciesList.csv"
 RasterRes = 225
 
 # path to HDMVals225 file
-#HDMVals225	=	"./HDMS/HDMVals225.rdata"                                     #####-----DELETE-----#####
+#HDMVals225	=	"./HDMS/HDMVals225.rdata"                                     #####-----DELETE-----##### required for GSO tool.
 
 # whether to output species rasters logical
 writeSpRasters = TRUE

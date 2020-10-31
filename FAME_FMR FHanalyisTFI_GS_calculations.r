@@ -4,29 +4,18 @@ gc()
 
 ## LOAD LIBRARIES AND CUSTOM FUNCTIONS--------------------------------------
 options(stringsAsFactors = FALSE)
-library(data.table)
-library(doParallel)
-library(tidyverse)
-library(fasterize)
-library(filematrix)
-library(foreach)
-library(Matrix.utils)
-library(raster)
-library(Rfast)
+library(FAMEFMR)
+library(dplyr)
 library(sf)
-library(tabularaster)
-library(tcltk)
-library(tictoc)
-library(tools)
-
+library(data.table)
 # loads functions used in TFI and RA calculations
-source("Utility_Functions.R")# brief description  
-source("EcoResFunctionsFMRv2.r")  # brief description                       #####-----comment-----#####
-source("TFI_functionsFMRv2.r")  # brief description                         #####-----comment-----#####
-source("GS_Calcs.R")  # brief description                                   #####-----comment-----#####
-source("calc_U_AllCombs.r")  # brief description                            #####-----comment-----#####
-source("calcBBTFI_2.R")
-                              #####-----comment-----#####
+#source("Utility_Functions.R")# brief description
+#source("EcoResFunctionsFMRv2.r")  # brief description                       #####-----comment-----#####
+#source("TFI_functionsFMRv2.r")  # brief description                         #####-----comment-----#####
+#source("GS_Calcs.R")  # brief description                                   #####-----comment-----#####
+#source("calc_U_AllCombs.r")  # brief description                            #####-----comment-----#####
+#source("calcBBTFI_2.R")
+#####-----comment-----#####
 #source("ButtonDisableHelpers.r")                                           #####-----delete------#####
 
 ## SET THE MAXIMUM SIZE OF FILES FOR UPLOAD / DOWNLOAD----------------------#####-----delete------#####
@@ -40,14 +29,14 @@ tictoc::tic("initial setup")
 source("./settings.r") # imports initial settings and filepaths
 
 ## MAKE RESULTS DIRECTORIES ------------------------------------------------
-# create a unique results directory for each run of scenarios 
+# create a unique results directory for each run of scenarios
 dir.create(ResultsDir)                                                      #####----- does ResultsDIr ever have more than one dir?
-                                                  #####----- ^^^  This is done in settings. Consider deleting if not affecting shiny interface
+#####----- ^^^  This is done in settings. Consider deleting if not affecting shiny interface
 for (d in c("RA_Rasters", "TFI_Rasters", "GS_Rasters", "BBTFI_Rasters"))
-  {dir.create(file.path(ResultsDir, d))}
+{dir.create(file.path(ResultsDir, d))}
 rm(d)
-                                                                            #####-----possibly delete all below. test first
-                                                                            #####----- does ResultsDIr ever have more than one dir?
+#####-----possibly delete all below. test first
+#####----- does ResultsDIr ever have more than one dir?
 # using starting time as a string for Results directory name                #####-----can't see where the starttime is incorporated
 #WD<-getwd() # set working directory                                        #####-----possibly delete (WD not called anywhere)-----#####
 
@@ -63,72 +52,72 @@ rm(d)
 
 ## MAKE LOOK UP TABLES-----------------------------------------------------#####-----rename all lut to lut_ (group)
 # Fire region, state or adhoc polygon for analysis look up table
-REG_LUT <- tibble(FIRE_REG = c(99, 1, 2, 3, 4, 5, 6, 7),
-                  FIRE_REGION_NAME = c("WHOLE OF STATE",
-                                       "BARWON SOUTH WEST",
-                                       "GIPPSLAND",
-                                       "GRAMPIANS",
-                                       "HUME",
-                                       "LODDON MALLEE",
-                                       "PORT PHILLIP",
-                                       "USER DEFINED POLYGON")
-                  )
+REG_LUT <- data.frame(FIRE_REG = c(99, 1, 2, 3, 4, 5, 6, 7),
+                      FIRE_REGION_NAME = c("WHOLE OF STATE",
+                                           "BARWON SOUTH WEST",
+                                           "GIPPSLAND",
+                                           "GRAMPIANS",
+                                           "HUME",
+                                           "LODDON MALLEE",
+                                           "PORT PHILLIP",
+                                           "USER DEFINED POLYGON")
+)
 
 # Fire FMZ look up table
-FIREFMZ_LUT <- tibble(FIREFMZ = c(0, 1, 2, 3, 4, 5),
-                      FIRE_FMZ_NAME = c("0 - Non FPA Land",
-                                        "1 - Asset Protection Zone",
-                                        "2 - Bushfire Moderation Zone",
-                                        "3 - Landscape Management Zone",
-                                        "4 - Planned Burn Exclusion Zone",
-                                        "5 - Unknown. Contact Fire Management Officer"),
-                      FIRE_FMZ_SHORT_NAME = c("Non FPA",
-                                              "APZ",
-                                              "BMZ",
-                                              "LMZ",
-                                              "PBEZ",
-                                              "UNK")
-                      )
+FIREFMZ_LUT <- data.frame(FIREFMZ = c(0, 1, 2, 3, 4, 5),
+                          FIRE_FMZ_NAME = c("0 - Non FPA Land",
+                                            "1 - Asset Protection Zone",
+                                            "2 - Bushfire Moderation Zone",
+                                            "3 - Landscape Management Zone",
+                                            "4 - Planned Burn Exclusion Zone",
+                                            "5 - Unknown. Contact Fire Management Officer"),
+                          FIRE_FMZ_SHORT_NAME = c("Non FPA",
+                                                  "APZ",
+                                                  "BMZ",
+                                                  "LMZ",
+                                                  "PBEZ",
+                                                  "UNK")
+)
 
 # DELWP region names look up table                                         #####-----any reason these numbers dont match fire region
-DELWP_LUT <- tibble(DELWP = c(2,4,3,5,6,7),                                #####-----LUT and then you could just slice that LUT.
-                    DELWP_REGION = c("GIPPSLAND", "HUME", "PORT PHILLIP",
-                                     "BARWON SOUTH WEST", "LODDON MALLEE", "GRAMPIANS")
-                    )
+DELWP_LUT <- data.frame(DELWP = c(2,4,3,5,6,7),                                #####-----LUT and then you could just slice that LUT.
+                        DELWP_REGION = c("GIPPSLAND", "HUME", "PORT PHILLIP",
+                                         "BARWON SOUTH WEST", "LODDON MALLEE", "GRAMPIANS")
+)
 
 # TFI_STATUS values lookup table and export to csv
 TFI_STATUS_LUT <- structure(list(TFI_VAL = c(-99, 0, 1, 5, 6),
                                  TFI_STATUS = c("NONE","WITHIN_TFI", "BELOW_MIN_TFI",
                                                 "ABOVE_MAX_TFI", "ABOVE_MAX_BELOW_MIN_HI_TFI")
-                                 ),
-                            row.names = c(NA,-5L),
-                            class = c("tbl_df", "tbl", "data.frame")
-                            )
+),
+row.names = c(NA,-5L),
+class = c("tbl_df", "tbl", "data.frame")
+)
 write.csv(TFI_STATUS_LUT,
           file.path(ResultsDir, "TFI_Rasters", "TFI_STATUS_LUT.csv")
-          )
+)
 
 # Firetype look up table
-FIRETYPE_LUT <- tibble(TYPE = c(1, 2),
-                       FIRETYPE = c("BURN", "BUSHFIRE")
-                       )
+FIRETYPE_LUT <- data.frame(TYPE = c(1, 2),
+                           FIRETYPE = c("BURN", "BUSHFIRE")
+)
 
 # Growth Stage look up table
-GS_LUT <- tibble("GS" = c(0,1,2,3,4),
-                 "GROWTH_STAGE" = c("Unknown","Juvenile","Adolescent","Mature","Old")
-                 )
+GS_LUT <- data.frame("GS" = c(0,1,2,3,4),
+                     "GROWTH_STAGE" = c("Unknown","Juvenile","Adolescent","Mature","Old")
+)
 
-# EFG to TFI attributes look up table 
+# EFG to TFI attributes look up table
 # read csv version of CGDL lookup table
 TFI_LUT <- read.csv("./ReferenceTables/EFG_EVD_TFI.csv")[,c("EFG_NUM","MIN_LO_TFI",
                                                             "MIN_HI_TFI","MAX_TFI","EFG_NAME")]
 names(TFI_LUT)[1] <- "EFG"
 if (REGION_NO == 7)
-  {clipPoly = adHocPolygon}else
-  {clipPoly = "./ReferenceShapefiles/LF_DISTRICT.shp"}
+{clipPoly = adHocPolygon}else
+{clipPoly = "./ReferenceShapefiles/LF_DISTRICT.shp"}
 
-inputR <- inputRasters(x = RasterRes)
-outputFH <- file_path_sans_ext(basename(rawFH))
+inputR <- inputRasters(RasterRes)
+outputFH <- tools::file_path_sans_ext(basename(rawFH))
 
 
 tictoc::toc()#"initial setup")
@@ -143,7 +132,8 @@ tictoc::tic("main FH analysis processing")
 FHanalysis <- fhProcess(rawFH = rawFH,
                         start.SEASON = start.SEASON,
                         end.SEASON = NULL,
-                        OtherAndUnknown = OtherAndUnknown)                  #####-----use look up table if modified-----#####
+                        OtherAndUnknown = OtherAndUnknown,
+                        validFIRETYPE=validFIRETYPE)                  #####-----use look up table if modified-----#####
 
 # Add additional information to FHanalysis ???list/dataframe???             #####-----comment-----#####
 FHanalysis$FireScenario = rawFH
@@ -155,9 +145,9 @@ FHanalysis$Start_Season = NULL
 FHanalysis$name = paste0("FH_Analysis_", outputFH)
 
 # Export Fire History Analysis as shapefile
-st_write(FHanalysis$OutDF,
+try({st_write(FHanalysis$OutDF,
          file.path(ResultsDir, paste0(FHanalysis$name, ".shp"))
-         )
+)})
 
 tictoc::toc()#"main FH analysis processing")
 
@@ -165,20 +155,20 @@ tictoc::toc()#"main FH analysis processing")
 tictoc::tic("cropraster processing")
 # crop rasters (function from EcoResFunctionsFMR)
 cropRasters <- cropNAborder (REG_NO = REGION_NO,
-                               RasterRes = RasterRes,
-                               PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,
-                               myPoly =clipPoly,
-                               generalRasterDir = "./InputGeneralRasters"
-                               )
+                             RasterRes = RasterRes,
+                             PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,
+                             myPoly =clipPoly,
+                             generalRasterDir = "./InputGeneralRasters"
+)
 # Add additional information to FHanalysis
-FHanalysis$FH_IDr<-fasterize(sf=FHanalysis$OutDF,
-                             raster =  cropRasters$Raster,
-                             field = "ID",
-                             fun="first"
-                             )
+FHanalysis$FH_IDr<-fasterize::fasterize(sf=FHanalysis$OutDF,
+                                        raster =  cropRasters$Raster,
+                                        field = "ID",
+                                        fun="first"
+)
 save(FHanalysis,cropRasters,
      file = file.path(ResultsDir, paste0(FHanalysis$name,RasterRes,".rdata"))
-     )
+)
 
 tictoc::toc()#"cropraster processing")
 
@@ -210,7 +200,7 @@ fwrite(myTFI_2,
        file.path(ResultsDir, "TFI_Summary_2.csv"),
        na="",
        row.names = FALSE
-       )
+)
 
 tictoc::toc()#"calc_TFI_2")
 
@@ -230,14 +220,14 @@ fwrite(myBBTFI$BBTFI_LONG,
        file.path(ResultsDir, "BBTFI_LONG.csv"),
        na = "",
        row.names = FALSE
-       )
+)
 
 # write BBTFI_WIDE data
 fwrite(myBBTFI$BBTFI_WIDE,
        file.path(ResultsDir, "BBTFI_WIDE.csv"),
        na = "",
        row.names = FALSE
-       )
+)
 
 tictoc::toc()#"BBTFI calculations complete")
 
@@ -248,25 +238,25 @@ tictoc::tic("GS calculations")
 
 #run function to calculate GS data (function from GS_Calcs)
 GS_Summary <- makeGS_Summary(writeGSRasters,
-                         ResultsDir,
-                         U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
-                         Index_AllCombs = myAllCombs$Index_AllCombs,
-                         FHanalysis,
-                         writeYears = NULL)
+                             ResultsDir,
+                             U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
+                             Index_AllCombs = myAllCombs$Index_AllCombs,
+                             FHanalysis,
+                             writeYears = NULL)
 
 # write GS Summary VAT data
 fwrite(GS_Summary$GS_Summary_wide,
        file.path(ResultsDir, "GS_Summary_VAT.csv"),
        na = "",
        row.names = FALSE
-       )
+)
 
 # write GS Summary Long data
 fwrite(GS_Summary$GS_Summary_Long,
        file.path(ResultsDir,"GS_Summary_Long.csv"),
        na="",
        row.names = FALSE
-       )
+)
 
 tictoc::toc()#"GS calculations complete")
 

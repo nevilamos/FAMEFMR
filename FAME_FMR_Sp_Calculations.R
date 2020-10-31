@@ -1,5 +1,5 @@
 ############################################################################
-# FAME_FMR_Sp_Calculations script runs all the functions associated with    
+# FAME_FMR_Sp_Calculations script runs all the functions associated with
 # calculation of species post fire abundances
 # written by nevil.amos@delwp.vic.gov.au
 ############################################################################
@@ -7,17 +7,16 @@
 
 ## Get species lists -------------------------------------------------------
 # Choice of complete or custom species list determining which species to include in analysis
-# if a custom species list is used this can only contain species for which 
-# there is a raster in the HDMS files and species for which there                                 #####----- make clearer this and next 4 lines. e.g. which there...?
-# this file must follow the formatting of the deafualt species list 
-# is a non- zero abundance in the extent of the analysis
+# if a custom species list is used this can only contain species for which are included in the  HDMS files and has cells within
+# the extent of the analysis
+
 # If rasters are added to or updated these files then the process to update
 # the HDMValue filematrices must be run run using the script "makeHDM_Value_Matrices.r"           #####----- does the user know this prior to running Fame? can it be a True/False setting that triggers the script? doest appear to be called/sourced anywhere.
 tictoc::tic()
 if(is.null(customSpList)){
   TaxonList <- read.csv("./ReferenceTables/DraftTaxonListStatewidev2.csv")   #default species list
 }else{
-  TaxonList<-read.csv(customSpList)                                          #custom species list
+  TaxonList<-read.csv(customSpList)                                          #custom species list provided in settings file
 }
 
 # filters the species to be considered in the analysis
@@ -38,7 +37,7 @@ if(FHanalysis$RasterRes == 225){
   HDMVals <- HDMVals[cropRasters$IDX, as.character(HDMSpp_NO)]
 }else{
   print("doing 75m version makeHDMValsfromRasters")
-  HDMVals <<- makeHDMValsfromRasters(myHDMSpp_NO = HDMSpp_NO,
+  HDMVals <- makeHDMValsfromRasters(myHDMSpp_NO = HDMSpp_NO,
                                      myCropDetails = cropRasters
                                      )
 }

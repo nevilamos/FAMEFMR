@@ -2,8 +2,7 @@
 % Please edit documentation in R/utility_functions.R
 \name{removeEmptyDirs}
 \alias{removeEmptyDirs}
-\title{remove empty directories from path Function removes all empty directories
-from the nominated path}
+\title{remove empty directories from path}
 \usage{
 removeEmptyDirs(rootDir = "./Results")
 }
@@ -12,6 +11,8 @@ removeEmptyDirs(rootDir = "./Results")
 value "./Results"}
 }
 \description{
-remove empty directories from path Function removes all empty directories
-from the nominated path
+remove empty directories from path
+}
+\details{
+Removes all empty subdirectories from the nominated path does not remove the nominated path directory even if empty
 }

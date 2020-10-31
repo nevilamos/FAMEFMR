@@ -1,12 +1,15 @@
 #' Generate list of species abundance lookup arrays
-#' @details function creates a list of Lookup arrays for each taxon (VBA_CODE/TAXON_ID) for  YSF x EFGNO x FireTypeNo these are then used in spatial calcuation of specie abundace functions
+#' @details function creates a list of Lookup arrays for each taxon
+#'   (VBA_CODE/TAXON_ID) for  YSF x EFGNO x FireTypeNo these are then used in
+#'   spatial calculation of species abundance functions
 #'
 #' @param myHDMSpp_NO vector of VBA IDs for species to be included in analysis
-#' @param myAbundDataLong long format input lookup table of species abundance x YSF xEFG_NO x FIRETYPE_NO
+#' @param myAbundDataLong long format input lookup table of species abundance x
+#'   YSF xEFG_NO x FIRETYPE_NO
 #'
-#' @return list of 3D arrays named by TAXON_ID of relative abundance value for YSF x EFG x FIRETYPE_NO
+#' @return list of 3D arrays named by TAXON_ID of relative abundance value for
+#'   YSF x EFG x FIRETYPE_NO
 #' @export
-#'
 make_Spp_LU_list <- function(myHDMSpp_NO = HDMSpp_NO,
                              myAbundDataLong = ExpertDataLong){
 
@@ -244,40 +247,6 @@ calcDeltaAbund <- function(SpYearSumm = SpYearSummWide,
 }
 
 
-## FUNCTION calcDraftSpList -------------------------------------------------
-# Calculate the proportion of cells for the HDM in the region for each species
-# works by using the indices of the standard dimesions of raster that are in
-# the supplied shapefile region boundary
-
-calcDraftSpList <- function(REG_NO,  # can this match look up table REG_LUT     #REG_NO of defined region from input (1:6) or 0 for statewide or 7 for Ad Hoc Poly),
-                            RasterRes = 225,                                    ######-----'RasterRes' of 225 is defined in settings.  Change to that?
-                            PUBLIC_LAND_ONLY,
-                            myPoly = myPoly,       #shapefile of LF_REGIONs (default) or adhoc region,   ######-----should this be clipPoly for consistency?
-                            generalRasterDir = "./InputGeneralRasters",
-                            splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
-                            HDMVals = HDMVals225){                          ######-----HDMVals225 is commented out in settings, and not called anywhere prior.
-  load(HDMVals)
-  REG_NO <- as.integer(as.numeric(REG_NO))                                  ######-----go straight to int? rather than wrap the numeric
-  splist <- read.csv(splist)
-  CropDetails <- cropNAborder (REG_NO = REG_NO,
-                               RasterRes = RasterRes,
-                               PUBLIC_LAND_ONLY,
-                               myPoly = myPoly,
-                               generalRasterDir = "./InputGeneralRasters"
-  )
-
-  # get cells in polygon
-  cellsInArea <- colSums(HDMVals[CropDetails$clipIDX,])
-  cellsInState <- colSums(HDMVals)
-
-  # calc proportion
-  areaProp <- signif(cellsInArea / cellsInState, digits = 2)
-  # pull data into dataframe
-  TAXON_ID <- as.numeric(colnames(HDMVals))
-  myDF <- data.frame(TAXON_ID, cellsInState, cellsInArea, areaProp)
-  myDF <- left_join(splist, myDF)
-  return(myDF)
-}
 
 
 ## FUNCTION calcSppEFGLM ----------------------------------------------------
@@ -322,7 +291,7 @@ calcSpp_EFG_LMU <- function(REG_NO,#REG_NO of defined region from input (1:6) or
   myDf <- myDf[myDf$CellCount > 0,]
   myDf$TAXON_ID <- as.integer(myDf$TAXON_ID)
   myDf$EFG <- as.integer(myDf$EFG)                                              ######-----possible to bundle up the interger transforms into single line
-  myDf$ha <- myDf$CellCount * cellsToHectares()                                            ######-----cellsToHectares??  where does 5.0625 come from? cells are 225 (or 75) and neither multiply to 1ha. 5.0625 = 2.25^2 is it interchangeable if raters are 225 or 75?  --- should this be cellsToHectares function?
+  myDf$ha <- myDf$CellCount * cellsToHectares()
   myDf <- left_join(myDf, TFI_LUT[,c("EFG","EFG_NAME")], by = c("EFG_NO" = "EFG"))
   myDf <- left_join(myDf, mySpList)
   write.csv(myDf, file.path(ResultsDir, "Spp_EFG_LMU.csv"), row.names = FALSE)
@@ -334,32 +303,6 @@ calcSpp_EFG_LMU <- function(REG_NO,#REG_NO of defined region from input (1:6) or
   write.csv(EFG_AREAS, file.path(ResultsDir, "EFG_AREAS.csv"), row.names = FALSE)
 }
 
-
-## FUNCTION inputRasters ----------------------------------------------------
-# get names of input rasters depending on cellSize
-
-inputRasters <- function(x = RasterRes){
-  #General Input Rasters change name depending on Raster Res
-  if (x == 225){
-    y <- list(REGION.tif = "LF_REGION_225.tif",
-              EFG.tif = "EFG_NUM_225.tif",
-              PLM_GEN.tif = "PLM_GEN_225.tif",
-              IDX.tif = "IndexVals225.tif",
-              FIREFMZ.tif = "FIRE_FMZ_225.tif",
-              DELWP.tif = "DELWP_REGION_225.tif"
-    )
-
-  }else{
-    y <- list(REGION.tif = "LF_REGION_75.tif",
-              EFG.tif = "EFG_NUM_75.tif",
-              PLM_GEN.tif = "PLM_GEN_75.tif",
-              IDX.tif = "IndexVals75.tif",
-              FIREFMZ.tif = "FIRE_FMZ_75.tif",
-              DELWP.tif = "DELWP_REGION_75.tif"
-    )
-  }
-  return(y)
-}
 
 
 ## FUNCTION makeHDMValsfromRasters  ------------------------------------------------------

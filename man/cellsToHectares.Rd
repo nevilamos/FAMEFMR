@@ -7,7 +7,8 @@
 cellsToHectares(RasterMetres = RasterRes)
 }
 \arguments{
-\item{RasterMetres}{numeric Value cell resolution in Metres (usually from RasterRes in settings file).}
+\item{RasterMetres}{numeric Value cell resolution in Metres (usually from
+RasterRes in settings file).}
 }
 \value{
 numeric Multiplier to convert cell count to area in hectares

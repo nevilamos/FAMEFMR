@@ -38,7 +38,7 @@ cropNAborder  <- function(REG_NO = 7,              #see look up table REG_LUT fo
     cn <- tabularaster::cellnumbers(Template, Shape)
     cn <- cn$cell_
     RGN <- Template
-    values(RGN)[cn] <- REG_NO
+    raster::values(RGN)[cn] <- REG_NO
   }
 
   if(REG_NO == 99){
@@ -54,11 +54,11 @@ cropNAborder  <- function(REG_NO = 7,              #see look up table REG_LUT fo
     cn <- tabularaster::cellnumbers(Template, Shape)
     cn <- cn$cell_
     RGN <- Template
-    values(RGN)[cn] <- REG_NO
+    raster::values(RGN)[cn] <- REG_NO
   }
   # set parameters for
   x = RGN
-  x.matrix <- is.na(as.matrix(x))
+  x.matrix <- is.na(raster::as.matrix(x))
   colNotNA <- which(colSums(x.matrix) != nrow(x))
   rowNotNA <- which(rowSums(x.matrix) != ncol(x))
   Extent <- raster::extent(x,
@@ -70,11 +70,11 @@ cropNAborder  <- function(REG_NO = 7,              #see look up table REG_LUT fo
 
   # crop rasters
   RGN_ras <- raster::crop(RGN, Extent)
-  FIREFMZ_ras <- raster::crop(raster(file.path(generalRasterDir, inputR$FIREFMZ.tif)), Extent)
-  DELWP_ras <- raster::crop(raster(file.path(generalRasterDir, inputR$DELWP.tif)), Extent)
-  EFG_ras <- raster::crop(raster(file.path(generalRasterDir, inputR$EFG.tif)), Extent)
-  IDX <- raster::values(crop(raster(file.path(generalRasterDir, inputR$IDX.tif)), Extent))
-  PLM_ras <- raster::crop(raster(file.path(generalRasterDir, inputR$PLM_GEN.tif)), Extent)
+  FIREFMZ_ras <- raster::crop(raster::raster(file.path(generalRasterDir, inputR$FIREFMZ.tif)), Extent)
+  DELWP_ras <- raster::crop( raster::raster(file.path(generalRasterDir, inputR$DELWP.tif)), Extent)
+  EFG_ras <- raster::crop( raster::raster(file.path(generalRasterDir, inputR$EFG.tif)), Extent)
+  IDX <- raster::values( raster::crop( raster::raster(file.path(generalRasterDir, inputR$IDX.tif)), Extent))
+  PLM_ras <- raster::crop( raster::raster(file.path(generalRasterDir, inputR$PLM_GEN.tif)), Extent)
   EFG_ras <- raster::mask(EFG_ras, RGN_ras)
 
   # if choice has been made to restrict to public land (default) then EFG is masked to public land

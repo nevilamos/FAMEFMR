@@ -1,4 +1,4 @@
-#first sections of main FAME_FMR script to run with preexisting settings and FH_Analysis------------- 
+#first sections of main FAME_FMR script to run with preexisting settings and FH_Analysis-------------
 
 # Clear workspace ---------------------------------------------------------
 
@@ -37,9 +37,9 @@ source("calcBBTFI_2.R")
 tictoc::tic("whole process time")
 
 #source("ButtonDisableHelpers.r")
-#Set the maximum size of files for upload/ download 
+#Set the maximum size of files for upload/ download
 
-#options(shiny.maxRequestSize=2*1024^3) 
+#options(shiny.maxRequestSize=2*1024^3)
 
 # Load all settings and input files and tables ----------------------------
 tictoc::tic("whole process time")
@@ -47,7 +47,7 @@ source("./settings.r")
 
 
 #MAKE RESULTS DIRECTORIES
-#create a unique results directory for each run of scenarios 
+#create a unique results directory for each run of scenarios
 #using starting time as a string for Results directory name
 
 WD<-getwd()
@@ -118,7 +118,7 @@ names(TFI_LUT)[1]<-"EFG"
 if (REGION_NO==7){clipPoly=adHocPolygon}else{clipPoly="./ReferenceShapefiles/LF_DISTRICT.shp"}
 
 inputR<-inputRasters(x=RasterRes)
-outputFH<-file_path_sans_ext(basename(rawFH))
+outputFH<-tools::file_path_sans_ext(basename(rawFH))
 
 load(file.path(ResultsDir,paste0("FH_Analysis_",outputFH,RasterRes,".rdata")))
 tictoc::tic("make all combs object")

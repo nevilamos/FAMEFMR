@@ -108,9 +108,9 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
   tictoc::tic("Making OutDF")
   OutDF <- myDF %>%
     dplyr::select(XYString, Sequence, FireType = FIRETYPE_NO, SEAS = SEASON) %>%
-    mutate(Sequence = sprintf("%02d", Sequence)) %>%
+    dplyr::mutate(Sequence = sprintf("%02d", Sequence)) %>%
     as.data.frame %>%
-    pivot_wider(names_from = Sequence, values_from = c(FireType, SEAS), names_sep="")
+    tidyr::pivot_wider(names_from = Sequence, values_from = c(FireType, SEAS), names_sep="")
 
   # get just the names for the season and FireType sequence columns
   SEASNames <- names(OutDF)[grep(pattern = "SEAS", names(OutDF))]
@@ -129,10 +129,10 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
   OutDF <- cbind(OutDF, Interval) %>%
     dplyr::select(-XYString)
 
-  OutDF <- st_as_sf(OutDF)
+  OutDF <- sf::st_as_sf(OutDF)
   tictoc::toc()#"Making OutDF")
 
-  # calcuating the last burnt season for each sequences for each year
+  # calculating the last burnt season for each sequences for each year
   # this process is duplicated here and in CALC_TFI2 function
   # ideally it should only be run once but it is pretty fast so probably does not matter too much.
   LTR <- length(TimeSpan)
