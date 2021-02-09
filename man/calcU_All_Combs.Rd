@@ -4,7 +4,7 @@
 \alias{calcU_All_Combs}
 \title{Calculate all combinations of input raster values}
 \usage{
-calcU_All_Combs(FHAnalysis, cropRasters)
+calcU_All_Combs(FHAnalysis = FHAnalysis, cropRasters = cropRasters)
 }
 \arguments{
 \item{FHAnalysis}{list containing all the fire history spatial attributes created by function fhProcess()}

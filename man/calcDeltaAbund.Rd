@@ -6,7 +6,7 @@
 \usage{
 calcDeltaAbund(
   SpYearSumm = SpYearSummWide,
-  FHanalysis,
+  FHAnalysis,
   myBaseline,
   ResultsDir,
   HDMSpp_NO,
@@ -16,7 +16,7 @@ calcDeltaAbund(
 \arguments{
 \item{SpYearSumm}{data.frame output by function makeSppYearSum2()}
 
-\item{FHanalysis}{list containing all the fire history spatial attributes created by function fhProcess}
+\item{FHAnalysis}{list containing all the fire history spatial attributes created by function fhProcess}
 
 \item{myBaseline}{integer single SEASON or sequence of SEASons used to create the baseline relative species abundance for comparison of change}
 

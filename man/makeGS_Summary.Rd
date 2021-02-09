@@ -5,13 +5,13 @@
 \title{Summarise area by growth stage.}
 \usage{
 makeGS_Summary(
-  FHanalysis,
+  FHAnalysis,
   U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
   Index_AllCombs = myAllCombs$Index_AllCombs
 )
 }
 \arguments{
-\item{FHanalysis}{list containing all the fire history spatial attributes
+\item{FHAnalysis}{list containing all the fire history spatial attributes
 created by function fhProcess}
 
 \item{U_AllCombs_TFI}{data.table giving all combinations of cell values from

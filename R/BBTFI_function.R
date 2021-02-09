@@ -2,12 +2,10 @@
 #' @details Calculate summary  area burned below TFI BBTFI for each SEASON in analysis
 #'   (accommodating  Hi and Lo fire intensity of first burn to determine TFI)
 #'   and cumulative area BBTFI.  Also optionally outputs rasters mapping areas BBTFI
-#' @param FHanalysis list containing all the fire history spatial attributes
-#'   created by function fhProcess
-#' @param U_AllCombs_TFI data.table giving all combinations of cell values from
-#'   the input rasters for the FAME analysis
-#' @param Index_AllCombs integer index mapping U_AllCombs_TFI to raster cells
-#' @param TFI_LUT data.frame lookup table from EFG for
+#' #' @param myFHAnalysis 	list containing all the fire history spatial attributes
+#'   created by function fhProcess()
+#' @param myAllCombs list made by function calc_U_AllCombs
+#' @param myTFI_LUT data.frame Lookup table from EFG for
 #'   "MIN_LO_TFI","MIN_HI_TFI","MAX_TFI","EFG_NAME", read from settings
 #' @param makeBBTFIrasters logical whether or not to export rasters for BBTFI to
 #'   disk
@@ -20,14 +18,16 @@
 #' \item Optionally outputs rasters of BBTFI to disk if makeBBTFIrasters==TRUE.
 #' }
 #' @export
-calcBBTFI_2 <- function(FHanalysis,
-                        U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
-                        Index_AllCombs = myAllCombs$Index_AllCombs,
-                        TFI_LUT,
+calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
+                        myAllCombs = allCombs,
+                        #myTFI_LUT = TFI_LUT,
                         makeBBTFIrasters = makeBBTFIrasters )
 {
+  #import the allCombs data table and vector of raster cell values
+  U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
+  Index_AllCombs = myAllCombs$Index_AllCombs
   # import fire history raster and make template
-  r <- FHanalysis$FH_IDr
+  r <- myFHAnalysis$FH_IDr
   FH_ID <- raster::values(r)
   r <- raster::raster(nrows = nrow(r),
               ncols = ncol(r),
@@ -39,7 +39,7 @@ calcBBTFI_2 <- function(FHanalysis,
 
   #read the sf polygon data.frame all the fire history spatial attributes created by function fhProcess()
   #convert to a data.frame
-  OutTab <- FHanalysis$OutDF
+  OutTab <- myFHAnalysis$OutDF
   sf::st_geometry(OutTab) <- NULL
 
   # make fire interval and type matrices

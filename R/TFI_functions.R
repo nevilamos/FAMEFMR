@@ -23,37 +23,34 @@ LBY_f <- function(M, y){
   return(LBY)
 }
 
-
+##Function calcTFI----------------------------
 #' Main Tolerable fire interval (TFI) status calculation
 #' @details Calculates where each cell is currently at below MinTFI or above
 #'   MAX_TFI returns the per cell and long table summarised by multiple admin
 #'   units and evc
 #'
-#' @param FHanalysis 	list containing all the fire history spatial attributes
+#' @param myFHAnalysis 	list containing all the fire history spatial attributes
 #'   created by function fhProcess()
-#' @param U_AllCombs_TFI data.table giving all combinations of cell values from
-#'   the input rasters for the FAME analysis made in function calcU_All_Combs()
-#' @param Index_AllCombs integer index mapping U_AllCombs_TFI to raster cells
-#'   made in function calcU_All_Combs()
-#' @param TFI_LUT data.frame Lookup table from EFG for
-#'   "MIN_LO_TFI","MIN_HI_TFI","MAX_TFI","EFG_NAME", read form settings
-#' @param OutputRasters logical whether to uptut rasters of TFI status for each
+#' @param myAllCombs list made by function calc_U_AllCombs
+#' @param myTFI_LUT data.frame Lookup table from EFG for
+#'   "MIN_LO_TFI","MIN_HI_TFI","MAX_TFI","EFG_NAME", read from settings
+#' @param OutputRasters logical whether to output rasters of TFI status for each
 #'   year
 #'
 #' @return
 #' @export
 
-calc_TFI_2 <- function(FHanalysis,
-                       U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
-                       Index_AllCombs = myAllCombs$Index_AllCombs,
-                       TFI_LUT,
+calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
+                       myAllCombs = allCombs,
+                       myTFI_LUT = TFI_LUT,
                        OutputRasters = makeTFIRasters){
 
-
-  TimeRange <- as.integer(FHanalysis$TimeSpan)
-  TimeNames <- as.character(FHanalysis$TimeSpan)
+  U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
+  Index_AllCombs = myAllCombs$Index_AllCombs
+  TimeRange <- as.integer(myFHAnalysis$TimeSpan)
+  TimeNames <- as.character(myFHAnalysis$TimeSpan)
   LTR <- length(TimeRange)
-  r <- FHanalysis$FH_IDr #raster with spatial attributes for analysis previously stored
+  r <- myFHAnalysis$FH_IDr #raster with spatial attributes for analysis previously stored
                           #in analysis object used as template for output rasters
   FH_ID <- values(r)
   r <- raster::raster(nrows = nrow(r),
@@ -65,8 +62,8 @@ calc_TFI_2 <- function(FHanalysis,
   # clean memory
   gc()
 
-  # get the sf polygon data frame contain all the FHanalysis  attributes created in fhProcess() function
-  OutTab <- FHanalysis$OutDF
+  # get the sf polygon data frame contain all the FHAnalysis  attributes created in fhProcess() function
+  OutTab <- myFHAnalysis$OutDF
   sf::st_geometry(OutTab) <- NULL
   # get ID, seasons and season types information for matrix
   ID <- OutTab$ID

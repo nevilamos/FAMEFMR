@@ -115,9 +115,9 @@ notAllIn <- function(x, v = V){
 #' }
 #' @export
 calcDraftSpList <- function(REG_NO,  # can this match look up table REG_LUT     #REG_NO of defined region from input (1:6) or 99 for statewide or 7 for Ad Hoc Poly),
-                            RasterRes= 225, # raster resolution of 225is used for this fuction for speed - it is only required oget approximate values so finer resolution in not needed
+                            RasterRes= 225, # raster resolution of 225is used for this function for speed - it is only required to get approximate values so finer resolution in not needed
                             PUBLIC_LAND_ONLY,
-                            myPoly = myPoly,       #shapefile of LF_REGIONs (default) or adhoc region,   ######-----should this be clipPoly for consistency?
+                            myPoly = clipPoly,       #shapefile of LF_REGIONs (default) or adhoc region,   ######-----should this be clipPoly for consistency?
                             generalRasterDir = "./InputGeneralRasters",
                             splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",#always uses the default species list
                             HDMVals = HDMVals225){                          ######-----HDMVals225 is commented out in settings, and not called anywhere prior.

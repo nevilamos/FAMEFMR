@@ -1,20 +1,29 @@
 
 #' Calculate all combinations of input raster values
 #'
-#' @param FHAnalysis list containing all the fire history spatial attributes created by function fhProcess()
-#' @param cropRasters list of rasters and indices and cell values created by function cropNAborder()
+#' @param myFHAnalysis list containing all the fire history spatial attributes created by function fhProcess()
+#' @param myCropRasters list of rasters and indices and cell values created by function cropNAborder()
+#' @param myRasterRes Resolution of Rasters to be used in the analysis set in settings file in R-script version needs to be set in shiny version
 #'
 #' @return list of:
-#'\
+#' \itemize{
+#' \item data.table giving all combinations of cell values from
+#'   the input rasters for the FAME analysis
+#' \item integer index mapping unique combinations (above) to raster cells
+#' }
+#'
 #' @export
-calcU_All_Combs<- function(FHAnalysis,
-                           cropRasters){
+calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
+                           myCropRasters = cropRasters,
+                           myRasterRes = RasterRes
+                           )
+						   {
 
   # get input data
-  TimeRange <- as.integer(FHanalysis$TimeSpan)
-  TimeNames <- as.character(FHanalysis$TimeSpan)
+  TimeRange <- as.integer(myFHAnalysis$TimeSpan)
+  TimeNames <- as.character(myFHAnalysis$TimeSpan)
   LTR <- length(TimeRange)
-  r <- FHanalysis$FH_IDr
+  r <- myFHAnalysis$FH_IDr
   FH_ID <- raster::values(r)
   # make raster template
   r <- raster::raster(nrows = nrow(r),
@@ -23,15 +32,17 @@ calcU_All_Combs<- function(FHAnalysis,
               crs = crs(r),
               vals = NULL
               )
+
+  #myRasterRes<-res(myFHAnalysis$FH_IDr)[1]
   # clean memory
   gc()
 
   # get combination input data
-  PLM <- cropRasters$PLM
-  EFG <- cropRasters$EFG
-  FIRE_REG <- as.integer(cropRasters$RGN)
-  FIREFMZ <- as.integer(cropRasters$FIREFMZ)
-  DELWP <- cropRasters$DELWP
+  PLM <- myCropRasters$PLM
+  EFG <- myCropRasters$EFG
+  FIRE_REG <- as.integer(myCropRasters$RGN)
+  FIREFMZ <- as.integer(myCropRasters$FIREFMZ)
+  DELWP <- myCropRasters$DELWP
   #PUBLIC<-as.integer()                                                   #####-----remove
   # combine into data table
   AllCombs<-data.table::as.data.table(cbind(FH_ID,EFG,FIRE_REG,FIREFMZ,PLM,DELWP))
@@ -74,7 +85,7 @@ calcU_All_Combs<- function(FHAnalysis,
   data.table::setkey(U_AllCombs_TFI, "Index")
   U_AllCombs_TFI <- Join_Names(U_AllCombs_TFI)
   U_AllCombs_TFI$PLM[U_AllCombs_TFI$PLM == 1] <- "Public Land"
-  U_AllCombs_TFI$Hectares <- U_AllCombs_TFI$nPixel * cellsToHectares()
+  U_AllCombs_TFI$Hectares <- U_AllCombs_TFI$nPixel * cellsToHectares(RasterMetres = myRasterRes)
 
   # return function data
   return(list("U_AllCombs_TFI" = U_AllCombs_TFI,"Index_AllCombs" = Index_AllCombs))

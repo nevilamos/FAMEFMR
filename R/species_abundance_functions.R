@@ -34,45 +34,48 @@ make_Spp_LU_list <- function(myHDMSpp_NO = HDMSpp_NO,
 #' @details Calculates the relative abundance of species for each raster cell in
 #'   analysis and summaries these as summed abundance each season. Optionally it
 #'   also write relative abundance rasters for species to disk
-#' @param FHanalysis list containing all the fire history spatial attributes
+#' @param myFHAnalysis list containing all the fire history spatial attributes
 #'   created by function fhProcess
 #' @param myHDMSpp_NO vector of TAXON_IDs for species to be included in output
-#' @param writeSpRasters logical: whether to also write species abundance
+#' @param myWriteSpRasters logical: whether to also write species abundance
 #'   rasters to disk
 #' @param myLU_List list of species abundance lookup arrays created by function
 #'   make_Spp_LU_list()
-#' @param ResultsDir path of directory where results will be written usually
+#' @param myResultsDir path of directory where results will be written usually
 #'   generated  by FAME script
-#' @param HDMVals matrix of cell values for Habitat Distribution Model rasters
+#' @param myHDMVals matrix of cell values for Habitat Distribution Model rasters
 #'   for (at least) all TAXON_ID in myHDMSpp_NO generally provided in settings
 #'   file and read loaded by FAME script
-#' @param TaxonList data.frame of species attributes ( read from default or user
+#' @param myTaxonList data.frame of species attributes ( read from default or user
 #'   provided .csv)
 #' @param writeYears  vector for SEASONS for which rasters are to be written
 #'   otherwise if writeSpRasters == TRUE, if writeYears == NULL then all SEASONS
 #'   are written out
 #' @param writeSp vector of TAXON_IDs provided if only subset of species rasters
 #'   are required as output.
+#' @param myAllCombs all combinations of raster values object produced by function
+#'   calc_U_AllCombs
 #'
 #' @return data frame wide format summary of relative abundance of species by SEASONS
 #' @export
-makeSppYearSum2 <- function(FHanalysis,
+makeSppYearSum2 <- function(myFHAnalysis,
+                            myAllCombs=allCombs,
                             myHDMSpp_NO = HDMSpp_NO,
-                            writeSpRasters = writeSpRasters,
+                            myWriteSpRasters = writeSpRasters,
                             myLU_List = LU_List,
-                            ResultsDir = ResultsDir,
-                            HDMVals = HDMVals,
-                            TaxonList = TaxonList,
+                            myResultsDir = ResultsDir,
+                            myHDMVals = HDMVals,
+                            myTaxonList = TaxonList,
                             writeYears = NULL,
-                            writeSp = writeSp) {
+                            myWriteSp = writeSp) {
 
   # set time range for analysis
-  TimeRange <- as.integer(FHanalysis$TimeSpan)
-  TimeNames <- as.character(FHanalysis$TimeSpan)
+  TimeRange <- as.integer(myFHAnalysis$TimeSpan)
+  TimeNames <- as.character(myFHAnalysis$TimeSpan)
   LTR <- length(TimeRange)
 
-  # WHAT IS FH_IDr - Fire History r                                             #####-----comment-----#####
-  r <- FHanalysis$FH_IDr
+
+  r <- myFHAnalysis$FH_IDr
   # define r raster metadata
   r <- raster::raster(nrows = nrow(r),
                       ncols = ncol(r),
@@ -81,14 +84,14 @@ makeSppYearSum2 <- function(FHanalysis,
                       vals = NULL)
 
   # determine what years to write out (each year or TimeSpan)
-  TimeSpan <- FHanalysis$TimeSpan
-  myDF<-FHanalysis$OutDF
+  TimeSpan <- myFHAnalysis$TimeSpan
+  myDF<-myFHAnalysis$OutDF
   if(is.null(writeYears)){
     writeYears = TimeSpan}else
     {writeYears <- writeYears[writeYears %in% TimeSpan]
     }
 
-  # remove geometry FHanalysis DF to create a standard dataframe so columns can be subset
+  # remove geometry myFHAnalysis DF to create a standard dataframe so columns can be subset
   # without sticky geometry of original spatial Features data frame
   sf::st_geometry(myDF) <- NULL
 
@@ -110,8 +113,8 @@ makeSppYearSum2 <- function(FHanalysis,
     HDM_Vector<-as.vector(HDMVals[, grep(as.character(sp), colnames(HDMVals))]) * 100
 
     # makes matrices of YSF, EFG, and LFT to use in lookup from LU array
-    YSF_M <- as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID, FHanalysis$YSFNames]) + 1
-    LFT_M <- as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID, FHanalysis$LFTNames])
+    YSF_M <- as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID, myFHAnalysis$YSFNames]) + 1
+    LFT_M <- as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID, myFHAnalysis$LFTNames])
     EFG_M <- matrix(myAllCombs$U_AllCombs_TFI$EFG, nrow(YSF_M), ncol(YSF_M))
 
     # looks up the cell-wise species values for for the species abundance values by id neces in array
@@ -180,22 +183,19 @@ makeSppYearSum2 <- function(FHanalysis,
 #' Summary of changes in relative abundance
 #' @details Calculates the change in relative abundance compared to a baseline SEASON or mean of SEASONS
 #' @param SpYearSumm data.frame output by function makeSppYearSum2()
-#' @param FHanalysis list containing all the fire history spatial attributes created by function fhProcess
+#' @param myFHAnalysis list containing all the fire history spatial attributes created by function fhProcess
 #' @param myBaseline integer single SEASON or sequence of SEASons used to create the baseline relative species abundance for comparison of change
-#' @param ResultsDir path of directory where results will be written usually generated by FAME script
-#' @param HDMSpp_NO path of directory where results will be written usually generated by FAME script
-#' @param TaxonList data.frame of species attributes ( read from default or user provided .csv)
-#'
+#' @param myResultsDir path of directory where results will be written usually generated by FAME script
+#' #'
 #' @return data frame wide format summary chance in relative abundance of species SEASON
 #' @export
 calcDeltaAbund <- function(SpYearSumm = SpYearSummWide,
-                           FHanalysis,
+                           myFHAnalysis,
                            myBaseline,
-                           ResultsDir,
-                           HDMSpp_NO,
-                           TaxonList)
+                           myResultsDir
+)
 {
-  TimeSpan = FHanalysis$TimeSpan
+  TimeSpan = myFHAnalysis$TimeSpan
   # to get % of baseline need to define which columns provide the baseline
   # (one or mean of several using apply (mean)) then divide remaining values by this column.
   if (length(myBaseline == 1)){
@@ -240,7 +240,7 @@ calcDeltaAbund <- function(SpYearSumm = SpYearSummWide,
 
   #writes the table to file
   write.csv(ChangeRelativeToBaseline,
-            file.path(ResultsDir, "SppSummChangeRelativetoBaseline.csv"),
+            file.path(myResultsDir, "SppSummChangeRelativetoBaseline.csv"),
             row.names = FALSE)
 
   return(ChangeRelativeToBaseline)
@@ -263,7 +263,7 @@ calcSpp_EFG_LMU <- function(REG_NO,#REG_NO of defined region from input (1:6) or
                             EFGRas = EFGRas,                                 ######-----EFGRas isn't defined anywhere prior
                             TFI_LUT = TFI_LUT){
 
-  options(stringsAsFactors = FALSE)                                          ######-----delete? this is done at start of FAME_FMR_FHanalysisTFI_GS_calculations
+  options(stringsAsFactors = FALSE)                                          ######-----delete? this is done at start of FAME_FMR_FHAnalysisTFI_GS_calculations
   # load HDM data
   load(HDMVals)
   # read in species list
@@ -333,7 +333,7 @@ makeHDMValsfromRasters <- function(myHDMSpp_NO = HDMSpp_NO,
 
 makeHDMVals <- function(myHDMSpp_NO = HDMSpp_NO,
                         myCropDetails = cropRasters,
-                        RasterRes = FHanalysis$RasterRes){
+                        RasterRes = myFHAnalysis$RasterRes){
   load(paste0("./HDMS/HDMVals", RasterRes, ".rdata"))
   myHDMVals <- HDMVals[myCropDetails$IDX, as.character(myHDMSpp_NO)]
   return(myHDMVals)

@@ -5,7 +5,7 @@
 \title{Species' relative abundance calculation and summary}
 \usage{
 makeSppYearSum2(
-  FHanalysis,
+  FHAnalysis,
   myHDMSpp_NO = HDMSpp_NO,
   writeSpRasters = writeSpRasters,
   myLU_List = LU_List,
@@ -17,7 +17,7 @@ makeSppYearSum2(
 )
 }
 \arguments{
-\item{FHanalysis}{list containing all the fire history spatial attributes
+\item{FHAnalysis}{list containing all the fire history spatial attributes
 created by function fhProcess}
 
 \item{myHDMSpp_NO}{vector of TAXON_IDs for species to be included in output}

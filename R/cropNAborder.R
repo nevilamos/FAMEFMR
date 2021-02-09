@@ -5,7 +5,7 @@
 #' also gets indices of cells in raster of same extent as crop to the shape provided
 #' @param REG_NO integer DELWP fire region number 1:6 ,99 for Statewide analysis,  or 7 for ad hoc boundary polygon default =7 (see look up table REG_LUT for values)
 #' @param PUBLIC_LAND_ONLY Logical TRUE/FALSE
-#' @param RasterRes numeric raster resolution of the analysis in metres ( usually set in settings file or shiny app)
+#' @param myRasterRes numeric raster resolution of the analysis in metres ( usually set in settings file or shiny app)
 #' @param myPoly default clipPoly sf polygon data frame of LF_REGIONs (default) or ad hoc polygon - used in conjunction with REG_NO
 #' @param generalRasterDir relative path to directory containing rasters of DELWP FIRE_REG, DELWP REGION, EFG, PUBLIC LAND (PLM_GEN)
 #' @return A list containing:
@@ -21,12 +21,12 @@
 #' }
 #' @export
 cropNAborder  <- function(REG_NO = 7,              #see look up table REG_LUT for values
-                          RasterRes = RasterRes,
+                          myRasterRes = RasterRes,
                           PUBLIC_LAND_ONLY,
                           myPoly = clipPoly,         #shapefile of LF_REGIONs (default) or adhoc polygon,
                           generalRasterDir = "./InputGeneralRasters"
 ){
-  inputR <- inputRasters(RasterRes)
+  inputR <- inputRasters(myRasterRes)
   inR <- raster::raster(file.path(generalRasterDir, inputR$REGION.tif))
   Template <- inR
   raster::values(Template) <- NA

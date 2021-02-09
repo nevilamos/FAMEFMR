@@ -24,11 +24,9 @@ makeGS_LU <- function(EFG_TSF_4GS = myEFG_TSF_4GS){
 
 
 #' Summarise area by growth stage.
-#' @param FHanalysis list containing all the fire history spatial attributes
+#' @param FHAnalysis list containing all the fire history spatial attributes
 #'   created by function fhProcess
-#' @param U_AllCombs_TFI data.table giving all combinations of cell values from
-#'   the input rasters for the FAME anaysis
-#' @param Index_AllCombs integer index mapping U_AllCombs_TFI to raster cells #'
+#' @param myAllCombs list made by function calc_U_AllCombs
 #' @return list of two data.frames grouped by EFG, EFG_NAME, PLM ,FIRE_FMZ_NAME,
 #'   FIRE_REGION_NAME, DELWP_REGION
 #'\itemize{
@@ -39,18 +37,19 @@ makeGS_LU <- function(EFG_TSF_4GS = myEFG_TSF_4GS){
 #'   season grouped by EFG, EFG_NAME, PLM ,FIRE_FMZ_NAME, FIRE_REGION_NAME,
 #'   DELWP_REGION.
 #' @export
-makeGS_Summary <- function(FHanalysis,
-                           U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI,
-                           Index_AllCombs = myAllCombs$Index_AllCombs)
+makeGS_Summary <- function(myFHAnalysis = FHAnalysis,
+                           myAllCombs = allCombs)
   {
+  U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
+  Index_AllCombs = myAllCombs$Index_AllCombs
 
-  TimeNames <- as.character(FHanalysis$TimeSpan)
+  TimeNames <- as.character(FHAnalysis$TimeSpan)
   GS_LU <- makeGS_LU() ####----- does this change between runs? i.e. is the csv input a user input that can change.
   #####  Potentially yes so keep for now ( input .csv can be defined in settings file)
 
   # get the FHAnalysis sf polygon data frame ( containing all the fire history attributes) created by function fhProcess
   # and convert to a data.frame
-  OutTab <- FHanalysis$OutDF
+  OutTab <- myFHAnalysis$OutDF
   sf::st_geometry(OutTab) <- NULL
   #ID<-OutTab$ID                                                           #####----- remove
 
