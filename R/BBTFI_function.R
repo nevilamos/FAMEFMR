@@ -2,13 +2,14 @@
 #' @details Calculate summary  area burned below TFI BBTFI for each SEASON in analysis
 #'   (accommodating  Hi and Lo fire intensity of first burn to determine TFI)
 #'   and cumulative area BBTFI.  Also optionally outputs rasters mapping areas BBTFI
-#' #' @param myFHAnalysis 	list containing all the fire history spatial attributes
+#' @param myFHAnalysis list of Fhire history analysis components
 #'   created by function fhProcess()
 #' @param myAllCombs list made by function calc_U_AllCombs
 #' @param myTFI_LUT data.frame Lookup table from EFG for
-#'   "MIN_LO_TFI","MIN_HI_TFI","MAX_TFI","EFG_NAME", read from settings
-#' @param makeBBTFIrasters logical whether or not to export rasters for BBTFI to
-#'   disk
+#'   "MIN_LO_TFI","MIN_HI_TFI","MAX_TFI","EFG_NAME", read from
+#'   settings
+#' @param makeBBTFIrasters logical whether or not to export
+#' rasters for BBTFI to disk
 #' @import raster
 #' @return list containing:
 #' \itemize{
