@@ -1,34 +1,7 @@
-############################################################################
-# Functions used in TFI_functionsFMRv2 are ...                                               #####-----brief description of overall function
-# written by nevil.amos@delwp.vic.gov.au
-############################################################################
-
-
-## FUNCTION LBY_f -----------------------------------------------------------
-# Function to calculate last burnt year (LBY) from matrix of rows of fire season
-# iterating by year (y) used in calc_TFI_2
-#' Calculate last burned year matrix (LBY)
-#' @details Function to calculate last burnt year (LBY) from matrix of rows of fire season
-#'  iterating by year (y) used in calc_TFI_2
-#' @param M numeric matrix of fire sequences sequence in rows, values are SEASON
-#' @param y numeric  SEASON
-#'
-#' @return matrix  of last burned year row for each unique fire history column for each SEASON
-#' @import raster
-#' @export
-LBY_f <- function(M, y){
-  M[M > y | M == 0] <- NA
-  LBY <- Rfast::rowMaxs(M, value = TRUE)
-  LBY[is.infinite(LBY)] <- NA
-  return(LBY)
-}
-
-##Function calcTFI----------------------------
 #' Main Tolerable fire interval (TFI) status calculation
 #' @details Calculates where each cell is currently at below MinTFI or above
 #'   MAX_TFI returns the per cell and long table summarised by multiple admin
 #'   units and evc
-#'
 #' @param myFHAnalysis 	list containing all the fire history spatial attributes
 #'   created by function fhProcess()
 #' @param myAllCombs list made by function calc_U_AllCombs
@@ -36,14 +9,19 @@ LBY_f <- function(M, y){
 #'   "MIN_LO_TFI","MIN_HI_TFI","MAX_TFI","EFG_NAME", read from settings
 #' @param OutputRasters logical whether to output rasters of TFI status for each
 #'   year
-#'
-#' @return
+#' @param myResultsDir path of directory where results will be written usually
+#'   generated  by FAME script
+#' @importFrom rlang .data
+#' @importFrom data.table as.data.table
+#' @import raster
+#' @return data.frame with area in each TFI status for each combination in myAllCombs
 #' @export
 
 calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
                        myAllCombs = allCombs,
                        myTFI_LUT = TFI_LUT,
-                       OutputRasters = makeTFIRasters){
+                       OutputRasters = makeTFIRasters,
+                       myResultsDir = ResultsDir){
 
   U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
   Index_AllCombs = myAllCombs$Index_AllCombs
@@ -52,11 +30,11 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
   LTR <- length(TimeRange)
   r <- myFHAnalysis$FH_IDr #raster with spatial attributes for analysis previously stored
                           #in analysis object used as template for output rasters
-  FH_ID <- values(r)
+  FH_ID <- raster::values(r)
   r <- raster::raster(nrows = nrow(r),
               ncols = ncol(r),
-              ext = extent(r),
-              crs = crs(r),
+              ext = raster::extent(r),
+              crs = raster::crs(r),
               vals = NULL
   )
   # clean memory
@@ -67,7 +45,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
   sf::st_geometry(OutTab) <- NULL
   # get ID, seasons and season types information for matrix
   ID <- OutTab$ID
-  #INTFields <- names(OutTab)[grep("^INT", names(OutTab))]                      #####-----remove-----#####
+
   SEASFields <- names(OutTab)[grep("^SEAS", names(OutTab))]
   TYPEFields <- names(OutTab)[grep("^FireType", names(OutTab))]
 
@@ -76,11 +54,11 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
   SEAS[is.na(SEAS)] <- 0
   TYPE <- as.matrix(OutTab[, TYPEFields[]]) #The type of the fire
 
-  TYPE_HI <- TYPE == 2                                                          #####-----I assume this is bushfire (type 2)? call up the look up table instead?
+  TYPE_HI <- TYPE == 2
   TYPE_HI[TYPE_HI < 1] <- NA
   SEAS_HI <- SEAS * TYPE_HI
 
-  TYPE_LO <- TYPE == 1                                                            #####-----I assume this is planned burn (type 1)? call up the look up table instead?
+  TYPE_LO <- TYPE == 1
   TYPE_LO[TYPE_LO < 1 ] <- NA
   SEAS_LO <- SEAS * TYPE_LO
   # clean variable no longer needed
@@ -130,21 +108,21 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
   #This next section is only run for debugging unusual TFI statuses it allows their isolation at the level of unique combination of fire history and EFG
   # Check_TFI<-cbind(TFI_VAL,U_AllCombs_TFI) %>%
   #     dplyr::select(-FIRE_REG,-FIREFMZ,-PLM,-DELWP) %>%
-  #       pivot_longer(all_of(TimeNames),names_to="SEASON",values_to="TFI_VAL") %>%
+  #       pivot_longer(tidyselect::all_of(TimeNames),names_to="SEASON",values_to="TFI_VAL") %>%
   #         filter(!TFI_VAL%in%c(-99,0,1,5)) %>%
   #           group_by(EFG,MIN_LO_TFI,MIN_HI_TFI,MAX_TFI,EFG_NAME,Index,FH_ID, SEASON,TFI_VAL) %>%
   #             summarize(Cells=sum(nPixel))
   #
   # Check_TFI<-data.table::as.data.table(Check_TFI)
   # setkey(Check_TFI,"FH_ID")
-  # write.csv(Check_TFI,"Check_TFI.csv")
+  # utils::write.csv(Check_TFI,"Check_TFI.csv")
   # OutTab<-data.table::as.data.table(OutTab)
   # Check_TFI<-OutTab[Check_TFI]
   #END of DEBUGGING CODE
 
   # prepare output data summary tables via dplyr wrangling
   TFI_Summary <- cbind(TFI_VAL, U_AllCombs_TFI) %>%
-    tidyr::pivot_longer(all_of(TimeNames), names_to = "SEASON", values_to = "TFI_VAL") %>%
+    tidyr::pivot_longer(tidyselect::all_of(TimeNames), names_to = "SEASON", values_to = "TFI_VAL") %>%
     dplyr::group_by(EFG_NAME,
                     FIRE_FMZ_NAME,
                     FIRE_FMZ_SHORT_NAME,
@@ -159,29 +137,30 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
                     TFI_VAL) %>%
     dplyr::summarize(nCells = sum(nPixel), Hectares = sum(Hectares))
 
-  TFI_Summary <- left_join(TFI_Summary, TFI_STATUS_LUT)
+  TFI_Summary <- dplyr::left_join(TFI_Summary, TFI_STATUS_LUT)
 
   # raster output
   #Ratify all combinations raster index allows creation and export of Tif with raster attribute table
   # that can be read by ARCGIS method from : https://gis.stackexchange.com/questions/257204/saving-geotiff-from-r
 
   if (OutputRasters == TRUE){
+    print(file.path(myResultsDir,"TFI_Rasters"))
+    dir.create(file.path(myResultsDir,"TFI_Rasters"))
     raster::values(r) <- Index_AllCombs
     rasterDatatype <- ifelse(max(Index_AllCombs) <= 65534, 'INT2S', 'INT4S') #selects the most efficient datatype depending on the size of integers in the input
-    r <- raster::ratify(r)
+    r <- ratify(r)
     colnames(TFI_VAL) <- paste0("TFI_", colnames(TFI_VAL))
     levels(r)[[1]] <- cbind(levels(r)[[1]], as.data.frame(TFI_VAL))
     levels(r)[[1]] %>%
       dplyr::rename(VALUE = ID) %>%
       dplyr::mutate(VALUE = as.integer(VALUE)) %>%
       foreign::write.dbf(.,
-                         file.path(ResultsDir,
-                                   "TFI_Rasters",
+                         file.path(myResultsDir,"TFI_Rasters",
                                    'TFI_BY_YEAR.tif.vat.dbf'),
                          factor2char = TRUE,
                          max_nchar = 254)
     raster::writeRaster(r,
-                        file.path(ResultsDir,
+                        file.path(myResultsDir,
                                   "TFI_Rasters",
                                   "TFI_BY_YEAR.tif"),
                         datatype = rasterDatatype,

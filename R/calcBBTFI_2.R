@@ -5,12 +5,10 @@
 #' @param myFHAnalysis list of Fhire history analysis components
 #'   created by function fhProcess()
 #' @param myAllCombs list made by function calc_U_AllCombs
-#' @param myTFI_LUT data.frame Lookup table from EFG for
-#'   "MIN_LO_TFI","MIN_HI_TFI","MAX_TFI","EFG_NAME", read from
-#'   settings
 #' @param makeBBTFIrasters logical whether or not to export
 #' rasters for BBTFI to disk
-#' @import raster
+#' @param myResultsDir path of directory where results will be written usually
+#'   generated  by FAME script
 #' @return list containing:
 #' \itemize{
 #' \item the date sequence matrix for each cell of the raster
@@ -18,11 +16,12 @@
 #' \item the raster resolution used.
 #' \item Optionally outputs rasters of BBTFI to disk if makeBBTFIrasters==TRUE.
 #' }
+#' @importFrom rlang .data
 #' @export
 calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
                         myAllCombs = allCombs,
-                        #myTFI_LUT = TFI_LUT,
-                        makeBBTFIrasters = makeBBTFIrasters )
+                        makeBBTFIrasters = makeBBTFIrasters,
+                        myResultsDir = NULL)
 {
   #import the allCombs data table and vector of raster cell values
   U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
@@ -32,8 +31,8 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
   FH_ID <- raster::values(r)
   r <- raster::raster(nrows = nrow(r),
               ncols = ncol(r),
-              ext = extent(r),
-              crs = crs(r),
+              ext = raster::extent(r),
+              crs = raster::crs(r),
               vals = NULL
               )
 
@@ -82,15 +81,15 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
   BB_HI_TFI_SEASON[BB_HI_TFI_SEASON == 0] <- NA
 
   # next two line combine dates for fires BBTFI that are below the low TFI threshold,
-  # and those below the Hi TFI theshold (as determined by the TYPE of the first fire)
+  # and those below the Hi TFI threshold (as determined by the TYPE of the first fire)
   BBTFI_COMB <- BB_LO_TFI_SEASON
   BBTFI_COMB[is.na(BB_LO_TFI_SEASON)] <- BB_HI_TFI_SEASON[is.na(BB_LO_TFI_SEASON)]
 
-  # cumulative number of times BBTFI events in each comination of EFG with fire history and grouping polygons
+  # cumulative number of times BBTFI events in each combination of EFG with fire history and grouping polygons
   cumBBTFI <- t(apply(!is.na(BBTFI_COMB), 1, FUN = "cumsum"))
   totalTimesBBTFI <-rowSums(!is.na(BBTFI_COMB))
 
-  # mininimum SEASON in row determines first time that was burned below TFI
+  # minimum SEASON in row determines first time that was burned below TFI
   FirstBBTFI <- apply(BBTFI_COMB, 1, min, na.rm = TRUE )
   FirstBBTFI[is.infinite(FirstBBTFI)] <- NA
   # need to set cells NA where NA in BBTFI
@@ -99,11 +98,12 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
 
   # this needs a little more annotation about what/why e.g. make 3 dataframes (WIDEish, LONG, WIDE) and their differences   #####-----are the three outputs fundamentally different? does each user use each one, or only one of them?
   # have called this combined item BBTFI_WIDEish because is is the same
-  # number of rows as the true wide item but cumBBTFI is in sequece for still not spread by year.
+  # number of rows as the true wide item but cumBBTFI is in sequence for still not spread by year.
   #BBTFI_WIDEish<-cbind(U_AllCombs_TFI,BBTFI_COMB,cumBBTFI,TYPE2,FirstBBTFI,totalTimesBBTFI)      #####-----remove
   BBTFI_WIDEish <- cbind(U_AllCombs_TFI, SEAS, cumBBTFI, TYPE2, FirstBBTFI, totalTimesBBTFI)
-  BBTFI_LONG <- BBTFI_WIDEish %>%      #select(-FirstBBTFI,-totalTimesBBTFI) %>%
-                  tidyr::pivot_longer(all_of(names(BBTFI_WIDEish)[(ncol(U_AllCombs_TFI)+1):(ncol(BBTFI_WIDEish)-2)]),
+  BBTFI_LONG <- BBTFI_WIDEish %>%
+    #select(-FirstBBTFI,-totalTimesBBTFI) %>%
+                  tidyr::pivot_longer(tidyselect::all_of(names(BBTFI_WIDEish)[(ncol(U_AllCombs_TFI)+1):(ncol(BBTFI_WIDEish)-2)]),
                                names_to = c(".value", "SEQ"),
                                names_pattern = "([^0-9]+)([0-9]+)")
 
@@ -125,6 +125,10 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
 
   # output rasters if applicable
   if(makeBBTFIrasters){
+    print(file.path(myResultsDir,
+                    "BBTFI_Rasters"))
+    dir.create(file.path(myResultsDir,
+                         "BBTFI_Rasters"), showWarnings = TRUE)
 
     raster::values(r) <- Index_AllCombs
     rasterDatatype <- ifelse(max(Index_AllCombs) <= 65534, 'INT2S', 'INT4S')
@@ -134,11 +138,15 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
     levels(r)[[1]] %>%
       dplyr::rename(VALUE =ID) %>%
       dplyr::mutate(VALUE = as.integer(VALUE)) %>%
-          foreign::write.dbf(., file.path(ResultsDir, "BBTFI_Rasters", "BBTFI_BY_YEAR.tif.vat.dbf"),
-                             factor2char = TRUE, max_nchar = 254)
-
+          foreign::write.dbf(.,
+                             file.path(myResultsDir,
+                                       "BBTFI_Rasters",
+                                       "BBTFI_BY_YEAR.tif.vat.dbf"),
+                             factor2char = TRUE,
+                             max_nchar = 254)
+                print(paste("BbtfiTiff=",file.path(myResultsDir, "BBTFI_Rasters", 'BBTFI_BY_YEAR.tif')))#debug
     raster::writeRaster(r,
-                file.path(ResultsDir, "BBTFI_Rasters", 'BBTFI_BY_YEAR.tif'),
+                file.path(myResultsDir, "BBTFI_Rasters", 'BBTFI_BY_YEAR.tif'),
                 datatype = rasterDatatype,
                 overwrite=TRUE,
                 options=c("COMPRESS=LZW", "TFW=YES")

@@ -9,7 +9,7 @@ Join_Names(myDF, LUTS = c("TFI_LUT", "FIREFMZ_LUT", "REG_LUT", "DELWP_LUT"))
 }
 \arguments{
 \item{myDF}{dataframe or similar containing indices for the LUTS listed, to
-which the LUTS will be left_joined}
+which the LUTS will be dplyr::left_joined}
 
 \item{LUTS}{vector of names of LUTS in memory defaults
 =c("TFI_LUT","FIREFMZ_LUT","REG_LUT","DELWP_LUT")}

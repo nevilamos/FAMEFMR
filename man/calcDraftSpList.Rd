@@ -8,16 +8,16 @@ calcDraftSpList(
   REG_NO,
   RasterRes = 225,
   PUBLIC_LAND_ONLY,
-  myPoly = myPoly,
+  myPoly = clipPoly,
   generalRasterDir = "./InputGeneralRasters",
   splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
-  HDMVals = HDMVals225
+  myHDMVals = "./HDMS/HDMVals225.rdata"
 )
 }
 \arguments{
-\item{REG_NO}{integer DELWP fire region number 1:6 ,99 for Statewide analysis, or 7 for ad hoc boundary polygon default =7 (see look up table REG_LUT for values)}
+\item{REG_NO}{integer DELWP fire region number 1:6 ,99 for Statewide analysis, or 7 for ad-hoc boundary polygon default =7 (see look up table REG_LUT for values)}
 
-\item{RasterRes}{integer 225 - raster resolution is always 225 for this fucntion for speed}
+\item{RasterRes}{integer 225 - raster resolution is always 225 for this function for speed}
 
 \item{PUBLIC_LAND_ONLY}{logical whether to restrict analysis to public land only or the whole polygon}
 
@@ -27,7 +27,7 @@ calcDraftSpList(
 
 \item{splist}{path to default species attribute table default is}
 
-\item{HDMVals}{}
+\item{myHDMVals}{matrix of cell values for Habitat Distribution Model rasters always 225m for speed}
 }
 \value{
 data.frame created from splist with columns appended for:

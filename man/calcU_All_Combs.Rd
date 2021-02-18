@@ -4,16 +4,26 @@
 \alias{calcU_All_Combs}
 \title{Calculate all combinations of input raster values}
 \usage{
-calcU_All_Combs(FHAnalysis = FHAnalysis, cropRasters = cropRasters)
+calcU_All_Combs(
+  myFHAnalysis = FHAnalysis,
+  myCropRasters = cropRasters,
+  myRasterRes = RasterRes
+)
 }
 \arguments{
-\item{FHAnalysis}{list containing all the fire history spatial attributes created by function fhProcess()}
+\item{myFHAnalysis}{list containing all the fire history spatial attributes created by function fhProcess()}
 
-\item{cropRasters}{list of rasters and indices and cell values created by function cropNAborder()}
+\item{myCropRasters}{list of rasters and indices and cell values created by function cropNAborder()}
+
+\item{myRasterRes}{Resolution of Rasters to be used in the analysis set in settings file in R-script version needs to be set in shiny version}
 }
 \value{
 list of:
-\
+\itemize{
+\item data.table giving all combinations of cell values from
+the input rasters for the FAME analysis
+\item integer index mapping unique combinations (above) to raster cells
+}
 }
 \description{
 Calculate all combinations of input raster values

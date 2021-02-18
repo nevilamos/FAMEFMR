@@ -46,7 +46,7 @@ cropNAborder  <- function(REG_NO = 7,              #see look up table REG_LUT fo
     cn <- tabularaster::cellnumbers(Template,Shape)
     cn <- cn$cell_
     RGN <- inR
-    #values(RGN)[cn] <- REG_NO
+    #raster::values(RGN)[cn] <- REG_NO
   }
 
   if(REG_NO == 7){

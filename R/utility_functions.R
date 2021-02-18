@@ -60,7 +60,7 @@ get_Spp_No <- function( x = "Vector of Sp file Pathnames"){
 #' Lookup tables (LUTS) to dataframe containing ID_NO: Name combinations
 #'
 #' @param myDF dataframe or similar containing indices for the LUTS listed, to
-#'   which the LUTS will be left_joined
+#'   which the LUTS will be dplyr::left_joined
 #' @param LUTS vector of names of LUTS in memory defaults
 #'   =c("TFI_LUT","FIREFMZ_LUT","REG_LUT","DELWP_LUT")
 #' @return a data.frame with the LUTS joined to it
@@ -99,13 +99,13 @@ notAllIn <- function(x, v = V){
 #'is intended only as a starting point and requires manual quality control to
 #'produce a useful species list for the area by editing the resulting .csv
 #'file
-#' @param REG_NO integer DELWP fire region number 1:6 ,99 for Statewide analysis, or 7 for ad hoc boundary polygon default =7 (see look up table REG_LUT for values)
-#' @param RasterRes integer 225 - raster resolution is always 225 for this fucntion for speed
+#' @param REG_NO integer DELWP fire region number 1:6 ,99 for Statewide analysis, or 7 for ad-hoc boundary polygon default =7 (see look up table REG_LUT for values)
+#' @param RasterRes integer 225 - raster resolution is always 225 for this function for speed
 #' @param PUBLIC_LAND_ONLY logical whether to restrict analysis to public land only or the whole polygon
 #' @param myPoly default clipPoly sf polygon data frame of LF_REGIONs (default) or ad hoc polygon - used in conjunction with REG_NO
 #' @param generalRasterDir relative path to directory containing rasters of FIRE_REG, and PUBLIC LAND (PLM_GEN)
 #' @param splist path to default species attribute table default is
-#' @param HDMVals
+#' @param myHDMVals matrix of cell values for Habitat Distribution Model rasters always 225m for speed
 #'
 #' @return data.frame created from splist with columns appended for:
 #' \itemize{
@@ -114,33 +114,33 @@ notAllIn <- function(x, v = V){
 #' \item areaProp proportion of binary HDM for the state within myPoly
 #' }
 #' @export
-calcDraftSpList <- function(REG_NO,  # can this match look up table REG_LUT     #REG_NO of defined region from input (1:6) or 99 for statewide or 7 for Ad Hoc Poly),
-                            RasterRes= 225, # raster resolution of 225is used for this function for speed - it is only required to get approximate values so finer resolution in not needed
+calcDraftSpList <- function(REG_NO,
+                            RasterRes= 225,
                             PUBLIC_LAND_ONLY,
-                            myPoly = clipPoly,       #shapefile of LF_REGIONs (default) or adhoc region,   ######-----should this be clipPoly for consistency?
+                            myPoly = clipPoly,
                             generalRasterDir = "./InputGeneralRasters",
-                            splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",#always uses the default species list
-                            HDMVals = HDMVals225){                          ######-----HDMVals225 is commented out in settings, and not called anywhere prior.
-  load(HDMVals)
+                            splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
+                            myHDMVals = "./HDMS/HDMVals225.rdata"){                          ######-----HDMVals225 is commented out in settings, and not called anywhere prior.
+  load(myHDMVals)
   REG_NO <- as.integer(as.numeric(REG_NO))                                  ######-----go straight to int? rather than wrap the numeric -did not seem to work when tried as.integer(REG_NO)
-  splist <- read.csv(splist)
+  splist <- utils::read.csv(splist)
   CropDetails <- cropNAborder (REG_NO = REG_NO,
-                               RasterRes = RasterRes,
-                               PUBLIC_LAND_ONLY,
+                               myRasterRes = RasterRes,
+                               PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,
                                myPoly = myPoly,
                                generalRasterDir = "./InputGeneralRasters"
   )
 
   # get cells in polygon
-  cellsInArea <- colSums(HDMVals[CropDetails$clipIDX,])
-  cellsInState <- colSums(HDMVals)
+  cellsInArea <- colSums(myHDMVals[CropDetails$clipIDX,])
+  cellsInState <- colSums(myHDMVals)
 
   # calc proportion of statwide population
   areaProp <- signif(cellsInArea / cellsInState, digits = 2)
   # pull data into dataframe
   TAXON_ID <- as.numeric(colnames(HDMVals))
   myDF <- data.frame(TAXON_ID, cellsInState, cellsInArea, areaProp)
-  myDF <- left_join(splist, myDF)
+  myDF <- dplyr::left_join(splist, myDF)
   return(myDF)
 }
 
@@ -196,3 +196,151 @@ unlistPivot_wider <- function(df){
   Y <- unlist(df)
   return (Y)
 }
+
+
+
+#' Makes Long format  Fauna  abundance table
+#'
+#' @details Supporting function to Make long format table for fauna abundance scores
+#'  by "VBA_CODE"  ,FireType EFG and Growth Stage from input wide format table currently
+#'   deals only with FireType of "High" and "Low"
+#'   which are converted to 2 and 1 respectively
+#' @param AbundDataByGSFile .csv input file containing fields
+#' "EFG_NO", "GS4_NO",  "FireType" , "Abund", "VBA_CODE"
+#' with Abund values for' both FireTypes for each growth stage "GS4_NO"
+#' @param myEFG_TSF_4GS table of each combination of "EFG_NO", "GS4_NO", and "YSF" generally read in at beginning of FAME in settings file
+#' @return long format table with one row for each combination of "EFG_NO", "GS4_NO",  "FireType" , "Abund", "VBA_CODE" and "YSF"
+#' sorted by VBA_CODE
+#' @export
+
+makeAbundDataLong<- function(AbundDataByGSFile = "./ReferenceTables/OrdinalExpertLong.csv",
+                             myEFG_TSF_4GS = EFG_TSF_4GS){
+  AbundDataByGS <- utils::read.csv(AbundDataByGSFile)[,c("EFG_NO", "GS4_NO",  "FireType" , "Abund", "VBA_CODE")]
+  AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="High"]<-2
+  AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="Low"]<-1
+  AbundDataByGS<-AbundDataByGS[!is.na(AbundDataByGS$Abund),c("EFG_NO", "GS4_NO",  "FireTypeNo" , "Abund", "VBA_CODE")]
+
+
+  AbundDataLong = merge(AbundDataByGS, myEFG_TSF_4GS,   by=c('EFG_NO','GS4_NO'))
+  AbundDataLong<-AbundDataLong[order(AbundDataLong$VBA_CODE),]
+  return(AbundDataLong)
+}
+
+
+## FUNCTION calcSppEFGLM ----------------------------------------------------
+#'Calculate the species in each EFG in given area for GSO calculations.
+#'
+#'works by using the indices of the standard dimensions raster that are in the
+#'supplied shapefile region boundary (via function cropNAborder )
+
+#' @param REG_NO integer DELWP fire region number 1:6 ,99 for Statewide analysis, or 7 for ad hoc boundary polygon default =7 (see look up table REG_LUT for values)
+#' @param RasterRes integer 225 - raster resolution is always 225 for this function for speed
+#' @param PUBLIC_LAND_ONLY logical whether to restrict analysis to public land only or the whole polygon
+#' @param myPoly default clipPoly sf polygon data frame of LF_REGIONs (default) or ad hoc polygon - used in conjunction with REG_NO
+#' @param generalRasterDir relative path to directory containing rasters of FIRE_REG, and PUBLIC LAND (PLM_GEN)
+#' @param splist path to default species attribute table default is "./ReferenceTables/DraftTaxonListStatewidev2.csv"
+#' @param HDMVals matrix of cell values for Habitat Distribution Model rasters at 225m pixel size
+#' @param TFI_LUT data.frame lookup table for EFG loaded in setup
+#'@export
+
+calcSpp_EFG_LMU <- function(REG_NO,
+                            RasterRes = 225,
+                            PUBLIC_LAND_ONLY,
+                            myPoly = clipPoly,
+                            generalRasterDir = "./InputGeneralRasters",
+                            splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
+                            HDMVals = HDMVals225,
+                            #EFGRas = EFGRas,
+                            TFI_LUT = TFI_LUT){
+
+  # load HDM data
+  load(HDMVals)
+  # read in species list
+  mySpList <- utils::read.csv(splist)[,c( "TAXON_ID","COMMON_NAME","NAME")]
+  #EFG <- raster::values(raster(EFGRas))
+  REG_NO <- as.integer(as.numeric(REG_NO))                                   ######-----go straight to int? rather than wrap the numeric
+  CropDetails <- cropNAborder (REG_NO = REG_NO,
+                               myRasterRes = RasterRes,
+                               PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,
+                               myPoly = myPoly,
+                               generalRasterDir = generalRasterDir
+  )
+
+  # crop EFG and HDMVals
+  #EFG <- EFG[CropDetails$clipIDX]
+  EFG<-CropDetails$EFG
+  EFG[is.na(EFG)] <- 99
+  HDMVals <- HDMVals[CropDetails$clipIDX,]
+  mode(EFG) <- "integer"
+
+  # write spp EFG LMU csv
+  A <- Matrix.utils::aggregate.Matrix	(HDMVals, EFG ,fun = 'sum')
+  myDf <- as.data.frame(as.matrix(A))
+  myDf$EFG_NO <- as.integer(rownames(myDf))
+  myDf <- tidyr::gather(myDf, key = "TAXON_ID", "CellCount", -EFG_NO)
+  myDf <- myDf[myDf$CellCount > 0,]
+  myDf$TAXON_ID <- as.integer(myDf$TAXON_ID)
+  myDf$EFG <- as.integer(myDf$EFG)
+  myDf$ha <- myDf$CellCount * cellsToHectares()
+  myDf <- dplyr::left_join(myDf, TFI_LUT[,c("EFG","EFG_NAME")], by = c("EFG_NO" = "EFG"))
+  myDf <- dplyr::left_join(myDf, mySpList)
+  utils::write.csv(myDf, file.path(ResultsDir, "Spp_EFG_LMU.csv"), row.names = FALSE)
+  # write EFG areas csv
+  EFG_AREAS <- as.data.frame(table(EFG))
+  EFG_AREAS$ha <- EFG_AREAS$Freq*((RasterRes / 100) ^ 2)
+  EFG_AREAS$EFG <- as.numeric(levels(EFG_AREAS$EFG))
+  EFG_AREAS <- dplyr::right_join(TFI_LUT[,c("EFG", "EFG_NAME")], EFG_AREAS, by = "EFG")
+  utils::write.csv(EFG_AREAS, file.path(ResultsDir, "EFG_AREAS.csv"), row.names = FALSE)
+}
+
+
+
+## FUNCTION makeHDMValsfromRasters  ------------------------------------------------------
+#' Function makes a matrix of HDM values(1,NA) constrained to those cells that
+#' are indexed in the cropped area
+#' @param myHDMSpp_NO vector of TAXON_IDs for species to be included in output
+#' @param myCropRasters list of rasters and indices and cell values created by function cropNAborder()
+#' @importFrom iterators iter
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach foreach %dopar%
+#' @export
+makeHDMValsfromRasters <- function(myHDMSpp_NO = HDMSpp_NO,
+                                   myCropRasters = cropRasters)
+{
+  HDMPaths <- dir(myCropRasters$HDM_RASTER_PATH, full.names=TRUE, pattern = ".tif$")
+  HDMPaths <- HDMPaths[get_Spp_No(HDMPaths) %in%
+                         myHDMSpp_NO]
+
+  print("reading HDMvalues")
+
+  # set up parallel processing
+  cl<-parallel::makeCluster(Ncores)
+  doParallel::registerDoParallel(cl, cores=Ncores)
+
+  myHDMVals <- foreach::foreach(i = iterators::iter(HDMPaths),.combine = cbind,.packages = "raster") %dopar% {
+    myVals <- raster::values(raster::raster(i))[myCropRasters$IDX]
+    myVals}
+  parallel::stopCluster(cl)
+
+  colnames(myHDMVals) <- as.character(get_Spp_No(HDMPaths))
+  return(myHDMVals)
+}
+
+
+
+
+#' Extract HDM values for relevant cells and resolution for use in RA calculations
+#' @param myHDMSpp_NO vector of TAXON_IDs for species to be included in output
+#' @param myCropRasters list of rasters and indices and cell values created by function cropNAborder()
+#' @param RasterRes numeric raster resolution of the analysis in metres (225 or 75
+#'   usually set in settings file or shiny app)
+#' @export
+makeHDMVals <- function(myHDMSpp_NO = HDMSpp_NO,
+                        myCropRasters = cropRasters,
+                        RasterRes = myFHAnalysis$RasterRes){
+  load(paste0("./HDMS/HDMVals", RasterRes, ".rdata"))
+  myHDMVals <- HDMVals[myCropRasters$IDX, as.character(myHDMSpp_NO)]
+  return(myHDMVals)
+}
+
+

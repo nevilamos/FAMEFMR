@@ -1,29 +1,45 @@
 Package: FAMEFMR
 Title: Functions used in the DELWP FAME fire analysis process
-Version: 0.0.0.9000
+Version: 0.1.2.3
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
            role = c("aut", "cre"),
            email = "nevil.amos@gmail.com",
            comment = c(ORCID = "0000-0003-1271-4767"))
-Description: What the package does (one paragraph).
-License: `use_gpl3_license()`
+Description: The package contains all the functions necessary to run the DELWP FAME
+            process of analysis of effects of a given fire history on environmental
+            resilience metrics. These include Tolerable fire Inteval (TFI) status, area
+            burned below TFI (BBTFI) and changes in relative abundance of fauna species.
+            It allows calcuation of all inter fire intervals and numbers of times an area
+            has been burned by a given sequence of fires supplied as a shapefile.
+            The FAME analysis can be run using stadard R scripts, or alternatively via a
+            shiny web GUI. The package does not contain the required input files (lookup
+            tables, rasters of species HDMs etc) as these are too large to be loaded to 
+            github.
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports: 
     doParallel,
-    tidyr,
     dplyr,
     fasterize,
-    filematrix,
+    foreign,
     foreach,
+    iterators,
+    magrittr,
+    Matrix.utils,
     mgcv,
     raster,
+    Rfast,
+    rlang,
     sf,
     tabularaster,
-    tictoc
+    tibble,
+    tictoc,
+    tidyr,
+    tidyselect
 Depends: 
     data.table

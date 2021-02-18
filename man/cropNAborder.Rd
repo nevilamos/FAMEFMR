@@ -10,7 +10,7 @@ also gets indices of cells in raster of same extent as crop to the shape provide
 \usage{
 cropNAborder(
   REG_NO = 7,
-  RasterRes = RasterRes,
+  myRasterRes = RasterRes,
   PUBLIC_LAND_ONLY,
   myPoly = clipPoly,
   generalRasterDir = "./InputGeneralRasters"
@@ -19,7 +19,7 @@ cropNAborder(
 \arguments{
 \item{REG_NO}{integer DELWP fire region number 1:6 ,99 for Statewide analysis,  or 7 for ad hoc boundary polygon default =7 (see look up table REG_LUT for values)}
 
-\item{RasterRes}{numeric raster resolution of the analysis in metres ( usually set in settings file or shiny app)}
+\item{myRasterRes}{numeric raster resolution of the analysis in metres ( usually set in settings file or shiny app)}
 
 \item{PUBLIC_LAND_ONLY}{Logical TRUE/FALSE}
 

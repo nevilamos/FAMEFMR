@@ -11,7 +11,7 @@
 #'   the input rasters for the FAME analysis
 #' \item integer index mapping unique combinations (above) to raster cells
 #' }
-#'
+#' @importFrom  data.table as.data.table setkey setDT
 #' @export
 calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
                            myCropRasters = cropRasters,
@@ -28,8 +28,8 @@ calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
   # make raster template
   r <- raster::raster(nrows = nrow(r),
               ncols = ncol(r),
-              ext = extent(r),
-              crs = crs(r),
+              ext = raster::extent(r),
+              crs = raster::crs(r),
               vals = NULL
               )
 
@@ -46,7 +46,7 @@ calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
   #PUBLIC<-as.integer()                                                   #####-----remove
   # combine into data table
   AllCombs<-data.table::as.data.table(cbind(FH_ID,EFG,FIRE_REG,FIREFMZ,PLM,DELWP))
-  #TFI<-left_join(EFG_DF,TFI_LUT)                                         #####-----remove
+  #TFI<-dplyr::left_join(EFG_DF,TFI_LUT)                                         #####-----remove
   # remove variables no longer needed
   rm(PLM,EFG,FIRE_REG,FIREFMZ,FH_ID,DELWP)
   # clean memory

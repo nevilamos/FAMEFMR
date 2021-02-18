@@ -28,6 +28,7 @@
 #' \item LBYNames names of  LBY years in output, needed by downstream functions
 #' \item LFTNames names of  LBY years in output, needed by downstream functions
 #' }
+#' @import tictoc
 #' @export
 fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
                     start.SEASON = NULL,    # first season for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
@@ -71,16 +72,20 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
 
   TimeSpan<-start.SEASON:max.SEASON
 
-  # recode FIRETYPE to integer values value for Other and Unkonwn is set in settings file   #####-----can the look up table be used?
+  # recode FIRETYPE to integer values value for Other and Unknown is set in settings file   #####-----can the look up table be used?
   myDF$FIRETYPE_NO[myDF$FIRETYPE == "BURN"] <- 1
   myDF$FIRETYPE_NO[myDF$FIRETYPE == "BUSHFIRE"] <- 2
   myDF$FIRETYPE_NO[myDF$FIRETYPE == "OTHER"] <- OtherAndUnknown
   myDF$FIRETYPE_NO[myDF$FIRETYPE == "UNKNOWN"] <- OtherAndUnknown            #####-----currently set to 2 (bushfire)
 
+
+  #this line was added to force myDF$FIRETYPE_NO to integer value - otherwise in shiny version of function was becoming character
+  myDF$FIRETYPE_NO<-as.integer(myDF$FIRETYPE_NO)
+
   # add a field containing a string representation of the x and y values of the
   # centroid of each polygon in myDF to use as a unique identifier for unique
-  # polygons in the FH analysis (ie two sptailly identical polygons with
-  # different SEASON of Firetype values will share an uniqe xycoords string) this
+  # polygons in the FH analysis (ie two spatially identical polygons with
+  # different SEASON of FireType values will share an unique xycoords string) this
   # is used to get the wide format sequence for each spatially unique polygon
   myDF <- add_xystring(myDF)
 
@@ -104,7 +109,7 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
 
   # reduction to the unique sequences of fires with no gaps using dplyr::pivot_wider
   # in order to acheive this efficently the sf object made from the rawFH file is converted
-  # to a standard data frame with a geometry column then coverted back to an sf object at the end of the process
+  # to a standard data frame with a geometry column then converted back to an sf object at the end of the process
   tictoc::tic("Making OutDF")
   OutDF <- myDF %>%
     dplyr::select(XYString, Sequence, FireType = FIRETYPE_NO, SEAS = SEASON) %>%
@@ -158,7 +163,7 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
   colnames(LBY) <- LBYNames
 
   # Create matrix used for getting last firetype by year
-  tictoc::tic("calculating lookup matrix for getting last firetype by year")
+  tictoc::tic("calculating lookup matrix for getting last FireType by SEASON")
   SEAS_Matrix[SEAS_Matrix == 0] <- NA
   LUM <- matrix(NA, nrow(SEAS_Matrix), max.SEASON)
   for (i in 1:nrow(SEAS_Matrix)){
@@ -167,7 +172,7 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
     V <- (FT_matrix[i,(1:length(C))])
     LUM[R,C] <- V
   }
-  tictoc::toc()#"calculating lookup matrix for getting last firetype by year"
+  tictoc::toc()#"calculating lookup matrix for getting last FireType by SEASON"
 
   # Calculate last fire type
   tictoc::tic("calculating last fire type")
