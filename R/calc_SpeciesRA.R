@@ -56,9 +56,11 @@ calc_SpeciesRA <- function(myFHAnalysis,
   # determine what years to write out (each year or TimeSpan)
   TimeSpan <- myFHAnalysis$TimeSpan
   myDF<-myFHAnalysis$OutDF
-  if(is.null(writeYears)){
-    writeYears = TimeSpan}else
-    {writeYears <- writeYears[writeYears %in% TimeSpan]
+  if(is.null(writeYears))
+    {
+    writeYears = TimeSpan
+    }else{
+      writeYears <- writeYears[writeYears %in% TimeSpan]
     }
 
   # remove geometry myFHAnalysis DF to create a standard dataframe so columns can be subset
@@ -87,7 +89,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
     LFT_M <- as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID, myFHAnalysis$LFTNames])
     EFG_M <- matrix(myAllCombs$U_AllCombs_TFI$EFG, nrow(YSF_M), ncol(YSF_M))
 
-    # looks up the cell-wise species values for for the species abundance values by id neces in array
+    # looks up the cell-wise species values for for the species abundance values by indeces in array
     Spp_M <- array(LU[cbind(as.vector(YSF_M),
                             as.vector(EFG_M),
                             as.vector( LFT_M))],
@@ -112,12 +114,14 @@ calc_SpeciesRA <- function(myFHAnalysis,
     if(myWriteSpRasters == TRUE){
       for(myYear in as.character(writeYears)){
         cat("\r", paste("writing species abund rasters for", myYear))
+        print(paste("writing species abund rasters for", myYear))
         if (sp %in% myWriteSp|is.null(myWriteSp)){
           OutTif <- file.path(ResultsDir, "RA_Rasters", paste0("Spp", sp, "_", myYear, ".tif"))
+          print(OutTif)
           emptySpraster <- r
           raster::values(emptySpraster) <- Spp_Val_Cell_Year[, myYear]
-          raster::writeRaster(emptySpraster,
-                              OutTif,
+          raster::writeRaster(x = emptySpraster,
+                              filename = OutTif,
                               options = c("COMPRESS=LZW", "TFW=YES"),
                               datatype = 'INT1U',
                               overwrite = TRUE

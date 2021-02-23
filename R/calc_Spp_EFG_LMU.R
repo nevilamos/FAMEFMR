@@ -1,0 +1,70 @@
+#'Calculate the species in each EFG in given area for GSO calculations.
+#'
+#'works by using the indices of the standard dimensions raster that are in the
+#'supplied shapefile region boundary (via function cropNAborder )
+
+#' @param REG_NO integer DELWP fire region number 1:6 ,99 for Statewide analysis, or 7 for ad hoc boundary polygon default =7 (see look up table REG_LUT for values)
+#' @param RasterRes integer 225 - raster resolution is always 225 for this function for speed
+#' @param PUBLIC_LAND_ONLY logical whether to restrict analysis to public land only or the whole polygon
+#' @param myPoly default clipPoly sf polygon data frame of LF_REGIONs (default) or ad hoc polygon - used in conjunction with REG_NO
+#' @param generalRasterDir relative path to directory containing rasters of FIRE_REG, and PUBLIC LAND (PLM_GEN)
+#' @param splist path to default species attribute table default is "./ReferenceTables/DraftTaxonListStatewidev2.csv"
+#' @param myHDMVals matrix of cell values for Habitat Distribution Model rasters at 225m pixel size
+#' @param TFI_LUT data.frame lookup table for EFG loaded in setup
+#' @param myResultsDir path of directory where output will be saved
+#'@export
+
+calc_Spp_EFG_LMU <- function(REG_NO,
+                            RasterRes = 225,
+                            PUBLIC_LAND_ONLY,
+                            myPoly = clipPoly,
+                            generalRasterDir = "./InputGeneralRasters",
+                            splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
+                            myHDMVals = HDMVals225,
+                            myResultsDir= ResultsDir,
+                            #EFGRas = EFGRas,
+                            TFI_LUT = TFI_LUT){
+  # load HDM data
+  load(myHDMVals)
+
+  mySpList <- utils::read.csv(splist)[,c( "TAXON_ID","COMMON_NAME","NAME")]
+  #get path to correct resolution EFG raster
+  EFGRas<-file.path(generalRasterDir,paste0("EFG_NUM_",RasterRes,".tif"))
+  #EFG <- raster::values(raster(EFGRas))
+  REG_NO <- as.integer(as.numeric(REG_NO))
+  CropDetails <- cropNAborder (REG_NO = REG_NO,
+                               myRasterRes = RasterRes,
+                               PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,
+                               myPoly = myPoly,
+                               generalRasterDir = generalRasterDir
+  )
+
+
+  # crop EFG and HDMVals
+
+  EFG <- raster::values(raster::raster(EFGRas))[CropDetails$clipIDX]
+  EFG[is.na(EFG)] <- 99
+  HDMVals <- HDMVals[CropDetails$clipIDX,]
+  mode(EFG) <- "integer"
+
+  # write spp EFG LMU csv
+  A <- Matrix.utils::aggregate.Matrix	(HDMVals, EFG ,fun = 'sum')
+  myDf <- as.data.frame(as.matrix(A))
+  myDf$EFG_NO <- as.integer(rownames(myDf))
+  myDf <- tidyr::gather(myDf, key = "TAXON_ID", "CellCount", -EFG_NO)
+  myDf <- myDf[myDf$CellCount > 0,]
+  myDf$TAXON_ID <- as.integer(myDf$TAXON_ID)
+  myDf$EFG <- as.integer(myDf$EFG)
+
+  myDf$ha <- myDf$CellCount * cellsToHectares(RasterMetres = RasterRes)
+
+  myDf <- dplyr::left_join(myDf, TFI_LUT[,c("EFG","EFG_NAME")], by = c("EFG_NO" = "EFG"))
+  myDf <- dplyr::left_join(myDf, mySpList)
+  utils::write.csv(myDf, file.path(myResultsDir, "Spp_EFG_LMU.csv"), row.names = FALSE)
+  # write EFG areas csv
+  EFG_AREAS <- as.data.frame(table(EFG))
+  EFG_AREAS$ha <- EFG_AREAS$Freq* cellsToHectares(RasterMetres = RasterRes)
+  EFG_AREAS$EFG <- as.numeric(levels(EFG_AREAS$EFG))
+  EFG_AREAS <- dplyr::right_join(TFI_LUT[,c("EFG", "EFG_NAME")], EFG_AREAS, by = "EFG")
+  utils::write.csv(EFG_AREAS, file.path(myResultsDir, "EFG_AREAS.csv"), row.names = FALSE)
+}
