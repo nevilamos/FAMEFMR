@@ -106,7 +106,8 @@ calc_SpeciesRA <- function(myFHAnalysis,
     EFG_M <-
       matrix(myAllCombs$U_AllCombs_TFI$EFG, nrow(YSF_M), ncol(YSF_M))
 
-    # looks up the cell-wise species values for for the species abundance values by indeces in array
+    # looks up the cell-wise species values for for the species abundance values
+    # by indices in array
     Spp_M <- array(LU[cbind(as.vector(YSF_M),
                             as.vector(EFG_M),
                             as.vector(LFT_M))],
@@ -115,12 +116,12 @@ calc_SpeciesRA <- function(myFHAnalysis,
     # Multiplies these values by cell-wise HDM values
     #effectively masking out values where the species does not occur.
     Spp_Val_Cell_Year <-
-      Spp_M[myAllCombs$Index_AllCombs, ] * HDM_Vector
+      Spp_M[myAllCombs$Index_AllCombs,] * HDM_Vector
     colnames(Spp_Val_Cell_Year) <- TimeNames
 
     # get the sum of cell values for each year for the species
     # put them in the compilation data frame
-    SpYearSumm[mySpp, ] <- colSums(Spp_Val_Cell_Year, na.rm = TRUE)
+    SpYearSumm[mySpp,] <- colSums(Spp_Val_Cell_Year, na.rm = TRUE)
 
     #clean memory
     gc()
@@ -168,7 +169,8 @@ calc_SpeciesRA <- function(myFHAnalysis,
     SpYearSumm %>%
       tidyr::pivot_longer(-TAXON_ID,
                           names_to = "SEASON",
-                          values_to = "SUM_RAx100"))%>%
+                          values_to = "SUM_RAx100")
+  ) %>%
     dplyr::mutate(SEASON = as.integer(SEASON))
 
 
