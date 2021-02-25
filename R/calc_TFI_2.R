@@ -168,5 +168,6 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
                         options=c("COMPRESS=LZW", "TFW=YES"))
 
   }
+  TFI_Summary <- TFI_Summary%>%dplyr::mutate(SEASON = as.integer(SEASON))
   return(TFI_Summary)
 }
