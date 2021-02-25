@@ -21,8 +21,8 @@ calc_SpeciesRA(
 \item{myFHAnalysis}{list containing all the fire history spatial attributes
 created by function fhProcess}
 
-\item{myAllCombs}{all combinations of raster values object produced by function
-calc_U_AllCombs}
+\item{myAllCombs}{all combinations of raster values object produced by
+function calc_U_AllCombs}
 
 \item{myHDMSpp_NO}{vector of TAXON_IDs for species to be included in output}
 
@@ -39,18 +39,21 @@ generated  by FAME script}
 for (at least) all TAXON_ID in myHDMSpp_NO generally provided in settings
 file and read loaded by FAME script}
 
-\item{myTaxonList}{data.frame of species attributes ( read from default or user
-provided .csv)}
+\item{myTaxonList}{data.frame of species attributes ( read from default or
+user provided .csv)}
 
 \item{writeYears}{vector for SEASONS for which rasters are to be written
 otherwise if writeSpRasters == TRUE, if writeYears == NULL then all SEASONS
 are written out}
 
-\item{myWriteSp}{vector of TAXON_IDs provided if only subset of species rasters
-are required as output.}
+\item{myWriteSp}{vector of TAXON_IDs provided if only subset of species
+rasters are required as output.}
 }
 \value{
-data frame wide format summary of relative abundance of species by SEASONS
+list of two date frames: \itemize{ \itemsummary SpYearSummWide
+summary of relative abundance of species by pivoted wide by SEASONS
+\itemsummary SpYearSummLong Long Format summary of relative abundance of
+species by SEASONS
 }
 \description{
 Species' relative abundance calculation and summary
