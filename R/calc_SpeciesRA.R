@@ -24,10 +24,11 @@
 #' @param myAllCombs all combinations of raster values object produced by
 #'   function calc_U_AllCombs
 #'
-#' @return list of two date frames: \itemize{ \itemsummary SpYearSummWide
-#'   summary of relative abundance of species by pivoted wide by SEASONS
-#'   \itemsummary SpYearSummLong Long Format summary of relative abundance of
-#'   species by SEASONS
+#' @return list of two date frames:
+#' \itemize{
+#' \item SpYearSummWide summary of relative abundance of species by pivoted wide by SEASONS
+#' \item SpYearSummLong Long Format summary of relative abundance of species by SEASONS
+#' }
 #' @importFrom magrittr %>%
 #' @importFrom stats na.omit
 #' @export

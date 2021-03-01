@@ -50,10 +50,11 @@ are written out}
 rasters are required as output.}
 }
 \value{
-list of two date frames: \itemize{ \itemsummary SpYearSummWide
-summary of relative abundance of species by pivoted wide by SEASONS
-\itemsummary SpYearSummLong Long Format summary of relative abundance of
-species by SEASONS
+list of two date frames:
+\itemize{
+\item SpYearSummWide summary of relative abundance of species by pivoted wide by SEASONS
+\item SpYearSummLong Long Format summary of relative abundance of species by SEASONS
+}
 }
 \description{
 Species' relative abundance calculation and summary
