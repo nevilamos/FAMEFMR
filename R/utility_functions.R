@@ -1,7 +1,6 @@
 ############################################################################
 #Utility functions used in FAME Fire History analyses (often called within the
-#main analysis functions) some are likely to be project specific
-#others may be useful more generically written by nevil.amos@delwp.vic.gov.au
+#main analysis functions) written by nevil.amos@delwp.vic.gov.au
 ############################################################################
 
 
@@ -94,42 +93,7 @@ notAllIn <- function(x, v = V){
 
 
 
-#' Set correct input general rasters
-#'
-#' @param RasterRes numeric raster resolution of the analysis in metres (
-#'   usually set in settings file or shiny app)
-#'
-#' @return list of input raster names correct for RasterRes or error if
-#'   RasterRes is not 75 or 225
-#' @export
-inputRasters <- function(RasterRes){
-  #General Input Rasters change name depending on RasterRes
-  if(RasterRes%in%c(75,225)){
-    if (RasterRes == 225){
-      y <- list(REGION.tif = "LF_REGION_225.tif",
-                EFG.tif = "EFG_NUM_225.tif",
-                PLM_GEN.tif = "PLM_GEN_225.tif",
-                IDX.tif = "IndexVals225.tif",
-                FIREFMZ.tif = "FIRE_FMZ_225.tif",
-                DELWP.tif = "DELWP_REGION_225.tif"
-      )
 
-    }
-    else{
-      y <- list(REGION.tif = "LF_REGION_75.tif",
-                EFG.tif = "EFG_NUM_75.tif",
-                PLM_GEN.tif = "PLM_GEN_75.tif",
-                IDX.tif = "IndexVals75.tif",
-                FIREFMZ.tif = "FIRE_FMZ_75.tif",
-                DELWP.tif = "DELWP_REGION_75.tif"
-      )
-    }
-  }
-  else {
-    stop("75 and 225 are the only permitted RasterRes values for analysis")
-  }
-  return(y)
-}
 
 #' Fix Pivot_wider list of lists columns
 #' @details Supporting function to deal with pivot_wider returning list of lists in some cases
@@ -146,83 +110,16 @@ unlistPivot_wider <- function(df){
 
 
 
-#' Makes Long format  Fauna  abundance table
-#'
-#' @details Supporting function to Make long format table for fauna abundance scores
-#'  by "VBA_CODE"  ,FireType EFG and Growth Stage from input wide format table currently
-#'   deals only with FireType of "High" and "Low"
-#'   which are converted to 2 and 1 respectively
-#' @param AbundDataByGSFile .csv input file containing fields
-#' "EFG_NO", "GS4_NO",  "FireType" , "Abund", "VBA_CODE"
-#' with Abund values for' both FireTypes for each growth stage "GS4_NO"
-#' @param myEFG_TSF_4GS table of each combination of "EFG_NO", "GS4_NO", and "YSF" generally read in at beginning of FAME in settings file
-#' @return long format table with one row for each combination of "EFG_NO", "GS4_NO",  "FireType" , "Abund", "VBA_CODE" and "YSF"
-#' sorted by VBA_CODE
-#' @export
-
-makeAbundDataLong<- function(AbundDataByGSFile = "./ReferenceTables/OrdinalExpertLong.csv",
-                             myEFG_TSF_4GS = EFG_TSF_4GS){
-  AbundDataByGS <- utils::read.csv(AbundDataByGSFile)[,c("EFG_NO", "GS4_NO",  "FireType" , "Abund", "VBA_CODE")]
-  AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="High"]<-2
-  AbundDataByGS$FireTypeNo[AbundDataByGS$FireType=="Low"]<-1
-  AbundDataByGS<-AbundDataByGS[!is.na(AbundDataByGS$Abund),c("EFG_NO", "GS4_NO",  "FireTypeNo" , "Abund", "VBA_CODE")]
-
-
-  AbundDataLong = merge(AbundDataByGS, myEFG_TSF_4GS,   by=c('EFG_NO','GS4_NO'))
-  AbundDataLong<-AbundDataLong[order(AbundDataLong$VBA_CODE),]
-  return(AbundDataLong)
-}
 
 
 
 
 
-## FUNCTION makeHDMValsfromRasters  ------------------------------------------------------
-#' Function makes a matrix of HDM values(1,NA) constrained to those cells that
-#' are indexed in the cropped area
-#' @param myHDMSpp_NO vector of TAXON_IDs for species to be included in output
-#' @param myCropRasters list of rasters and indices and cell values created by function cropNAborder()
-#' @importFrom iterators iter
-#' @importFrom doParallel registerDoParallel
-#' @importFrom foreach foreach %dopar%
-#' @export
-makeHDMValsfromRasters <- function(myHDMSpp_NO = HDMSpp_NO,
-                                   myCropRasters = cropRasters)
-{
-  HDMPaths <- dir(myCropRasters$HDM_RASTER_PATH, full.names=TRUE, pattern = ".tif$")
-  HDMPaths <- HDMPaths[get_Spp_No(HDMPaths) %in%
-                         myHDMSpp_NO]
-
-  print("reading HDMvalues")
-
-  # set up parallel processing
-  cl<-parallel::makeCluster(Ncores)
-  doParallel::registerDoParallel(cl, cores=Ncores)
-
-  myHDMVals <- foreach::foreach(i = iterators::iter(HDMPaths),.combine = cbind,.packages = "raster") %dopar% {
-    myVals <- raster::values(raster::raster(i))[myCropRasters$IDX]
-    myVals}
-  parallel::stopCluster(cl)
-
-  colnames(myHDMVals) <- as.character(get_Spp_No(HDMPaths))
-  return(myHDMVals)
-}
 
 
 
 
-#' Extract HDM values for relevant cells and resolution for use in RA calculations
-#' @param myHDMSpp_NO vector of TAXON_IDs for species to be included in output
-#' @param myCropRasters list of rasters and indices and cell values created by function cropNAborder()
-#' @param RasterRes numeric raster resolution of the analysis in metres (225 or 75
-#'   usually set in settings file or shiny app)
-#' @export
-makeHDMVals <- function(myHDMSpp_NO = HDMSpp_NO,
-                        myCropRasters = cropRasters,
-                        RasterRes = myFHAnalysis$RasterRes){
-  load(paste0("./HDMS/HDMVals", RasterRes, ".rdata"))
-  myHDMVals <- HDMVals[myCropRasters$IDX, as.character(myHDMSpp_NO)]
-  return(myHDMVals)
-}
+
+
 
 
