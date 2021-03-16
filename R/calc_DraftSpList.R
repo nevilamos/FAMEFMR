@@ -26,8 +26,8 @@ calc_DraftSpList <- function(REG_NO,
                             myPoly = clipPoly,
                             generalRasterDir = "./InputGeneralRasters",
                             splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
-                            myHDMVals = "./HDMS/HDMVals225.rdata"){                          ######-----HDMVals225 is commented out in settings, and not called anywhere prior.
-  load(myHDMVals)#loads matrix of binary thrsholded  HDMVals  called "HDMvals"
+                            myHDMVals = "./HDMS/HDMVals225.qs"){
+  HDMVals<-qread(myHDMVals)#loads matrix of binary thrsholded  HDMVals  called "HDMvals"
   REG_NO <- as.integer(as.numeric(REG_NO))                                  ######-----go straight to int? rather than wrap the numeric -did not seem to work when tried as.integer(REG_NO)
   splist <- utils::read.csv(splist)
   CropDetails <- cropNAborder (REG_NO = REG_NO,

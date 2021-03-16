@@ -11,7 +11,7 @@ calc_Spp_EFG_LMU(
   myPoly = clipPoly,
   generalRasterDir = "./InputGeneralRasters",
   splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
-  myHDMVals = HDMVals225,
+  myHDMVals = "./HDMS/HDMVals225.qs",
   myResultsDir = ResultsDir,
   TFI_LUT = TFI_LUT
 )
@@ -29,7 +29,7 @@ calc_Spp_EFG_LMU(
 
 \item{splist}{path to default species attribute table default is "./ReferenceTables/DraftTaxonListStatewidev2.csv"}
 
-\item{myHDMVals}{matrix of cell values for Habitat Distribution Model rasters at 225m pixel size}
+\item{myHDMVals}{sparse matrix of cell values for Habitat Distribution Model rasters at 225m pixel size #' saved as a qs file on disk}
 
 \item{myResultsDir}{path of directory where output will be saved}
 

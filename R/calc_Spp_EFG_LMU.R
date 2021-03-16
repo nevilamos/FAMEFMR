@@ -9,7 +9,7 @@
 #' @param myPoly default clipPoly sf polygon data frame of LF_REGIONs (default) or ad hoc polygon - used in conjunction with REG_NO
 #' @param generalRasterDir relative path to directory containing rasters of FIRE_REG, and PUBLIC LAND (PLM_GEN)
 #' @param splist path to default species attribute table default is "./ReferenceTables/DraftTaxonListStatewidev2.csv"
-#' @param myHDMVals matrix of cell values for Habitat Distribution Model rasters at 225m pixel size
+#' @param myHDMVals sparse matrix of cell values for Habitat Distribution Model rasters at 225m pixel size #' saved as a qs file on disk
 #' @param TFI_LUT data.frame lookup table for EFG loaded in setup
 #' @param myResultsDir path of directory where output will be saved
 #'@export
@@ -20,12 +20,12 @@ calc_Spp_EFG_LMU <- function(REG_NO,
                             myPoly = clipPoly,
                             generalRasterDir = "./InputGeneralRasters",
                             splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
-                            myHDMVals = HDMVals225,
+                            myHDMVals = "./HDMS/HDMVals225.qs",
                             myResultsDir= ResultsDir,
                             #EFGRas = EFGRas,
                             TFI_LUT = TFI_LUT){
   # load HDM data
-  load(myHDMVals)
+  HDMVals<-qread(myHDMVals)
 
   mySpList <- utils::read.csv(splist)[,c( "TAXON_ID","COMMON_NAME","NAME")]
   #get path to correct resolution EFG raster

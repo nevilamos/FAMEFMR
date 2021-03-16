@@ -11,9 +11,9 @@
 #'   make_Spp_LU_list()
 #' @param myResultsDir path of directory where results will be written usually
 #'   generated  by FAME script
-#' @param myHDMVals matrix of cell values for Habitat Distribution Model rasters
+#' @param myHDMVals list of sparse matrices of cell values for Habitat Distribution Model rasters
 #'   for (at least) all TAXON_ID in myHDMSpp_NO generally provided in settings
-#'   file and read loaded by FAME script
+#'   file and read by FAME script
 #' @param myTaxonList data.frame of species attributes ( read from default or
 #'   user provided .csv)
 #' @param writeYears  vector for SEASONS for which rasters are to be written
@@ -23,8 +23,9 @@
 #'   rasters are required as output.
 #' @param myAllCombs all combinations of raster values object produced by
 #'   function calc_U_AllCombs
+#' @param myIDX index of cells to extract values for from cropRasters object
 #'
-#' @return list of two date frames:
+#' @return list of two data frames:
 #' \itemize{
 #' \item SpYearSummWide summary of relative abundance of species by pivoted wide by SEASONS
 #' \item SpYearSummLong Long Format summary of relative abundance of species by SEASONS
@@ -41,7 +42,8 @@ calc_SpeciesRA <- function(myFHAnalysis,
                            myHDMVals = HDMVals,
                            myTaxonList = TaxonList,
                            writeYears = NULL,
-                           myWriteSp = writeSp) {
+                           myWriteSp = writeSp,
+                           myIDX=cropRasters$IDX) {
   # set time range for analysis
   TimeRange <- as.integer(myFHAnalysis$TimeSpan)
   TimeNames <- as.character(myFHAnalysis$TimeSpan)
@@ -93,11 +95,12 @@ calc_SpeciesRA <- function(myFHAnalysis,
     #get the lookup array of abundance values from the list of species value lookup
     LU = myLU_List[[mySpp]]
 
-    # gets the HDMVals for the relevant species from the matrix of HDMvalues by
+    # gets the HDMVals for the relevant species from the  HDMvalues by
     # species. values multiplied by 100 so that they can later be converted to
     # integer if necessary without losing small values
-    HDM_Vector <-
-      as.vector(myHDMVals[, grep(as.character(sp), colnames(myHDMVals))]) * 100
+    #HDM_Vector <-
+      #as.vector(myHDMVals[, grep(as.character(sp), colnames(myHDMVals))]) * 100
+    HDM_Vector<-as.vector(myHDMVals[[mySpp]][myIDX,1])*100
 
     # makes matrices of YSF, EFG, and LFT to use in lookup from LU array
     YSF_M <-

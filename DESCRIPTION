@@ -1,6 +1,6 @@
 Package: FAMEFMR
 Title: Functions used in the DELWP FAME fire analysis process
-Version: 0.1.2.6
+Version: 0.1.2.6.2
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",

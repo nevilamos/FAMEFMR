@@ -11,7 +11,7 @@ calc_DraftSpList(
   myPoly = clipPoly,
   generalRasterDir = "./InputGeneralRasters",
   splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
-  myHDMVals = "./HDMS/HDMVals225.rdata"
+  myHDMVals = "./HDMS/HDMVals225.qs"
 )
 }
 \arguments{
