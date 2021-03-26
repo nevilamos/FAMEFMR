@@ -16,7 +16,9 @@ Description: The package contains all the functions necessary to run the DELWP F
             The FAME analysis can be run using stadard R scripts, or alternatively via a
             shiny web GUI. The package does not contain the required input files (lookup
             tables, rasters of species HDMs etc) as these are too large to be loaded to 
-            github.
+            github and are availble separately from an aws repository.  The package is
+            best used with the associated scripts and shiny app that can be cloned or 
+            downlaoded from https://github.com/nevilamos/FAMEshiny.
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
