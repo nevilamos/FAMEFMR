@@ -21,6 +21,6 @@ Generate list of species abundance lookup arrays
 }
 \details{
 function creates a list of Lookup arrays for each taxon
-(VBA_CODE/TAXON_ID) for  YSF x EFGNO x FireTypeNo these are then used in
+(TAXON_ID) for  YSF x EFGNO x FireTypeNo these are then used in
 spatial calculation of species abundance functions
 }

@@ -1,6 +1,6 @@
 #' Generate list of species abundance lookup arrays
 #' @details function creates a list of Lookup arrays for each taxon
-#'   (VBA_CODE/TAXON_ID) for  YSF x EFGNO x FireTypeNo these are then used in
+#'   (TAXON_ID) for  YSF x EFGNO x FireTypeNo these are then used in
 #'   spatial calculation of species abundance functions
 #'
 #' @param myHDMSpp_NO vector of VBA IDs for species to be included in analysis
@@ -15,7 +15,7 @@ make_Spp_LU_list <- function(myHDMSpp_NO = HDMSpp_NO,
 
   myList <- list()
   for(i in myHDMSpp_NO){
-    y <- myAbundDataLong[myAbundDataLong$VBA_CODE == i,]
+    y <- myAbundDataLong[myAbundDataLong$TAXON_ID == i,]
     b = (y$YSF) + 1
     c = y$EFG_NO
     d = y$FireTypeNo
