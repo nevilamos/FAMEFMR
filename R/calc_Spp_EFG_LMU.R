@@ -12,21 +12,21 @@
 #' @param myHDMVals sparse matrix of cell values for Habitat Distribution Model rasters at 225m pixel size #' saved as a qs file on disk
 #' @param TFI_LUT data.frame lookup table for EFG loaded in setup
 #' @param myResultsDir path of directory where output will be saved
+#' @return list of two data frames LMU_EFG_AREA and Spp_EFG_LMU used as inputs to aspatial GSO calcautaions
 #'@export
 
 calc_Spp_EFG_LMU <- function(REG_NO,
-                            RasterRes = 225,
-                            PUBLIC_LAND_ONLY,
-                            myPoly = clipPoly,
-                            generalRasterDir = "./InputGeneralRasters",
-                            splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
-                            myHDMVals = "./HDMS/HDMVals225.qs",
-                            myResultsDir= ResultsDir,
-                            #EFGRas = EFGRas,
-                            TFI_LUT = TFI_LUT){
+                             RasterRes = 225,
+                             PUBLIC_LAND_ONLY,
+                             myPoly = clipPoly,
+                             generalRasterDir = "./InputGeneralRasters",
+                             splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
+                             myHDMVals = "./HDMS/HDMVals225.qs",
+                             myResultsDir= ResultsDir,
+                             #EFGRas = EFGRas,
+                             TFI_LUT = TFI_LUT){
   # load HDM data
   HDMVals<-qs::qread(myHDMVals)
-
   mySpList <- utils::read.csv(splist)[,c( "TAXON_ID","COMMON_NAME","NAME")]
   #get path to correct resolution EFG raster
   EFGRas<-file.path(generalRasterDir,paste0("EFG_NUM_",RasterRes,".tif"))
@@ -39,9 +39,8 @@ calc_Spp_EFG_LMU <- function(REG_NO,
                                generalRasterDir = generalRasterDir
   )
 
-
+  TFI_LUT<-dplyr::rename(TFI_LUT,EFG_NO = EFG)
   # crop EFG and HDMVals
-
   EFG <- raster::values(raster::raster(EFGRas))[CropDetails$clipIDX]
   EFG[is.na(EFG)] <- 99
   HDMVals <- HDMVals[CropDetails$clipIDX,]
@@ -54,17 +53,20 @@ calc_Spp_EFG_LMU <- function(REG_NO,
   myDf <- tidyr::gather(myDf, key = "TAXON_ID", "CellCount", -EFG_NO)
   myDf <- myDf[myDf$CellCount > 0,]
   myDf$TAXON_ID <- as.integer(myDf$TAXON_ID)
-  myDf$EFG <- as.integer(myDf$EFG)
-
+  myDf$EFG_NO <- as.integer(myDf$EFG)
   myDf$ha <- myDf$CellCount * cellsToHectares(RasterMetres = RasterRes)
 
-  myDf <- dplyr::left_join(myDf, TFI_LUT[,c("EFG","EFG_NAME")], by = c("EFG_NO" = "EFG"))
+  myDf <- dplyr::left_join(myDf, TFI_LUT[,c("EFG_NO","EFG_NAME")], by = "EFG_NO")
   myDf <- dplyr::left_join(myDf, mySpList)
-  utils::write.csv(myDf, file.path(myResultsDir, "Spp_EFG_LMU.csv"), row.names = FALSE)
+  myDf <- myDf[,c("COMMON_NAME","EFG_NO","EFG_NAME","TAXON_ID","CellCount","ha")]
+  #utils::write.csv(myDf, file.path(myResultsDir, "Spp_EFG_LMU.csv"), row.names = FALSE)
   # write EFG areas csv
   EFG_AREAS <- as.data.frame(table(EFG))
   EFG_AREAS$ha <- EFG_AREAS$Freq* cellsToHectares(RasterMetres = RasterRes)
-  EFG_AREAS$EFG <- as.numeric(levels(EFG_AREAS$EFG))
-  EFG_AREAS <- dplyr::right_join(TFI_LUT[,c("EFG", "EFG_NAME")], EFG_AREAS, by = "EFG")
-  utils::write.csv(EFG_AREAS, file.path(myResultsDir, "EFG_AREAS.csv"), row.names = FALSE)
+  EFG_AREAS$EFG_NO <- as.numeric(levels(EFG_AREAS$EFG))
+  EFG_AREAS <- dplyr::right_join(TFI_LUT[,c("EFG_NO", "EFG_NAME")], EFG_AREAS)
+  EFG_AREAS<-EFG_AREAS[,c("EFG_NO",	"EFG_NAME",	"ha")]
+  #utils::write.csv(EFG_AREAS, file.path(myResultsDir, "LMU_EFG_AREA.csv"), row.names = FALSE)
+  #print(5)
+  return(list ("LMU_EFG_AREA" = EFG_AREAS,"Spp_EFG_LMU" = myDf))
 }
