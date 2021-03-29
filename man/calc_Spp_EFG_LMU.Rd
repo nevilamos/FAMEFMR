@@ -35,6 +35,9 @@ calc_Spp_EFG_LMU(
 
 \item{TFI_LUT}{data.frame lookup table for EFG loaded in setup}
 }
+\value{
+list of two data frames LMU_EFG_AREA and Spp_EFG_LMU used as inputs to aspatial GSO calcautaions
+}
 \description{
 works by using the indices of the standard dimensions raster that are in the
 supplied shapefile region boundary (via function cropNAborder )
