@@ -27,7 +27,7 @@ calc_Spp_EFG_LMU <- function(REG_NO,
                              TFI_LUT = TFI_LUT){
   # load HDM data
   HDMVals<-qs::qread(myHDMVals)
-  mySpList <- utils::read.csv(splist)[,c( "TAXON_ID","COMMON_NAME","NAME")]
+  mySpList <- utils::read.csv(splist)[,c( "TAXON_ID","COMMON_NAME","SCIENTIFIC_NAME")]
   #get path to correct resolution EFG raster
   EFGRas<-file.path(generalRasterDir,paste0("EFG_NUM_",RasterRes,".tif"))
   #EFG <- raster::values(raster(EFGRas))

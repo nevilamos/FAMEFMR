@@ -52,7 +52,7 @@ calcDeltaAbund <- function(SpYearSumm = SpYearSummWide,
   #Subsets input columns and appends results to make an output table
   ChangeRelativeToBaseline <- cbind(SpYearSumm[,c("TAXON_ID",
                                                   "COMMON_NAME",
-                                                  "NAME",
+                                                  "SCIENTIFIC_NAME",
                                                   "DIVNAME",
                                                   "EPBC_ACT_STATUS",
                                                   "VIC_ADVISORY_STATUS",
