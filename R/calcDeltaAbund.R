@@ -34,10 +34,11 @@ calcDeltaAbund <- function(SpYearSumm = SpYearSummWide,
   # are only displayed for future years or if no future years then years since baseline.
   ThisYear <- as.integer(format(Sys.Date(), "%Y"))
 
-  SinceYear <- ifelse(sum(TimeSpan > ThisYear) > 0,
-                      ThisYear,
-                      max(myBaseline)
-  )
+  # SinceYear <- ifelse(sum(TimeSpan > ThisYear) > 0,
+  #                     ThisYear,
+  #                     max(myBaseline)
+  # )
+  SinceYear <- max(myBaseline)
 
   # calculate the changes from baseline
   Deltas <- as.matrix(SpYearSumm[, as.character(TimeSpan[TimeSpan > SinceYear])] / Baseline)
