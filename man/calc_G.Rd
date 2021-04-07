@@ -5,7 +5,7 @@
 \title{Calculate Geometric means of columns}
 \usage{
 calc_G(
-  x = raDeltaAbund,
+  x = "raDeltaAbund",
   y = c("TAXON_ID", "COMMON_NAME", "SCIENTIFIC_NAME", "DIVNAME", "EPBC_ACT_STATUS",
     "VIC_ADVISORY_STATUS", "CombThreshold", "Baseline", "NoLessthanThreshhold",
     "LastLessThanThreshold")

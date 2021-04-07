@@ -4,7 +4,7 @@
 \alias{geoMean}
 \title{Calculate Geometric mean}
 \usage{
-geoMean(x, na.rm = FALSE)
+geoMean(x)
 }
 \arguments{
 \item{x}{numeric vector}
@@ -17,5 +17,4 @@ Calculate Geometric mean
 }
 \details{
 Calculates geometric mean of a vector of positive numeric values
-copied from R package EnvStats https://cran.r-project.org/web/packages/EnvStats/index.html
 }

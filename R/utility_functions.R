@@ -114,8 +114,9 @@ unlistPivot_wider <- function(df){
 
 #' @param x numeric vector
 #'
+#'
 #' @return numeric or NA if values are not all > 0
-geoMean<-function (x, na.rm = FALSE){
+geoMean<-function (x){
   if(any(is.na(x))){
     y = NA
     warning("vector contains NA values")

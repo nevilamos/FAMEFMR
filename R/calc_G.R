@@ -6,11 +6,13 @@
 #'
 #' @return vector numeric or NA if not all values in column are > 0
 
-calc_G<-function(x = raDeltaAbund, y = c("TAXON_ID", "COMMON_NAME", "SCIENTIFIC_NAME", "DIVNAME", "EPBC_ACT_STATUS",
+calc_G<-function(x = "raDeltaAbund", y = c("TAXON_ID", "COMMON_NAME", "SCIENTIFIC_NAME", "DIVNAME", "EPBC_ACT_STATUS",
                                          "VIC_ADVISORY_STATUS", "CombThreshold", "Baseline",  "NoLessthanThreshhold",
                                          "LastLessThanThreshold")){
 
-  deltaabund<-x%>%select(-all_of(y))
+  deltaabund<-x%>%dplyr::select(-dplyr::all_of(y))
   Gs<-apply(deltaabund,2,geoMean)
+  Gs<-data.frame(Gs,as.integer((names(Gs))))
+  names(Gs)<-c("G","SEASON")
   return (Gs)
 }
