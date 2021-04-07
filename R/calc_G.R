@@ -10,7 +10,9 @@ calc_G<-function(x = raDeltaAbund, y = c("TAXON_ID", "COMMON_NAME", "SCIENTIFIC_
                                          "VIC_ADVISORY_STATUS", "CombThreshold", "Baseline",  "NoLessthanThreshhold",
                                          "LastLessThanThreshold")){
 
-  deltaabund<-x%>%select(-all_of(y))
+  deltaabund<-x%>%dplyr::select(-all_of(y))
   Gs<-apply(deltaabund,2,geoMean)
+  Gs<-data.frame(Gs,as.integer((names(Gs))))
+  names(Gs)<-c("G","SEASON")
   return (Gs)
 }
