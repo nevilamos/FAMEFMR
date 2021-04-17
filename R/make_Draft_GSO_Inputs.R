@@ -12,7 +12,7 @@
 #' @param myHDMVals sparse matrix of cell values for Habitat Distribution Model rasters at 225m pixel size #' saved as a qs file on disk
 #' @param TFI_LUT data.frame lookup table for EFG loaded in setup
 #' @param myResultsDir path of directory where output will be saved
-#' @return list of two data frames LMU_EFG_AREA and Spp_EFG_LMU used as inputs to aspatial GSO calcautaions
+#' @return list of three data frames LMU_EFG_AREA, Spp_EFG_LMU, and LMU_Scenario used as draft inputs to aspatial GSO calculations
 #'@export
 
 calc_Spp_EFG_LMU <- function(REG_NO,
@@ -59,14 +59,20 @@ calc_Spp_EFG_LMU <- function(REG_NO,
   myDf <- dplyr::left_join(myDf, TFI_LUT[,c("EFG_NO","EFG_NAME")], by = "EFG_NO")
   myDf <- dplyr::left_join(myDf, mySpList)
   myDf <- myDf[,c("COMMON_NAME","EFG_NO","EFG_NAME","TAXON_ID","CellCount","ha")]
-  #utils::write.csv(myDf, file.path(myResultsDir, "Spp_EFG_LMU.csv"), row.names = FALSE)
+
   # write EFG areas csv
   EFG_AREAS <- as.data.frame(table(EFG))
   EFG_AREAS$ha <- EFG_AREAS$Freq* cellsToHectares(RasterMetres = RasterRes)
   EFG_AREAS$EFG_NO <- as.numeric(levels(EFG_AREAS$EFG))
   EFG_AREAS <- dplyr::right_join(TFI_LUT[,c("EFG_NO", "EFG_NAME")], EFG_AREAS)
   EFG_AREAS<-EFG_AREAS[,c("EFG_NO",	"EFG_NAME",	"ha")]
-  #utils::write.csv(EFG_AREAS, file.path(myResultsDir, "LMU_EFG_AREA.csv"), row.names = FALSE)
-  #print(5)
-  return(list ("LMU_EFG_AREA" = EFG_AREAS,"Spp_EFG_LMU" = myDf))
+  names(EFG_AREAS)[3]<-"Area"
+
+  #Make template for user to edit for scenarios
+  SCENARIO_TEMPLATE <-merge(data.frame("GS_NAME"=c("Juvenile","Adolescent","Mature","Old"),
+                                       "GS_ID"=1:4),EFG_AREAS[,c("EFG_NO",	"EFG_NAME")])[,c("EFG_NO",	"EFG_NAME","GS_NAME","GS_ID")]
+  SCENARIO_TEMPLATE$Scenario <- "Scenario_0"
+  SCENARIO_TEMPLATE$PercLandscape <- 0.25
+
+  return(list ("LMU_EFG_AREA" = EFG_AREAS,"Spp_EFG_LMU" = myDf,"LMU_Scenario"=SCENARIO_TEMPLATE))
 }
