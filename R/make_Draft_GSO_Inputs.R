@@ -15,7 +15,7 @@
 #' @return list of three data frames LMU_EFG_AREA, Spp_EFG_LMU, and LMU_Scenario used as draft inputs to aspatial GSO calculations
 #'@export
 
-calc_Spp_EFG_LMU <- function(REG_NO,
+make_Draft_GSO_inputs <- function(REG_NO,
                              RasterRes = 225,
                              PUBLIC_LAND_ONLY,
                              myPoly = clipPoly,
