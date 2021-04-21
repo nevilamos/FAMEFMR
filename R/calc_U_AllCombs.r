@@ -33,7 +33,6 @@ calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
               vals = NULL
               )
 
-  #myRasterRes<-res(myFHAnalysis$FH_IDr)[1]
   # clean memory
   gc()
 
@@ -43,11 +42,11 @@ calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
   FIRE_REG <- as.integer(myCropRasters$RGN)
   FIREFMZ <- as.integer(myCropRasters$FIREFMZ)
   DELWP <- myCropRasters$DELWP
-  #PUBLIC<-as.integer()                                                   #####-----remove
+
+
   # combine into data table
   AllCombs<-data.table::as.data.table(cbind(FH_ID,EFG,FIRE_REG,FIREFMZ,PLM,DELWP))
-  #TFI<-dplyr::left_join(EFG_DF,TFI_LUT)                                         #####-----remove
-  # remove variables no longer needed
+
   rm(PLM,EFG,FIRE_REG,FIREFMZ,FH_ID,DELWP)
   # clean memory
   gc()
@@ -65,7 +64,7 @@ calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
   gc()
 
 
-  # get the number of pixels in each combination(?)                       #####-----is 'each combination' right?
+  # get the number of pixels in each unique combination
   # this can be used at the end of the process to calculate area cases
   nPixel <- as.vector(table(Index_AllCombs))
   #Add index column a and count of pixels to unique combs matrix
