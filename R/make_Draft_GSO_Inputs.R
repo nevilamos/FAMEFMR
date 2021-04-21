@@ -57,20 +57,23 @@ make_Draft_GSO_inputs <- function(REG_NO,
   myDf$ha <- myDf$CellCount * cellsToHectares(RasterMetres = RasterRes)
 
   myDf <- dplyr::left_join(myDf, TFI_LUT[,c("EFG_NO","EFG_NAME")], by = "EFG_NO")
-  myDf <- dplyr::left_join(myDf, mySpList)
+  myDf <- dplyr::left_join(myDf, mySpList)%>%
+    tidyr::drop_na()
   myDf <- myDf[,c("COMMON_NAME","EFG_NO","EFG_NAME","TAXON_ID","CellCount","ha")]
 
   # write EFG areas csv
   EFG_AREAS <- as.data.frame(table(EFG))
   EFG_AREAS$ha <- EFG_AREAS$Freq* cellsToHectares(RasterMetres = RasterRes)
   EFG_AREAS$EFG_NO <- as.numeric(levels(EFG_AREAS$EFG))
-  EFG_AREAS <- dplyr::right_join(TFI_LUT[,c("EFG_NO", "EFG_NAME")], EFG_AREAS)
+  EFG_AREAS <- dplyr::right_join(TFI_LUT[,c("EFG_NO", "EFG_NAME")], EFG_AREAS)%>%
+    tidyr::drop_na()
   EFG_AREAS<-EFG_AREAS[,c("EFG_NO",	"EFG_NAME",	"ha")]
   names(EFG_AREAS)[3]<-"Area"
 
   #Make template for user to edit for scenarios
   SCENARIO_TEMPLATE <-merge(data.frame("GS_NAME"=c("Juvenile","Adolescent","Mature","Old"),
-                                       "GS_ID"=1:4),EFG_AREAS[,c("EFG_NO",	"EFG_NAME")])[,c("EFG_NO",	"EFG_NAME","GS_NAME","GS_ID")]
+                                       "GS_ID"=1:4),EFG_AREAS[,c("EFG_NO",	"EFG_NAME")])[,c("EFG_NO",	"EFG_NAME","GS_NAME","GS_ID")]%>%
+    tidyr::drop_na()
   SCENARIO_TEMPLATE$Scenario <- "Scenario_0"
   SCENARIO_TEMPLATE$PercLandscape <- 0.25
 
