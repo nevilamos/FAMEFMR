@@ -1,4 +1,4 @@
-#' crop border of NA cells from rasters and get cell indices for remaning cells
+#' crop border of NA cells from rasters and get cell indices for remaining cells
 #' function to get the minimum bounding box of the cells with non NA values in
 #' a raster and save them to crop other rasters to same extent.
 #' also creates some rasters cropped to correct extent for instance for region and EFG
