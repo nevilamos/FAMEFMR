@@ -4,6 +4,7 @@
 #' @param myFHAnalysis list containing all the fire history spatial attributes created by function fhProcess()
 #' @param myCropRasters list of rasters and indices and cell values created by function cropNAborder()
 #' @param myRasterRes Resolution of Rasters to be used in the analysis set in settings file in R-script version needs to be set in shiny version
+#' @param puPoly either NULL if no planning unit polygons are to be included in the combinations or path to planning unit polygon shapefile covering the entire extent in VicGrid94 projection
 #'
 #' @return list of:
 #' \itemize{
@@ -15,7 +16,8 @@
 #' @export
 calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
                            myCropRasters = cropRasters,
-                           myRasterRes = RasterRes
+                           myRasterRes = RasterRes,
+                           puPoly = NULL
                            )
 						   {
 
@@ -43,10 +45,15 @@ calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
   FIREFMZ <- as.integer(myCropRasters$FIREFMZ)
   DELWP <- myCropRasters$DELWP
 
-
-  # combine into data table
+  if(is.null(puPoly) == FALSE){
+    PU<-raster::values(fasterize::fasterize(sf::st_read(puPoly),raster = r,field = "UNIQ_INT"))
+    # combine into data table
+    AllCombs<-data.table::as.data.table(cbind(FH_ID,EFG,FIRE_REG,FIREFMZ,PLM,DELWP,PU))
+    rm(PU)
+  }else{
+      # combine into data table
   AllCombs<-data.table::as.data.table(cbind(FH_ID,EFG,FIRE_REG,FIREFMZ,PLM,DELWP))
-
+    }
   rm(PLM,EFG,FIRE_REG,FIREFMZ,FH_ID,DELWP)
   # clean memory
   gc()
@@ -85,7 +92,6 @@ calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
   U_AllCombs_TFI <- Join_Names(U_AllCombs_TFI)
   U_AllCombs_TFI$PLM[U_AllCombs_TFI$PLM == 1] <- "Public Land"
   U_AllCombs_TFI$Hectares <- U_AllCombs_TFI$nPixel * cellsToHectares(RasterMetres = myRasterRes)
-
   # return function data
   return(list("U_AllCombs_TFI" = U_AllCombs_TFI,"Index_AllCombs" = Index_AllCombs))
 }
