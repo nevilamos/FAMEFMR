@@ -25,10 +25,12 @@
 #'   function calc_U_AllCombs
 #' @param myIDX index of cells to extract values for from cropRasters object
 #'
-#' @return list of two data frames:
+#' @return list of twoor three data frames:
 #' \itemize{
 #' \item SpYearSummWide summary of relative abundance of species by pivoted wide by SEASONS
 #' \item SpYearSummLong Long Format summary of relative abundance of species by SEASONS
+#' \item grpSpYearSumm summary of abundance of species by pivoted wide by SEASONS grouped by
+#' myAllCombs
 #' }
 #' @importFrom magrittr %>%
 #' @importFrom stats na.omit
@@ -85,7 +87,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
       ncol = LTR,
       dimnames = list(as.character(myHDMSpp_NO), TimeNames)
     )
-
+  grpSpYearSumm <- NULL
   # loop through calculation of per cell species abundance values
   # output raster values of flagged spp
   for (sp in myHDMSpp_NO) {
@@ -98,8 +100,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
     # gets the HDMVals for the relevant species from the  HDMvalues by
     # species. values multiplied by 100 so that they can later be converted to
     # integer if necessary without losing small values
-    #HDM_Vector <-
-      #as.vector(myHDMVals[, grep(as.character(sp), colnames(myHDMVals))]) * 100
+
     HDM_Vector<-as.vector(myHDMVals[[mySpp]][myIDX,1])*100
 
     # makes matrices of YSF, EFG, and LFT to use in lookup from LU array
@@ -123,9 +124,19 @@ calc_SpeciesRA <- function(myFHAnalysis,
       Spp_M[myAllCombs$Index_AllCombs,] * HDM_Vector
     colnames(Spp_Val_Cell_Year) <- TimeNames
 
+
+
     # get the sum of cell values for each year for the species
     # put them in the compilation data frame
     SpYearSumm[mySpp,] <- colSums(Spp_Val_Cell_Year, na.rm = TRUE)
+
+    grpSpYearSumm <-rbind(grpSpYearSumm,
+                          data.table::as.data.table(Spp_Val_Cell_Year)%>%
+                            dplyr::group_by(myAllCombs$Index_AllCombs)%>%
+                            dplyr::summarise(across(everything(), sum,na.rm=T))%>%
+                            dplyr::mutate(TAXON_ID = mySpp)
+    )
+
 
     #clean memory
     gc()
@@ -180,5 +191,5 @@ calc_SpeciesRA <- function(myFHAnalysis,
 
 
   # return calc_SpeciesRA function
-  return(list("SpYearSummWide" = SpYearSummWide, "SpYearSummLong" = SpYearSummLong))
+  return(list("SpYearSummWide" = SpYearSummWide, "SpYearSummLong" = SpYearSummLong,"grpSpYearSumm"=grpSpYearSumm))
 }
