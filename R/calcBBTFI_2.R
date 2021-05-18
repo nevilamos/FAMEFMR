@@ -120,7 +120,7 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
   }
 
   BBTFI_LONG_Summary <- BBTFI_LONG%>%
-    select(matches(c("PLM",
+    dplyr::select(tidyselect::matches(c("PLM",
                      "FIRE_REGION_NAME",
                      "DELWP_REGION",
                      "EFG_NAME",

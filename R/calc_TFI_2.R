@@ -123,7 +123,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
   # prepare output data summary tables via dplyr wrangling
   TFI_Summary <- cbind(TFI_VAL, U_AllCombs_TFI) %>%
     tidyr::pivot_longer(tidyselect::all_of(TimeNames), names_to = "SEASON", values_to = "TFI_VAL") %>%
-    select(matches(c("EFG_NAME",
+    dplyr::select(tidyselect::matches(c("EFG_NAME",
                     "FIRE_FMZ_NAME",
                     "FIRE_FMZ_SHORT_NAME",
                     "FIRE_REGION_NAME",
