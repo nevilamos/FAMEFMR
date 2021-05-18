@@ -129,11 +129,13 @@ calc_SpeciesRA <- function(myFHAnalysis,
     # get the sum of cell values for each year for the species
     # put them in the compilation data frame
     SpYearSumm[mySpp,] <- colSums(Spp_Val_Cell_Year, na.rm = TRUE)
+    Index_AllCombs<-myAllCombs$Index_AllCombs
 
     grpSpYearSumm <-rbind(grpSpYearSumm,
                           data.table::as.data.table(Spp_Val_Cell_Year)%>%
-                            dplyr::group_by(myAllCombs$Index_AllCombs)%>%
+                            dplyr::group_by()%>%
                             dplyr::summarise(across(everything(), sum,na.rm=T))%>%
+                            #filter(rowSums(across(TimeNames))>0)%>%
                             dplyr::mutate(TAXON_ID = mySpp)
     )
 

@@ -53,10 +53,12 @@ rasters are required as output.}
 \item{myIDX}{index of cells to extract values for from cropRasters object}
 }
 \value{
-list of two data frames:
+list of twoor three data frames:
 \itemize{
 \item SpYearSummWide summary of relative abundance of species by pivoted wide by SEASONS
 \item SpYearSummLong Long Format summary of relative abundance of species by SEASONS
+\item grpSpYearSumm summary of abundance of species by pivoted wide by SEASONS grouped by
+myAllCombs
 }
 }
 \description{

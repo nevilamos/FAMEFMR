@@ -119,8 +119,18 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
     BBTFI_WIDE[,i] <- unlistPivot_wider(BBTFI_WIDE[,i])
   }
 
-  BBTFI_LONG_Summary <- BBTFI_LONG %>%
-    dplyr::group_by(PLM, FIRE_REGION_NAME, DELWP_REGION, EFG_NAME, FIRE_FMZ_NAME, SEAS, FireType, TBTFI) %>%
+  BBTFI_LONG_Summary <- BBTFI_LONG%>%
+    select(matches(c("PLM",
+                     "FIRE_REGION_NAME",
+                     "DELWP_REGION",
+                     "EFG_NAME",
+                     "FIRE_FMZ_NAME",
+                     "SEAS",
+                     "FireType",
+                     "TBTFI",
+                     "PU",
+                     "Hectares")))%>%
+    dplyr::group_by(across(c(-Hectares)))%>%
     dplyr::summarize(Hectares = sum(Hectares))
 
   # output rasters if applicable
