@@ -123,19 +123,26 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
   # prepare output data summary tables via dplyr wrangling
   TFI_Summary <- cbind(TFI_VAL, U_AllCombs_TFI) %>%
     tidyr::pivot_longer(tidyselect::all_of(TimeNames), names_to = "SEASON", values_to = "TFI_VAL") %>%
-    dplyr::group_by(EFG_NAME,
-                    FIRE_FMZ_NAME,
-                    FIRE_FMZ_SHORT_NAME,
-                    FIRE_REGION_NAME,
-                    DELWP_REGION,
-                    EFG,
-                    FIRE_REG,
-                    FIREFMZ,
-                    PLM,
-                    DELWP,
-                    SEASON,
-                    TFI_VAL) %>%
+    select(matches(c("EFG_NAME",
+                    "FIRE_FMZ_NAME",
+                    "FIRE_FMZ_SHORT_NAME",
+                    "FIRE_REGION_NAME",
+                    "DELWP_REGION",
+                    "EFG",
+                    "FIRE_REG",
+                    "FIREFMZ",
+                    "PLM",
+                    "DELWP",
+                    "SEASON",
+                    "TFI_VAL",
+                    "PU",
+                    "nPixel",
+                    "Hectares")))%>%
+                     dplyr::group_by(across(c(-Hectares,-nPixel)))%>%
     dplyr::summarize(nCells = sum(nPixel), Hectares = sum(Hectares))
+
+
+
 
   TFI_Summary <- dplyr::left_join(TFI_Summary, TFI_STATUS_LUT)
 
