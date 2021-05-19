@@ -25,7 +25,7 @@
 #'   function calc_U_AllCombs
 #' @param myIDX index of cells to extract values for from cropRasters object
 #'
-#' @return list of twoor three data frames:
+#' @return list of two or three data frames:
 #' \itemize{
 #' \item SpYearSummWide summary of relative abundance of species by pivoted wide by SEASONS
 #' \item SpYearSummLong Long Format summary of relative abundance of species by SEASONS
