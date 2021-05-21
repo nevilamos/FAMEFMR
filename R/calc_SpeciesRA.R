@@ -49,7 +49,8 @@ calc_SpeciesRA <- function(myFHAnalysis,
   # set time range for analysis
   TimeRange <- as.integer(myFHAnalysis$TimeSpan)
   TimeNames <- as.character(myFHAnalysis$TimeSpan)
-  LTR <- length(TimeRange)
+  if(grep("NoBurn",myFHAnalysis$YSFNames)>0){TimeNames=c(TimeNames,"NoBurn")}
+  LTR <- length(TimeNames)
 
   # reads in raster from fhAnalysis as Template
   r <- myFHAnalysis$FH_IDr
@@ -122,6 +123,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
     #effectively masking out values where the species does not occur.
     Spp_Val_Cell_Year <-
       Spp_M[myAllCombs$Index_AllCombs,] * HDM_Vector
+
     colnames(Spp_Val_Cell_Year) <- TimeNames
 
 
@@ -184,8 +186,8 @@ calc_SpeciesRA <- function(myFHAnalysis,
     SpYearSumm %>%
       tidyr::pivot_longer(-TAXON_ID,
                           names_to = "SEASON",
-                          values_to = "SUM_RAx100")
-  ) %>%
+                          values_to = "SUM_RAx100")) %>%
+    dplyr::mutate(SEASON = ifelse(SEASON == "NoBurn","9999",SEASON))%>%
     dplyr::mutate(SEASON = as.integer(SEASON))
 
 
