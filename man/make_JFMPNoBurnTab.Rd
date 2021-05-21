@@ -4,13 +4,13 @@
 \alias{make_JFMPNoBurnTab}
 \title{Summary of changes in relative abundance}
 \usage{
-make_JFMPNoBurnTab(FHAnalysis, JFMPSeason0)
+make_JFMPNoBurnTab(myFHAnalysis = FHAnalysis, JFMPSeason0)
 }
 \arguments{
+\item{myFHAnalysis}{list containing all the fire history spatial attributes created by function fhProcess}
+
 \item{JFMPSeason0}{integer single SEASON (default to current SEASON) which is the season before the first year of burns ina 3 year JFMP
 #'}
-
-\item{myFHAnalysis}{list containing all the fire history spatial attributes created by function fhProcess}
 }
 \value{
 data framethree columns "YSFNoBurn","LBYNoBurn","LFTNoBurn" where

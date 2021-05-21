@@ -138,7 +138,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
                     "PU",
                     "nPixel",
                     "Hectares")))%>%
-                     dplyr::group_by(across(c(-Hectares,-nPixel)))%>%
+                     dplyr::group_by(dplyr::across(c(-Hectares,-nPixel)))%>%
     dplyr::summarize(nCells = sum(nPixel), Hectares = sum(Hectares))
 
 

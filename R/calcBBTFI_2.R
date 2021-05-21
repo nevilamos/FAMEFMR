@@ -130,7 +130,7 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
                      "TBTFI",
                      "PU",
                      "Hectares")))%>%
-    dplyr::group_by(across(c(-Hectares)))%>%
+    dplyr::group_by(dplyr::across(c(-Hectares)))%>%
     dplyr::summarize(Hectares = sum(Hectares))
 
   # output rasters if applicable

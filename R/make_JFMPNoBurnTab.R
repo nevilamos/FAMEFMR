@@ -8,10 +8,10 @@
 #' @return data framethree columns "YSFNoBurn","LBYNoBurn","LFTNoBurn" where
 #' YSFNoBurn = YSF +4 of SEASON= JFMPSeason0
 #' @export
-make_JFMPNoBurnTab <- function(FHAnalysis,
+make_JFMPNoBurnTab <- function(myFHAnalysis = FHAnalysis,
                                JFMPSeason0
                                ) {
-  JFMPNoBurnTab<-sf::st_set_geometry(FHAnalysis$OutDF,value = NULL)[,paste0(c("YSF","LBY","LFT"),JFMPSeason0)]
+  JFMPNoBurnTab<-sf::st_set_geometry(myFHAnalysis$OutDF,value = NULL)[,paste0(c("YSF","LBY","LFT"),JFMPSeason0)]
   names(JFMPNoBurnTab)<-c("YSFNoBurn","LBYNoBurn","LFTNoBurn")
   JFMPNoBurnTab<-JFMPNoBurnTab%>%dplyr::mutate(YSFNoBurn = YSFNoBurn + 4 )
 }
