@@ -20,7 +20,7 @@ makeGS_Summary <- function(myFHAnalysis = FHAnalysis,
   Index_AllCombs = myAllCombs$Index_AllCombs
 
   TimeNames <- as.character(myFHAnalysis$TimeSpan)
-  if(grep("NoBurn",myFHAnalysis$YSFNames)>0){TimeNames=c(TimeNames,"NoBurn")}
+  if(length(grep("NoBurn",myFHAnalysis$YSFNames))>0){TimeNames=c(TimeNames,"NoBurn")}
   GS_LU <-
     makeGS_LU() ####----- does this change between runs? i.e. is the csv input a user input that can change.
   #####  Potentially yes so keep for now ( input .csv can be defined in settings file)
