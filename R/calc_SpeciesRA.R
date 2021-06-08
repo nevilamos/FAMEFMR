@@ -49,7 +49,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
   # set time range for analysis
   TimeRange <- as.integer(myFHAnalysis$TimeSpan)
   TimeNames <- as.character(myFHAnalysis$TimeSpan)
-  if(grep("NoBurn",myFHAnalysis$YSFNames)>0){TimeNames=c(TimeNames,"NoBurn")}
+  if(length(grep("NoBurn",myFHAnalysis$YSFNames))>0){TimeNames=c(TimeNames,"NoBurn")}
   LTR <- length(TimeNames)
 
   # reads in raster from fhAnalysis as Template
