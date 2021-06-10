@@ -13,7 +13,7 @@
 #' \item BBTFI_WIDE wide by SEASON  table of the number of times BBTTFI and area for each unique combination of fire history FireType,EFG, PU, and administrative subunits (District, Region etc) of area.
 #' \item BBTFI_LONG long format table ( ie not spread by season) otherwise as BBTFI used for production of charts}
 #' @param myJFMPSeason0 4 digit integer: the fire SEASON before the first SEASON of the JFMP being processed
-#' @return dataframe of planning units/ from input shapefile attributes with appended columns for Biodiversity scores ( area first BBTFI and sum of realive abundaces scores weighted by the number of pixels of each species in the study area, Differences of scores between Burned and Unburned status at JFMPseason0 +4
+#' @return dataframe of planning units/ from input shapefile attributes with appended columns for Biodiversity scores ( area first BBTFI and sum of realive abundance scores weighted by the number of pixels of each species in the study area, Differences of scores between Burned and Unburned status at JFMPseason0 +4
 #' @export
 
 jfmp1 <- function(myPUPath = rv$puPath,
@@ -23,7 +23,7 @@ jfmp1 <- function(myPUPath = rv$puPath,
                   myBBTFI = rv$BBTFI,
                   myJFMPSeason0 = rv$JFMPSeason0)
   {
-  #Wrangle the SpYearSummRA grouped on indexof all combs, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU ------
+  #Wrangle the SpYearSummRA grouped on index of all combinations of rasters, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU ------
   JFMPSeason4 = myJFMPSeason0 + 4
   PU_WeightedSumRA <- grpSpYearSumm %>%
     dplyr::rename(Index_AllCombs = `myAllCombs$Index_AllCombs`) %>%
@@ -54,19 +54,23 @@ jfmp1 <- function(myPUPath = rv$puPath,
 
 
   PU_BBTFI_Summ <- myBBTFI$BBTFI_LONG %>%
+    # filter for first time BBTFI
     dplyr::filter(TBTFI == 1) %>%
-    dplyr::mutate(JFMP_BURN = ifelse(SEAS > myJFMPSeason0, "JFMP_BBTFI", "PastBBTFI")) %>%
+    dplyr::mutate(JFMP_BURN = ifelse(SEAS > myJFMPSeason0, "Burn_BBTFI", "NoBurn_BBTFI")) %>%
     dplyr::group_by(PU, JFMP_BURN) %>%
     dplyr::summarise(Hectares = sum (Hectares)) %>%
-    tidyr::pivot_wider(names_from = JFMP_BURN, values_from = Hectares)
+    tidyr::pivot_wider(names_from = JFMP_BURN, values_from = Hectares) %>%
+    dplyr::mutate(BBTFI_Diff = Burn_BBTFI - NoBurn_BBTFI)
 
 
   #read PU shapefile and remove geometry
     puDF <- sf::st_read(myPUPath)
     puDF$geometry <- NULL
     puDF <- puDF %>%
-    dplyr::left_join(PU_BBTFI_Summ) %>%
-    dplyr::left_join(PU_WeightedSumRA)
+      dplyr::mutate(LP_1_Diff = LP_1_Burn - LP_1_NoBurn,
+                    LP_2_Diff = LP_2_Burn - LP_2_NoBurn)
+      dplyr::left_join(PU_BBTFI_Summ) %>%
+      dplyr::left_join(PU_WeightedSumRA)
   gc()
   return(puDF)
 }

@@ -30,7 +30,7 @@ calc_DraftSpList(
 \item{myHDMVals}{matrix of cell values for Habitat Distribution Model rasters always 225m for speed}
 }
 \value{
-data.frame created from splist with columns appended for:
+data.frame created from  TaxonList with columns appended for:
 \itemize{
 \item cellsInState count of the number of cells in the state within the Binary HDM for the species
 \item cellsInArea count of the number of cells within myPoly and within the Binary HDM for the species

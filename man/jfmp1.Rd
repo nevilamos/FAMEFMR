@@ -28,7 +28,7 @@ jfmp1(
 \item{myJFMPSeason0}{4 digit integer: the fire SEASON before the first SEASON of the JFMP being processed}
 }
 \value{
-dataframe of planning units/ from input shapefile attributes with appended columns for Biodiversity scores ( area first BBTFI and sum of realive abundaces scores weighted by the number of pixels of each species in the study area, Differences of scores between Burned and Unburned status at JFMPseason0 +4
+dataframe of planning units/ from input shapefile attributes with appended columns for Biodiversity scores ( area first BBTFI and sum of realive abundance scores weighted by the number of pixels of each species in the study area, Differences of scores between Burned and Unburned status at JFMPseason0 +4
 }
 \description{
 JFMP Stage 1 calculations
