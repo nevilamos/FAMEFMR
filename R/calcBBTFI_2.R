@@ -9,12 +9,11 @@
 #' rasters for BBTFI to disk
 #' @param myResultsDir path of directory where results will be written usually
 #'   generated  by FAME script
+#'
 #' @return list containing:
 #' \itemize{
-#' \item the date sequence matrix for each cell of the raster
-#' \item the EFG TFI Lookup for each cell of the raster
-#' \item the raster resolution used.
-#' \item Optionally outputs rasters of BBTFI to disk if makeBBTFIrasters==TRUE.
+#' \item BBTFI_WIDE wide by SEASON  table of the number of times BBTTFI and area for each unique combination of fire history FireType,EFG, PU, and administrative subunits (District, Region etc) of area.
+#' \item BBTFI_LONG long format table ( ie not spread by season) otherwise as BBTFI used for production of charts
 #' }
 #' @importFrom rlang .data
 #' @export
