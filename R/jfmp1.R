@@ -4,7 +4,7 @@
 #' \itemize{
 #' \item  PU (unique integer identifier for each planning unit/burn unit)
 #' \item  Hectares(area in Hectares),
-#' \item  LP_1_NoBurn, LP_2_NoBurn, LP_1_Burn, LP_2_Burn - the scores for two "Life and property" metrics for each polygon in burned and unburned state at JFMPSeason0 + 4.
+#' \item  LP1_NoBurn, LP2_NoBurn, LP1_Burn, LP2_Burn - the scores for two "Life and property" metrics for each polygon in burned and unburned state at JFMPSeason0 + 4.
 #' @param grpSpYearSumm grpSpYearSumm summary of abundance of species by pivoted wide by SEASONS grouped by myAllCombs which is an output of function calc_SpeciesRA.
 #' @param myAllCombs list object retuned by function calc_U_AllCombs() that contains  combinations of input raster values for the analysis
 #' @param myTaxonList data.frame of species attributes (read from default or user provided .csv)
@@ -67,8 +67,8 @@ jfmp1 <- function(myPUPath = rv$puPath,
     puDF <- sf::st_read(myPUPath)
     puDF$geometry <- NULL
     puDF <- puDF %>%
-      dplyr::mutate(LP_1_Diff = LP_1_Burn - LP_1_NoBurn,
-                    LP_2_Diff = LP_2_Burn - LP_2_NoBurn)
+      dplyr::mutate(LP1_Diff = LP1_Burn - LP1_NoBurn,
+                    LP2_Diff = LP2_Burn - LP2_NoBurn)
       dplyr::left_join(PU_BBTFI_Summ) %>%
       dplyr::left_join(PU_WeightedSumRA)
   gc()
