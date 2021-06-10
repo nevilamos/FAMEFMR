@@ -13,8 +13,8 @@
 #'   DELWP_REGION.
 #' @importFrom data.table setnames
 #' @export
-makeGS_Summary <- function(myFHAnalysis = FHAnalysis,
-                           myAllCombs = allCombs)
+makeGS_Summary <- function(myFHAnalysis = rv$FHAnalysis,
+                           myAllCombs = rv$allCombs)
 {
   U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
   Index_AllCombs = myAllCombs$Index_AllCombs
