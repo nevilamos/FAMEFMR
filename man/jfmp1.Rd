@@ -10,7 +10,9 @@ jfmp1(
   myAllCombs = rv$allCombs,
   myTaxonList = rv$TaxonList,
   myBBTFI = rv$BBTFI,
-  myJFMPSeason0 = rv$JFMPSeason0
+  myJFMPSeason0 = rv$JFMPSeason0,
+  ZoneWt = rv$ZoneWt,
+  JFMPMetricWt = rv$JFMPMetricWt
 )
 }
 \arguments{
@@ -26,6 +28,10 @@ jfmp1(
 \item BBTFI_LONG long format table ( ie not spread by season) otherwise as BBTFI used for production of charts}}
 
 \item{myJFMPSeason0}{4 digit integer: the fire SEASON before the first SEASON of the JFMP being processed}
+
+\item{ZoneWt}{data.frame weighting Eco vs LP for each Fire Managment Zone ( read from ZoneWt.csv)}
+
+\item{JFMPMetricWt}{data.frame weighting the four JFMP scores ( Flora,Fauna,LP1 and LP2)}
 }
 \value{
 dataframe of planning units/ from input shapefile attributes with appended columns for Biodiversity scores ( area first BBTFI and sum of realive abundance scores weighted by the number of pixels of each species in the study area, Differences of scores between Burned and Unburned status at JFMPseason0 +4
