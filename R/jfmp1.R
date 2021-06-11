@@ -68,7 +68,7 @@ jfmp1 <- function(myPUPath = rv$puPath,
     puDF$geometry <- NULL
     puDF <- puDF %>%
       dplyr::mutate(LP1_Diff = LP1_Burn - LP1_NoBurn,
-                    LP2_Diff = LP2_Burn - LP2_NoBurn)
+                    LP2_Diff = LP2_Burn - LP2_NoBurn) %>%
       dplyr::left_join(PU_BBTFI_Summ) %>%
       dplyr::left_join(PU_WeightedSumRA)
   gc()
