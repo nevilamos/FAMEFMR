@@ -110,14 +110,18 @@ unlistPivot_wider <- function(df){
 
 
 #' linear rescale 0-1
-#' @details Rescales numeric vector from 0:1 by dividing by difference between minimum and maximum values ignoring NA values
-#' @param x numeric with minimum fo two different values
+#' @details Rescales numeric vector from 0:1 by dividing by difference between minimum and maximum values ignoring NA values. If x does not have two different numeric values then returns all NAs
+#' @param x numeric
 #'
 #' @return numeric scale 0:1 of length(x)
 #' @export
 zeroToOne <- function(x,...)
-{ if (length(unique(na.omit(x)))<2){ stop("there is only single unique value cannot scale 0:1")}
-  (x - min(x,...)) / (max(x,...) - min(x,...))}
+{ if (length(unique(na.omit(x)))<2){
+  warning("there is only single unique value cannot scale 0:1 returning NaNs")
+  }
+  y = (x - min(x,...)) / (max(x,...) - min(x,...))
+  return(y)}
+
 
 
 
