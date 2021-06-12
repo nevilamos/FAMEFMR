@@ -125,7 +125,11 @@ jfmp1 <- function(myPUPath = rv$puPath,
 
   rv$puDF = puDF
 
-    readr::write_csv(puDF,file.path(ResultsDir,paste0("Output_1_PU_Rankings_",PUFilename,".csv")))
+    readr::write_csv(puDF,
+                     file.path(ResultsDir,
+                               paste0("Output_1_PU_Rankings_",
+                                      tools::file_path_sans_ext(basename(myPUPath)),
+                                      ".csv")))
   gc()
   return(puDF)
 }
