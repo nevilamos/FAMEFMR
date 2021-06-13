@@ -123,6 +123,7 @@ jfmp1 <- function(myPUPath = rv$puPath,
     dplyr::left_join(merge(ZoneWt,JFMPMetricWt))%>% # calculate scaled scores with weightings to get overall score
     dplyr::mutate(DiffSum = (LP1Std * LP1Wt + LP2Std * LP2Wt) * LPwt + (WtSumRA_DiffStd * FaunaWt + BBTFI_DiffStd *FloraWt) * BDwt)
 
+  print("finished jfmp1")
 
   return(puDF)
 }
