@@ -63,8 +63,7 @@ jfmp1 <- function(myPUPath = rv$puPath,
     dplyr::mutate(JFMP_BURN = ifelse(SEAS > myJFMPSeason0, "Burn_BBTFI", "NoBurn_BBTFI")) %>%
     dplyr::group_by(PU, JFMP_BURN) %>%
     dplyr::summarise(Hectares = sum (Hectares)) %>%
-    tidyr::pivot_wider(names_from = JFMP_BURN, values_from = Hectares) %>%
-    dplyr::mutate(BBTFI_Diff = ifelse(is.na(Burn_BBTFI),0,Burn_BBTFI))
+    tidyr::pivot_wider(names_from = JFMP_BURN, values_from = Hectares)
 
 
   #read PU shapefile and remove geometry
@@ -74,6 +73,7 @@ jfmp1 <- function(myPUPath = rv$puPath,
       dplyr::mutate(LP1_Diff = LP1_Burn - LP1_NoBurn,
                     LP2_Diff = LP2_Burn - LP2_NoBurn) %>%
       dplyr::left_join(PU_BBTFI_Summ) %>%
+      dplyr::mutate(BBTFI_Diff = ifelse(is.na(Burn_BBTFI),0,Burn_BBTFI))%>%
       dplyr::left_join(PU_WeightedSumRA)
 
 # ranking process
