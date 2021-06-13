@@ -92,7 +92,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
   # loop through calculation of per cell species abundance values
   # output raster values of flagged spp
   for (sp in myHDMSpp_NO) {
-    cat("\r", paste("calculating abundances for", sp), "\n")
+    cat("\r", paste("calculating abundances for", sp))
     mySpp <- as.character(sp)
 
     #get the lookup array of abundance values from the list of species value lookup
@@ -193,5 +193,6 @@ calc_SpeciesRA <- function(myFHAnalysis,
 
 
   # return calc_SpeciesRA function
+  print("finished calc_SpeciesRA")
   return(list("SpYearSummWide" = SpYearSummWide, "SpYearSummLong" = SpYearSummLong,"grpSpYearSumm"=grpSpYearSumm))
 }
