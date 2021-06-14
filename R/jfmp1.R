@@ -4,7 +4,7 @@
 #' \itemize{
 #' \item  PU (unique integer identifier for each planning unit/burn unit)
 #' \item  Hectares(area in Hectares),
-#' \item  LP1_NoBurn, LP2_NoBurn, LP1_Burn, LP2_Burn - the scores for two "Life and property" metrics for each polygon in burned and unburned state at JFMPSeason0 + 4.
+#' \item  LP1_NoBurn, LP2_NoBurn, LP1_Burn, LP2_Burn - the scores for two "Life and property" metrics for each polygon in burned and unburned state at JFMPSeason0 + 4.}
 #' @param grpSpYearSumm grpSpYearSumm summary of abundance of species by pivoted wide by SEASONS grouped by myAllCombs which is an output of function calc_SpeciesRA.
 #' @param myAllCombs list object retuned by function calc_U_AllCombs() that contains  combinations of input raster values for the analysis
 #' @param myTaxonList data.frame of species attributes (read from default or user provided .csv)

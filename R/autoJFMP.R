@@ -1,7 +1,7 @@
 #' Create Automatic JFMP burn allocation
 #'
-#' @param dataframe of planning uit attributes and JFMP scores for each polygon burned and no t burned between JFMPSEASON0 and JFMPSEASON 0 +4 as produced by function jfmp1()
-#' @param myHaTargetDF
+#' @param  myJFMP1 data frame of planning unit attributes and JFMP scores for each polygon burned and no t burned between JFMPSEASON0 and JFMPSEASON 0 +4 as produced by function jfmp1()
+#' @param myHaTargetDF data frame of target areas for each Fire District and FMZ_ID in the study area in Hectares
 #'
 #' @return JFMP auto-nominations	 table 1, with one row for each planning unit, and columns for:
 #'– Planning unit ID (x1 column)

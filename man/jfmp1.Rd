@@ -16,6 +16,12 @@ jfmp1(
 )
 }
 \arguments{
+\item{myPUPath}{path to the planning unit/burn unit  shapefile covering the area.This file must contain fields:
+\itemize{
+\item  PU (unique integer identifier for each planning unit/burn unit)
+\item  Hectares(area in Hectares),
+\item  LP1_NoBurn, LP2_NoBurn, LP1_Burn, LP2_Burn - the scores for two "Life and property" metrics for each polygon in burned and unburned state at JFMPSeason0 + 4.}}
+
 \item{grpSpYearSumm}{grpSpYearSumm summary of abundance of species by pivoted wide by SEASONS grouped by myAllCombs which is an output of function calc_SpeciesRA.}
 
 \item{myAllCombs}{list object retuned by function calc_U_AllCombs() that contains  combinations of input raster values for the analysis}

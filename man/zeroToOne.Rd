@@ -8,6 +8,8 @@ zeroToOne(x, ...)
 }
 \arguments{
 \item{x}{numeric}
+
+\item{...}{allows passing of na.rm}
 }
 \value{
 numeric scale 0:1 of length(x)

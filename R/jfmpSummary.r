@@ -34,7 +34,8 @@ JFMP_DF = AutomJFMP_DF
     dplyr::ungroup()%>%
     dplyr::group_by(DISTRICT_N,AutoJFMP_State)%>%
     dplyr::summarise(AreaHa=sum(PuAreaHa,na.rm=T))%>%
-    dplyr::spread(AutoJFMP_State,AreaHa)%>%
+    tidyr::pivot_wider(names_from = AutoJFMP_State,
+                       values_from = AreaHa)%>%
     dplyr::rename(Burned_ha='BURN',NoBurn_Ha='NO BURN')
 
   AreasBurnedbyFMZ_CODE<-JFMP_DF%>%
@@ -42,7 +43,8 @@ JFMP_DF = AutomJFMP_DF
     dplyr::filter(AutoJFMP_State=='BURN')%>%
     dplyr::group_by(DISTRICT_N,FMZ_ID)%>%
     dplyr::summarise(AreaHa=sum(PuAreaHa,na.rm=T))%>%
-    dplyr::spread(FMZ_ID,AreaHa)
+    tidyr::pivot_wider(names_from = FMZ_ID,
+                       values_from = AreaHa)
   names(AreasBurnedbyFMZ_CODE)[-1]<-paste("Burned_ha ",names(AreasBurnedbyFMZ_CODE)[-1])
 
   JFMP_Summ<-left_join(AreasBurnedUnburned,JFMP_Summ)
