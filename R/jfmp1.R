@@ -94,7 +94,7 @@ jfmp1 <- function(myPUPath = rv$puPath,
       dplyr::mutate(LP1_RankDISTRICT=dense_rank(LP1_Diff))%>%#ranking by Diff within District
       dplyr::mutate(LP2_RankDISTRICT=dense_rank(LP2_Diff))%>%#ranking by Diff within District
       #By DISTRICT and ZONE
-      dplyr::group_by(DISTRICT_N,X_ZONETYPE)%>%
+      dplyr::group_by(DISTRICT_N,FMZ_ID)%>%
       dplyr::mutate(WtSumRA_RankDISTRICT_FMZ=dense_rank(WtSumRA_Diff))%>%#ranking by Diff within District and FMZ
       dplyr::mutate(BBTFI_RankDISTRICT_FMZ=dense_rank(BBTFI_Diff))%>%#ranking by Diff within District and FMZ
       dplyr::mutate(LP1_RankDISTRICT_FMZ=dense_rank(LP1_Diff))%>%#ranking by Diff within District and FMZ
@@ -115,7 +115,7 @@ jfmp1 <- function(myPUPath = rv$puPath,
     dplyr::mutate(BBTFI_RankDISTRICT=dense_rank(BBTFI_Diff))%>%#ranking by Diff within District
     dplyr::mutate(LP1_RankDISTRICT=dense_rank(LP1_Diff))%>%#ranking by Diff within District
     dplyr::mutate(LP2_RankDISTRICT=dense_rank(LP2_Diff))%>%#ranking by Diff within District
-    dplyr::group_by(DISTRICT_N,X_ZONETYPE)%>%
+    dplyr::group_by(DISTRICT_N,FMZ_ID)%>%
     dplyr::mutate(WtSumRA_RankDISTRICT_FMZ=dense_rank(WtSumRA_Diff))%>%#ranking by Diff within District and FMZ
     dplyr::mutate(BBTFI_RankDISTRICT_FMZ=dense_rank(BBTFI_Diff))%>%#ranking by Diff within District and FMZ
     dplyr::mutate(LP1_RankDISTRICT_FMZ=dense_rank(LP1_Diff))%>%#ranking by Diff within District and FMZ
