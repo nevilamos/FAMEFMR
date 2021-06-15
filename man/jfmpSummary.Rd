@@ -4,10 +4,10 @@
 \alias{jfmpSummary}
 \title{Title Summary of JFMP areas burned and not burned}
 \usage{
-jfmpSummary(JFMP_DF = "JFMPSummary with burned or unburned")
+jfmpSummary(myAutoJFMP = "JFMPSummary with burned or unburned")
 }
 \arguments{
-\item{JFMP_DF}{JFMP table with columns for FMZ_ID,PU,and JFMPStatus plus all the scores calculated in jfmp1()}
+\item{myAutoJFMP}{JFMP table with columns for FMZ_CODE,PU,and JFMPStatus plus all the scores calculated in jfmp1()}
 }
 \value{
 JFMP_Summary data frame CSV reporting table 2, with one row for each District and columns for:
@@ -16,7 +16,7 @@ JFMP_Summary data frame CSV reporting table 2, with one row for each District an
 – Score for each metric (x4) if JFMP implemented
 – Score for each metrics (x4) if JFMP not implemented
 \itemize{
-\item Hectares allocated in each FMZ_ID
+\item Hectares allocated in each FMZ_CODE
 }
 }
 \description{
