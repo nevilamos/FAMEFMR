@@ -23,7 +23,7 @@ autoJFMP<-function(myJFMP1 = rv$puDF,myTargetHa = rv$targetHa)
     dplyr::group_by(DISTRICT_N,FMZ_CODE)%>%
     dplyr::mutate(Dist_FMZ_cum_ha=cumsum(PuHectares))%>%
     dplyr::mutate(cumbefore=Dist_FMZ_cum_ha-PuHectares)%>%
-    dplyr::mutate(AutoJFMP_State=ifelse(cumbefore > targetAreaHa,"NO BURN","BURN"))
+    dplyr::mutate(AutoJFMP_State=ifelse(cumbefore > targetHa,"NO BURN","BURN"))
 
   return(AutomJFMP_DF)
   }
