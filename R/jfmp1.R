@@ -13,8 +13,8 @@
 #' \item BBTFI_WIDE wide by SEASON  table of the number of times BBTTFI and area for each unique combination of fire history FireType,EFG, PU, and administrative subunits (District, Region etc) of area.
 #' \item BBTFI_LONG long format table ( ie not spread by season) otherwise as BBTFI used for production of charts}
 #' @param myJFMPSeason0 4 digit integer: the fire SEASON before the first SEASON of the JFMP being processed
-#' @param ZoneWt  data.frame weighting Eco vs LP for each Fire Managment Zone ( read from ZoneWt.csv)
-#' @param JFMPMetricWt data.frame weighting the four JFMP scores ( Flora,Fauna,LP1 and LP2)
+#' @param zoneWt  data.frame weighting Eco vs LP for each Fire Management Zone
+#' @param jfmpMetricWt data.frame weighting the four JFMP scores (Flora,Fauna,LP1 and LP2)
 #' @return dataframe of planning units/ from input shapefile attributes with appended columns for Biodiversity scores ( area first BBTFI and sum of realive abundance scores weighted by the number of pixels of each species in the study area, Differences of scores between Burned and Unburned status at JFMPseason0 +4
 #' @export
 
@@ -24,8 +24,8 @@ jfmp1 <- function(myPUPath = rv$puPath,
                   myTaxonList = rv$TaxonList,
                   myBBTFI = rv$BBTFI,
                   myJFMPSeason0 = rv$JFMPSeason0,
-                  ZoneWt = rv$ZoneWt,
-                  JFMPMetricWt = rv$JFMPMetricWt)
+                  zoneWt = rv$zoneWt,
+                  jfmpMetricWt = rv$jfmpMetricWt)
   {
   #Wrangle the SpYearSummRA grouped on index of all combinations of rasters, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU ------
   JFMPSeason4 = myJFMPSeason0 + 4
@@ -120,7 +120,7 @@ jfmp1 <- function(myPUPath = rv$puPath,
     dplyr::mutate(BBTFI_RankDISTRICT_FMZ=dense_rank(BBTFI_Diff))%>%#ranking by Diff within District and FMZ
     dplyr::mutate(LP1_RankDISTRICT_FMZ=dense_rank(LP1_Diff))%>%#ranking by Diff within District and FMZ
     dplyr::mutate(LP2_RankDISTRICT_FMZ=dense_rank(LP2_Diff))%>% #ranking by Diff within District and FMZ
-    dplyr::left_join(merge(ZoneWt,JFMPMetricWt))%>% # calculate scaled scores with weightings to get overall score
+    dplyr::left_join(merge(zoneWt,jfmpMetricWt))%>% # calculate scaled scores with weightings to get overall score
     dplyr::mutate(DiffSum = (LP1Std * LP1Wt + LP2Std * LP2Wt) * LPwt + (WtSumRA_DiffStd * FaunaWt + BBTFI_DiffStd *FloraWt) * BDwt)
 
   print("finished jfmp1")
