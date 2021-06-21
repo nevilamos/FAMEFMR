@@ -12,7 +12,7 @@ processDraftJFMP(myDraftJFMPFile = rv$draftJFMPFile, myAutoJFMP = rv$autoJFMP)
 \item{myAutoJFMP}{the autoJFMP table for the corresponding PU and Fire History analysis}
 }
 \value{
-table 1, with one row for each planning unit,
+data.frame JFMP table with one row for each planning unit,
 and columns for:
 – Planning unit ID (x1 column)
 – FMZ category (x1)
