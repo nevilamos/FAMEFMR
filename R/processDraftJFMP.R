@@ -1,9 +1,12 @@
 #' Process draft JFMP inputs
-#' @details Takes a table of burn units with identical PU ids to the autoJFMP can makes table of burn status for the draft JFMP and relevant ecorlogical resilience and life and property risk scores per burn unit.
-#' @param myDraftJFMPFile path to input burn unit csv file with two fields PU identical to autoJFMP PU and Draft_JFMP_State either "Burn" or "No_Burn" for each PU according to the draft JFMP
-#' @param myAutoJFMP the autoJFMP table for the corresponding PU and Fire History analysis
-#'
+#' @details Takes a table of burn units with identical PU ids to the autoJFMP can makes table of burn status for the draft JFMP and relevant ecological resilience and life and property risk scores per burn unit.
 
+#' @param DraftJFMPFile path to csv file containing two columns:
+#'  PU  and Draft_JFMP_State which is the burn state
+#'  ("Burn" or "NoBurn") for the planning unit(PU) in the draft JFMP
+#'  The PU values must be identical to those in myAutoJFMP
+#' @param AutoJFMP autoJFMP for the corresponding fire History and
+#'  planning units
 #' @return data.frame JFMP table with one row for each planning unit,
 #'  and columns for:
 #' – Planning unit ID (x1 column)
@@ -17,7 +20,6 @@
 #' – Ranking as above but within District X FMZ combination (x 4)
 #'  This is the same as autoJFMP table  except different areas are considered for burning
 #' @export
-
 processDraftJFMP <- function(
   myDraftJFMPFile =rv$draftJFMPFile,
   myAutoJFMP =rv$autoJFMP) {
@@ -35,3 +37,4 @@ processDraftJFMP <- function(
   }
   return(myJFMP_DF)
 }
+
