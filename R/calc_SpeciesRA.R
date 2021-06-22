@@ -153,7 +153,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
         print(paste("writing species abund rasters for", myYear))
         if (sp %in% myWriteSp | is.null(myWriteSp)) {
           OutTif <-
-            file.path(ResultsDir,
+            file.path(myResultsDir,
                       "RA_Rasters",
                       paste0("Spp", sp, "_", myYear, ".tif"))
           print(OutTif)
@@ -180,7 +180,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
     dplyr::mutate(TAXON_ID = as.character(TAXON_ID))
   SpYearSummWide <- dplyr::right_join(TL, SpYearSumm)
   utils::write.csv(SpYearSummWide,
-                   file.path(ResultsDir, "SpYearSummWide.csv"))
+                   file.path(myResultsDir, "SpYearSummWide.csv"))
   SpYearSummLong <- dplyr::right_join(
     TL,
     SpYearSumm %>%
