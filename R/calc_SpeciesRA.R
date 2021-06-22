@@ -9,7 +9,7 @@
 #'   rasters to disk
 #' @param myLU_List list of species abundance lookup arrays created by function
 #'   make_Spp_LU_list()
-#' @param myResultsDir path of directory where results will be written usually
+#' @param myResultsDir path of directory where raster results will be written usually
 #'   generated  by FAME script
 #' @param myHDMVals list of sparse matrices of cell values for Habitat Distribution Model rasters
 #'   for (at least) all TAXON_ID in myHDMSpp_NO generally provided in settings
@@ -179,8 +179,6 @@ calc_SpeciesRA <- function(myFHAnalysis,
   TL <- myTaxonList %>%
     dplyr::mutate(TAXON_ID = as.character(TAXON_ID))
   SpYearSummWide <- dplyr::right_join(TL, SpYearSumm)
-  utils::write.csv(SpYearSummWide,
-                   file.path(myResultsDir, "SpYearSummWide.csv"))
   SpYearSummLong <- dplyr::right_join(
     TL,
     SpYearSumm %>%
