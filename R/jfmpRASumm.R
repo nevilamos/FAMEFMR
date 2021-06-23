@@ -1,0 +1,67 @@
+#' Summary of relative abundance changes comparing JFMP results
+#'
+#' @param myDraftJfmpOut data.frame of autoJFMP joined to alternative draft JFMPs mad by function joinDraftJFMP()
+#' @param myGrpSpYearSummLong data.frame Long format relative abundances of species per PU and EFG and SEASON, created when calc_SpeciesRA() is run on FHAnalysis containing PU
+#' @param myTaxonList data.frame of species attributes (read from default or
+#'   user provided .csv)
+#' @param myStartBaseline first SEASON of years to use for calcuation RA baseline
+#' @param myEndBaseline last SEASON of years to use for calcuation RA baseline
+#'
+#' @return list of two data.frames
+#' \itemize{
+#' \item  jfmpSppRaSumm Summary per species for each JFMP and NoJFMP of change relative to baseline, thresholds and summed relative abundance
+#' \item  nBelowThreshHold count of number of species below threshold for each JFMP and NoJFMP in JFMPSeson0 + 4}
+#'@export
+jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
+                       myGrpSpYearSummLong = rv$grpSpYearSummLong,
+                       myTaxonList =rv$TaxonList,
+                       myStartBaseline=rv$startBaseline,
+                       myEndBaseline = rv$endBaseline) {
+
+  BaseLine = as.character(myStartBaseline:myEndBaseline)
+  myTaxonList = myTaxonList %>%
+    dplyr::select(TAXON_ID,COMMON_NAME,CombThreshold)
+
+  #arrange burn and NoBurn for each PU and JFMP in long format
+  DF<-myDraftJfmpOut%>%
+    dplyr::ungroup() %>%
+    dplyr::select(all_of(c("PU",jfmpNames))) %>%
+    dplyr::mutate(No_JFMP = ifelse(is.na(AutoJFMP_State),NA,"NO BURN")) %>%
+    pivot_longer(cols = all_of(c(jfmpNames,"No_JFMP")),names_to = "JFMP_Name",values_to = "Burn_NoBurn")
+
+  BaselineVals<-myGrpSpYearSummLong %>%
+    dplyr::filter (SEASON %in% BaseLine) %>%
+    group_by(TAXON_ID,SEASON) %>%
+    summarise(sumRA = sum(sumRA)) %>%
+    group_by(TAXON_ID) %>%
+    summarise(BaselineVal = mean(sumRA))
+
+  DF_JFMP<-rv$grpSpYearSummLong %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(SEASON %in% c(as.character(rv$JFMPSeason0+4),
+                                "NoBurn" )) %>%
+    dplyr::group_by(TAXON_ID,PU,SEASON) %>%
+    dplyr::summarise(sumRA = sum(sumRA,na.rm=T)) %>%
+    mutate(Burn_NoBurn = ifelse(SEASON == "NoBurn","NO BURN","BURN")) %>%
+    dplyr::select(-SEASON)
+
+  DF2<-left_join(DF,DF_JFMP) %>%
+    dplyr::group_by(TAXON_ID,JFMP_Name) %>%
+    summarise(totalRA=sum(sumRA,na.rm=T)) %>%
+    tidyr::drop_na() %>%
+    left_join(BaselineVals) %>%
+    mutate(Delta = totalRA/BaselineVal)
+
+  jfmpSppRaSumm<-right_join(myTaxonList,DF2)%>%
+    mutate(BelowThreshold = Delta<CombThreshold )
+
+
+  nBelowThreshHold<-jfmpSppRaSumm %>%
+    group_by(JFMP_Name) %>%
+    summarise(n_BelowThreshold = sum(BelowThreshold))
+
+  return(list(jfmpSppRaSumm,nBelowThreshHold))
+
+}
+
+
