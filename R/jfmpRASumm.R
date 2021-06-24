@@ -7,6 +7,7 @@
 #'   user provided .csv)
 #' @param myStartBaseline first SEASON of years to use for calcuation RA baseline
 #' @param myEndBaseline last SEASON of years to use for calcuation RA baseline
+#' @param myJFMPSeason0 the season before the caommencement of the JFMP set in settings or shinyapp
 #'
 #' @return list of two data.frames
 #' \itemize{
@@ -18,7 +19,8 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
                        myGrpSpYearSummLong = rv$grpSpYearSummLong,
                        myTaxonList =rv$TaxonList,
                        myStartBaseline=rv$startBaseline,
-                       myEndBaseline = rv$endBaseline)
+                       myEndBaseline = rv$endBaseline,
+                       myJFMPSeason0 = rv$JFMPSeason0)
   {
 
   BaseLine = as.character(myStartBaseline:myEndBaseline)
@@ -41,9 +43,9 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
     group_by(TAXON_ID) %>%
     summarise(BaselineVal = mean(sumRA))
 
-  DF_JFMP<-rv$grpSpYearSummLong %>%
+  DF_JFMP<-myGrpSpYearSummLong %>%
     dplyr::ungroup() %>%
-    dplyr::filter(SEASON %in% c(as.character(rv$JFMPSeason0+4),
+    dplyr::filter(SEASON %in% c(as.character(myJFMPSeason0+4),
                                 "NoBurn" )) %>%
     dplyr::group_by(TAXON_ID,PU,SEASON) %>%
     dplyr::summarise(sumRA = sum(sumRA,na.rm=T)) %>%

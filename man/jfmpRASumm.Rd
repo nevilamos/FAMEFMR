@@ -9,7 +9,8 @@ jfmpRASumm(
   myGrpSpYearSummLong = rv$grpSpYearSummLong,
   myTaxonList = rv$TaxonList,
   myStartBaseline = rv$startBaseline,
-  myEndBaseline = rv$endBaseline
+  myEndBaseline = rv$endBaseline,
+  myJFMPSeason0 = rv$JFMPSeason0
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ user provided .csv)}
 \item{myStartBaseline}{first SEASON of years to use for calcuation RA baseline}
 
 \item{myEndBaseline}{last SEASON of years to use for calcuation RA baseline}
+
+\item{myJFMPSeason0}{the season before the caommencement of the JFMP set in settings or shinyapp}
 }
 \value{
 list of two data.frames
