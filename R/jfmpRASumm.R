@@ -24,7 +24,7 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
   BaseLine = as.character(myStartBaseline:myEndBaseline)
   myTaxonList = myTaxonList %>%
     dplyr::select(TAXON_ID,COMMON_NAME,CombThreshold)
-  jfmpNames<-c(names(mydraftJfmpOut)[grep("AutoJFMP_State",names(mydraftJfmpOut)):ncol(mydraftJfmpOut)])
+  jfmpNames<-c(names(myDraftJfmpOut)[grep("AutoJFMP_State",names(myDraftJfmpOut)):ncol(myDraftJfmpOut)])
 
 
   #arrange burn and NoBurn for each PU and JFMP in long format
