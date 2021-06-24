@@ -28,7 +28,8 @@ user provided .csv)}
 list of two data.frames
 \itemize{
 \item  jfmpSppRaSumm Summary per species for each JFMP and NoJFMP of change relative to baseline, thresholds and summed relative abundance
-\item  nBelowThreshHold count of number of species below threshold for each JFMP and NoJFMP in JFMPSeson0 + 4}
+\item  nBelowThreshHold count of number of species below threshold for each JFMP and NoJFMP in JFMPSeson0 + 4
+}
 }
 \description{
 Summary of relative abundance changes comparing JFMP results

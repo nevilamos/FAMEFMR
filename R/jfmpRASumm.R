@@ -1,3 +1,4 @@
+
 #' Summary of relative abundance changes comparing JFMP results
 #'
 #' @param myDraftJfmpOut data.frame of autoJFMP joined to alternative draft JFMPs mad by function joinDraftJFMP()
@@ -10,13 +11,15 @@
 #' @return list of two data.frames
 #' \itemize{
 #' \item  jfmpSppRaSumm Summary per species for each JFMP and NoJFMP of change relative to baseline, thresholds and summed relative abundance
-#' \item  nBelowThreshHold count of number of species below threshold for each JFMP and NoJFMP in JFMPSeson0 + 4}
-#'@export
+#' \item  nBelowThreshHold count of number of species below threshold for each JFMP and NoJFMP in JFMPSeson0 + 4
+#' }
+#' @export
 jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
                        myGrpSpYearSummLong = rv$grpSpYearSummLong,
                        myTaxonList =rv$TaxonList,
                        myStartBaseline=rv$startBaseline,
-                       myEndBaseline = rv$endBaseline) {
+                       myEndBaseline = rv$endBaseline)
+  {
 
   BaseLine = as.character(myStartBaseline:myEndBaseline)
   myTaxonList = myTaxonList %>%

@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-jfmpBBTFISummary <- function(mydraftJfmpOut =rv$draftJfmpOut ) {
+jfmpBBTFISumm <- function(mydraftJfmpOut =rv$draftJfmpOut ) {
 
   jfmpNames<-c(names(mydraftJfmpOut)[grep("AutoJFMP_State",names(mydraftJfmpOut)):ncol(mydraftJfmpOut)],"No_JFMP")
   #check that
