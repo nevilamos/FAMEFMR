@@ -9,11 +9,7 @@
 #' @param myEndBaseline last SEASON of years to use for calcuation RA baseline
 #' @param myJFMPSeason0 the season before the caommencement of the JFMP set in settings or shinyapp
 #'
-#' @return list of two data.frames
-#' \itemize{
-#' \item  jfmpSppRaSumm Summary per species for each JFMP and NoJFMP of change relative to baseline, thresholds and summed relative abundance
-#' \item  nBelowThreshHold count of number of species below threshold for each JFMP and NoJFMP in JFMPSeson0 + 4
-#' }
+#' @return data.frame Summary per species for each JFMP and NoJFMP of change relative to baseline, thresholds and summed relative abundance
 #' @export
 jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
                        myGrpSpYearSummLong = rv$grpSpYearSummLong,
@@ -43,6 +39,8 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
     group_by(TAXON_ID) %>%
     summarise(BaselineVal = mean(sumRA))
 
+  print(BaselineVals)
+
   DF_JFMP<-myGrpSpYearSummLong %>%
     dplyr::ungroup() %>%
     dplyr::filter(SEASON %in% c(as.character(myJFMPSeason0+4),
@@ -62,13 +60,7 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
   jfmpSppRaSumm<-right_join(myTaxonList,DF2)%>%
     mutate(BelowThreshold = Delta<CombThreshold )
 
-
-  nBelowThreshHold<-jfmpSppRaSumm %>%
-    group_by(JFMP_Name) %>%
-    summarise(n_BelowThreshold = sum(BelowThreshold))
-
-  return(list("jfmpSppRaSumm" = jfmpSppRaSumm,
-              "nBelowThreshHold" = nBelowThreshHold))
+  return(jfmpSppRaSumm)
 
 }
 
