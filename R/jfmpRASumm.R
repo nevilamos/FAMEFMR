@@ -67,7 +67,8 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
     group_by(JFMP_Name) %>%
     summarise(n_BelowThreshold = sum(BelowThreshold))
 
-  return(list(jfmpSppRaSumm,nBelowThreshHold))
+  return(list("jfmpSppRaSumm" = jfmpSppRaSumm,
+              "nBelowThreshHold" = nBelowThreshHold))
 
 }
 
