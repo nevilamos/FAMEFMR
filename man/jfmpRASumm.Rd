@@ -21,18 +21,14 @@ jfmpRASumm(
 \item{myTaxonList}{data.frame of species attributes (read from default or
 user provided .csv)}
 
-\item{myStartBaseline}{first SEASON of years to use for calcuation RA baseline}
+\item{myStartBaseline}{first SEASON of years to use for calculation RA baseline}
 
-\item{myEndBaseline}{last SEASON of years to use for calcuation RA baseline}
+\item{myEndBaseline}{last SEASON of years to use for calculation RA baseline}
 
-\item{myJFMPSeason0}{the season before the caommencement of the JFMP set in settings or shinyapp}
+\item{myJFMPSeason0}{the season before the commencement of the JFMP set in settings or shinyapp}
 }
 \value{
-list of two data.frames
-\itemize{
-\item  jfmpSppRaSumm Summary per species for each JFMP and NoJFMP of change relative to baseline, thresholds and summed relative abundance
-\item  nBelowThreshHold count of number of species below threshold for each JFMP and NoJFMP in JFMPSeson0 + 4
-}
+data.frame Summary per species for each JFMP and NoJFMP of change relative to baseline, thresholds and summed relative abundance
 }
 \description{
 Summary of relative abundance changes comparing JFMP results

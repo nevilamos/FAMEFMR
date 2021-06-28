@@ -5,9 +5,9 @@
 #' @param myGrpSpYearSummLong data.frame Long format relative abundances of species per PU and EFG and SEASON, created when calc_SpeciesRA() is run on FHAnalysis containing PU
 #' @param myTaxonList data.frame of species attributes (read from default or
 #'   user provided .csv)
-#' @param myStartBaseline first SEASON of years to use for calcuation RA baseline
-#' @param myEndBaseline last SEASON of years to use for calcuation RA baseline
-#' @param myJFMPSeason0 the season before the caommencement of the JFMP set in settings or shinyapp
+#' @param myStartBaseline first SEASON of years to use for calculation RA baseline
+#' @param myEndBaseline last SEASON of years to use for calculation RA baseline
+#' @param myJFMPSeason0 the season before the commencement of the JFMP set in settings or shinyapp
 #'
 #' @return data.frame Summary per species for each JFMP and NoJFMP of change relative to baseline, thresholds and summed relative abundance
 #' @export
@@ -32,14 +32,13 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
     dplyr::mutate(No_JFMP = ifelse(is.na(AutoJFMP_State),NA,"NO BURN")) %>%
     pivot_longer(cols = all_of(c(jfmpNames,"No_JFMP")),names_to = "JFMP_Name",values_to = "Burn_NoBurn")
 
+
   BaselineVals<-myGrpSpYearSummLong %>%
     dplyr::filter (SEASON %in% BaseLine) %>%
     group_by(TAXON_ID,SEASON) %>%
     summarise(sumRA = sum(sumRA)) %>%
     group_by(TAXON_ID) %>%
     summarise(BaselineVal = mean(sumRA))
-
-  print(BaselineVals)
 
   DF_JFMP<-myGrpSpYearSummLong %>%
     dplyr::ungroup() %>%
@@ -50,6 +49,7 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
     mutate(Burn_NoBurn = ifelse(SEASON == "NoBurn","NO BURN","BURN")) %>%
     dplyr::select(-SEASON)
 
+
   DF2<-left_join(DF,DF_JFMP) %>%
     dplyr::group_by(TAXON_ID,JFMP_Name) %>%
     summarise(totalRA=sum(sumRA,na.rm=T)) %>%
@@ -57,11 +57,11 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
     left_join(BaselineVals) %>%
     mutate(Delta = totalRA/BaselineVal)
 
-  jfmpSppRaSumm<-right_join(myTaxonList,DF2)%>%
+
+  jfmpRASumm<-right_join(myTaxonList,DF2)%>%
     mutate(BelowThreshold = Delta<CombThreshold )
 
-  return(jfmpSppRaSumm)
-
+  return(jfmpRASumm)
 }
 
 
