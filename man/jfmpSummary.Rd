@@ -4,10 +4,10 @@
 \alias{jfmpSummary}
 \title{Title Summary of JFMP areas burned and not burned}
 \usage{
-jfmpSummary(myAutoJFMP = "JFMPSummary with burned or unburned")
+jfmpSummary(myDraftJfmpOut = "JFMPSummary with burned or unburned")
 }
 \arguments{
-\item{myAutoJFMP}{JFMP table with columns for FMZ_CODE,PU,and JFMPStatus plus all the scores calculated in jfmp1()}
+\item{myDraftJfmpOut}{JFMP table with columns for FMZ_CODE,PU,and JFMPStatus plus all the scores calculated in jfmp1()}
 }
 \value{
 JFMP_Summary data frame CSV reporting table 2, with one row for each District and columns for:

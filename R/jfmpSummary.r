@@ -1,6 +1,6 @@
 #' Title Summary of JFMP areas burned and not burned
 #'
-#' @param myAutoJFMP JFMP table with columns for FMZ_CODE,PU,and JFMPStatus plus all the scores calculated in jfmp1()
+#' @param myDraftJfmpOut JFMP table with columns for FMZ_CODE,PU,and JFMPStatus plus all the scores calculated in jfmp1()
 #'
 #' @return JFMP_Summary data frame CSV reporting table 2, with one row for each District and columns for:
 #'– Hectares allocated to burns in auto-JFMP in each zone
@@ -11,47 +11,62 @@
 #' @export
 
 jfmpSummary <-
-  function(myAutoJFMP = "JFMPSummary with burned or unburned") {
-    JFMP_Summ <- myAutoJFMP %>%
+  function(myDraftJfmpOut = "JFMPSummary with burned or unburned") {
+
+
+    jfmpNames<-c(names(myDraftJfmpOut)[grep("AutoJFMP_State",names(myDraftJfmpOut)):ncol(myDraftJfmpOut)])
+
+
+    #arrange burn and NoBurn for each PU and JFMP in long format
+    DF1<-myDraftJfmpOut%>%
       dplyr::ungroup() %>%
-      dplyr::mutate(FaunaRAImp = if_else(AutoJFMP_State == "BURN", WtSumRA_Burn, WtSumRA_NoBurn)) %>%
-      dplyr::mutate(NeverBBTFI_Imp = if_else(
-        AutoJFMP_State == "BURN",
-        PuHectares - (ifelse(is.na(Burn_BBTFI), 0, Burn_BBTFI)) - (ifelse(is.na(NoBurn_BBTFI), 0, NoBurn_BBTFI)),
-        PuHectares - (ifelse(is.na(NoBurn_BBTFI), 0, NoBurn_BBTFI))
-      )) %>%
-      dplyr::mutate(LP1_Imp = if_else(AutoJFMP_State == "BURN", LP1_Burn, LP1_NoBurn)) %>%
-      dplyr::mutate(LP2_Imp = if_else(AutoJFMP_State == "BURN", LP2_Burn, LP2_NoBurn)) %>%
-      dplyr::group_by(DISTRICT_N) %>%
+      dplyr::select(all_of(c("PU","DISTRICT_N","Burn_BBTFI",
+                             "NoBurn_BBTFI","WtSumRA_Burn",
+                             "WtSumRA_NoBurn","LP1_Burn",
+                             "LP1_NoBurn","LP2_Burn",
+                             "LP2_NoBurn","PuHectares",
+                             "FMZ_CODE",jfmpNames))) %>%
+      dplyr::mutate(No_JFMP = ifelse(is.na(AutoJFMP_State),NA,"NO BURN")) %>%
+      dplyr::mutate(Burn_BBTFI =ifelse(is.na(Burn_BBTFI), 0, Burn_BBTFI)) %>%
+      dplyr::mutate(NoBurn_BBTFI =ifelse(is.na(NoBurn_BBTFI), 0, NoBurn_BBTFI)) %>%
+      pivot_longer(cols = all_of(c(jfmpNames,"No_JFMP")),names_to = "JFMP_Name",values_to = "Burn_NoBurn")%>%
+      dplyr::mutate(FaunaRA = if_else(Burn_NoBurn == "BURN", WtSumRA_Burn, WtSumRA_NoBurn)) %>%
+      dplyr::mutate(NeverBBTFI = if_else(
+        Burn_NoBurn == "BURN",
+        PuHectares - Burn_BBTFI - NoBurn_BBTFI,
+        PuHectares -  NoBurn_BBTFI)
+      ) %>%
+      dplyr::mutate(LP1 = if_else(Burn_NoBurn == "BURN", LP1_Burn, LP1_NoBurn)) %>%
+      dplyr::mutate(LP2 = if_else(Burn_NoBurn == "BURN", LP2_Burn, LP2_NoBurn))
+
+    JFMP_Summ<- DF1 %>%
+      dplyr::group_by(JFMP_Name,DISTRICT_N)%>%
       dplyr::summarize(
         AreaHa = sum(PuHectares, na.rm = T),
-        SumFaunaRAImp = sum(FaunaRAImp, na.rm = T),
-        SumFaunaRANoJFMP = sum(WtSumRA_NoBurn, na.rm = T),
-        SumNeverBBTFI_Imp = sum(NeverBBTFI_Imp, na.rm = T),
-        SumNeverBBTFI_NoJFMP = sum(NoBurn_BBTFI, na.rm = T),
-        SumLP1_Imp = sum(LP1_Imp, na.rm = T),
-        SumLP1_NoJFMP = sum(LP1_NoBurn, na.rm = T),
-        SumLP2_Imp = sum(LP2_Imp, na.rm = T),
-        SumLP2_NoJFMP = sum(LP2_NoBurn, na.rm = T)
+        SumFaunaRA = sum(FaunaRA, na.rm = T),
+        SumNeverBBTFI = sum(NeverBBTFI, na.rm = T),
+        SumLP1 = sum(LP1, na.rm = T),
+        SumLP2 = sum(LP2, na.rm = T)
       )
 
-    AreasBurnedUnburned <- myAutoJFMP %>%
+
+    AreasBurnedUnburned <- DF1 %>%
       dplyr::ungroup() %>%
-      dplyr::group_by(DISTRICT_N, AutoJFMP_State) %>%
+      dplyr::group_by(JFMP_Name,DISTRICT_N, Burn_NoBurn) %>%
       dplyr::summarise(AreaHa = sum(PuHectares, na.rm = T)) %>%
-      tidyr::pivot_wider(names_from = AutoJFMP_State,
+      tidyr::pivot_wider(names_from = Burn_NoBurn,
                          values_from = AreaHa) %>%
       dplyr::rename(Burned_ha = 'BURN', NoBurn_Ha = 'NO BURN')
 
-    AreasBurnedbyFMZ_CODE <- myAutoJFMP %>%
+    AreasBurnedbyFMZ_CODE <- DF1 %>%
       dplyr::ungroup() %>%
-      dplyr::filter(AutoJFMP_State == 'BURN') %>%
-      dplyr::group_by(DISTRICT_N, FMZ_CODE) %>%
+      dplyr::filter(Burn_NoBurn == 'BURN') %>%
+      dplyr::group_by(JFMP_Name,DISTRICT_N, FMZ_CODE) %>%
       dplyr::summarise(AreaHa = sum(PuHectares, na.rm = T)) %>%
       tidyr::pivot_wider(names_from = FMZ_CODE,
                          values_from = AreaHa)
-    names(AreasBurnedbyFMZ_CODE)[-1] <-
-      paste("Burned_ha ", names(AreasBurnedbyFMZ_CODE)[-1])
+    names(AreasBurnedbyFMZ_CODE)[c(-1,-2)] <-
+      paste("Burned_ha ", names(AreasBurnedbyFMZ_CODE)[c(-1,-2)])
 
     JFMP_Summ <- left_join(AreasBurnedUnburned, JFMP_Summ)
     JFMP_Summ <- left_join(JFMP_Summ, AreasBurnedbyFMZ_CODE)
