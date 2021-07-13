@@ -18,5 +18,5 @@ numeric scale 0:1 of length(x)
 linear rescale 0-1
 }
 \details{
-Rescales numeric vector from 0:1 by dividing by difference between minimum and maximum values ignoring NA values. If x does not have two different numeric values then returns all NAs
+Rescales numeric vector from 0:1 by dividing by difference between minimum and maximum values ignoring NA values. If x does not have two different numeric values then returns all zeros (ie all rank equal)
 }

@@ -32,7 +32,7 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
     dplyr::mutate(No_JFMP = ifelse(is.na(AutoJFMP_State),NA,"NO BURN")) %>%
     pivot_longer(cols = all_of(c(jfmpNames,"No_JFMP")),names_to = "JFMP_Name",values_to = "Burn_NoBurn")
 
-
+#calculate the baseline
   BaselineVals<-myGrpSpYearSummLong %>%
     dplyr::filter (SEASON %in% BaseLine) %>%
     group_by(TAXON_ID,SEASON) %>%
