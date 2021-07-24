@@ -28,17 +28,17 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
   #arrange burn and NoBurn for each PU and JFMP in long format
   DF<-myDraftJfmpOut%>%
     dplyr::ungroup() %>%
-    dplyr::select(all_of(c("PU",jfmpNames))) %>%
+    dplyr::select(tidyselect::all_of(c("PU",jfmpNames))) %>%
     dplyr::mutate(No_JFMP = ifelse(is.na(AutoJFMP_State),NA,"NO BURN")) %>%
-    pivot_longer(cols = all_of(c(jfmpNames,"No_JFMP")),names_to = "JFMP_Name",values_to = "Burn_NoBurn")
+    tidyr::pivot_longer(cols = tidyselect::all_of(c(jfmpNames,"No_JFMP")),names_to = "JFMP_Name",values_to = "Burn_NoBurn")
 
 #calculate the baseline
   BaselineVals<-myGrpSpYearSummLong %>%
     dplyr::filter (SEASON %in% BaseLine) %>%
-    group_by(TAXON_ID,SEASON) %>%
-    summarise(sumRA = sum(sumRA)) %>%
-    group_by(TAXON_ID) %>%
-    summarise(BaselineVal = mean(sumRA))
+    dplyr::group_by(TAXON_ID,SEASON) %>%
+    dplyr::summarise(sumRA = sum(sumRA)) %>%
+    dplyr::group_by(TAXON_ID) %>%
+    dplyr::summarise(BaselineVal = mean(sumRA))
 
   DF_JFMP<-myGrpSpYearSummLong %>%
     dplyr::ungroup() %>%
@@ -46,20 +46,20 @@ jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
                                 "NoBurn" )) %>%
     dplyr::group_by(TAXON_ID,PU,SEASON) %>%
     dplyr::summarise(sumRA = sum(sumRA,na.rm=T)) %>%
-    mutate(Burn_NoBurn = ifelse(SEASON == "NoBurn","NO BURN","BURN")) %>%
+    dplyr::mutate(Burn_NoBurn = ifelse(SEASON == "NoBurn","NO BURN","BURN")) %>%
     dplyr::select(-SEASON)
 
 
-  DF2<-left_join(DF,DF_JFMP) %>%
+  DF2<-dplyr::left_join(DF,DF_JFMP) %>%
     dplyr::group_by(TAXON_ID,JFMP_Name) %>%
-    summarise(totalRA=sum(sumRA,na.rm=T)) %>%
+    dplyr::summarise(totalRA=sum(sumRA,na.rm=T)) %>%
     tidyr::drop_na() %>%
-    left_join(BaselineVals) %>%
-    mutate(Delta = totalRA/BaselineVal)
+    dplyr::left_join(BaselineVals) %>%
+    dplyr::mutate(Delta = totalRA/BaselineVal)
 
 
-  jfmpRASumm<-right_join(myTaxonList,DF2)%>%
-    mutate(BelowThreshold = Delta<CombThreshold )
+  jfmpRASumm<-dplyr::right_join(myTaxonList,DF2)%>%
+    dplyr::mutate(BelowThreshold = Delta<CombThreshold )
 
   return(jfmpRASumm)
 }

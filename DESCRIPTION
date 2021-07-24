@@ -1,6 +1,6 @@
 Package: FAMEFMR
 Title: Functions used in the DELWP FAME fire analysis process
-Version: 0.2.15
+Version: 0.3.0
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
@@ -43,6 +43,8 @@ Imports:
     tibble,
     tictoc,
     tidyr,
-    tidyselect
+    tidyselect,
+    scales,
+    readr
 Depends: 
     data.table

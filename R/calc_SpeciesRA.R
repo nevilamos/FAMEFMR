@@ -135,7 +135,8 @@ calc_SpeciesRA <- function(myFHAnalysis,
     grpSpYearSumm <-rbind(grpSpYearSumm,
                           data.table::as.data.table(Spp_Val_Cell_Year)%>%
                             dplyr::group_by(myAllCombs$Index_AllCombs)%>%
-                            dplyr::summarise(across(everything(), sum,na.rm=T))%>%
+                            dplyr::summarise(dplyr::across(tidyselect::everything(),
+                                                           sum,na.rm=T))%>%
                             dplyr::mutate(TAXON_ID = mySpp)
     )
 

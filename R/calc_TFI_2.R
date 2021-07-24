@@ -110,8 +110,8 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
   #     dplyr::select(-FIRE_REG,-FIREFMZ,-PLM,-DELWP) %>%
   #       pivot_longer(tidyselect::all_of(TimeNames),names_to="SEASON",values_to="TFI_VAL") %>%
   #         filter(!TFI_VAL%in%c(-99,0,1,5)) %>%
-  #           group_by(EFG,MIN_LO_TFI,MIN_HI_TFI,MAX_TFI,EFG_NAME,Index,FH_ID, SEASON,TFI_VAL) %>%
-  #             summarize(Cells=sum(nPixel))
+  #           dplyr::group_by(EFG,MIN_LO_TFI,MIN_HI_TFI,MAX_TFI,EFG_NAME,Index,FH_ID, SEASON,TFI_VAL) %>%
+  #             summarise(Cells=sum(nPixel))
   #
   # Check_TFI<-data.table::as.data.table(Check_TFI)
   # setkey(Check_TFI,"FH_ID")
@@ -139,7 +139,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
                     "nPixel",
                     "Hectares")))%>%
                      dplyr::group_by(dplyr::across(c(-Hectares,-nPixel)))%>%
-    dplyr::summarize(nCells = sum(nPixel), Hectares = sum(Hectares))
+    dplyr::summarise(nCells = sum(nPixel), Hectares = sum(Hectares))
 
 
 

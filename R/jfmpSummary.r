@@ -20,7 +20,7 @@ jfmpSummary <-
     #arrange burn and NoBurn for each PU and JFMP in long format
     DF1<-myDraftJfmpOut%>%
       dplyr::ungroup() %>%
-      dplyr::select(all_of(c("PU","DISTRICT_N","Burn_BBTFI",
+      dplyr::select(tidyselect::all_of(c("PU","DISTRICT_N","Burn_BBTFI",
                              "NoBurn_BBTFI","WtSumRA_Burn",
                              "WtSumRA_NoBurn","LP1_Burn",
                              "LP1_NoBurn","LP2_Burn",
@@ -29,19 +29,19 @@ jfmpSummary <-
       dplyr::mutate(No_JFMP = ifelse(is.na(AutoJFMP_State),NA,"NO BURN")) %>%
       dplyr::mutate(Burn_BBTFI =ifelse(is.na(Burn_BBTFI), 0, Burn_BBTFI)) %>%
       dplyr::mutate(NoBurn_BBTFI =ifelse(is.na(NoBurn_BBTFI), 0, NoBurn_BBTFI)) %>%
-      pivot_longer(cols = all_of(c(jfmpNames,"No_JFMP")),names_to = "JFMP_Name",values_to = "Burn_NoBurn")%>%
-      dplyr::mutate(FaunaRA = if_else(Burn_NoBurn == "BURN", WtSumRA_Burn, WtSumRA_NoBurn)) %>%
-      dplyr::mutate(NeverBBTFI = if_else(
+      tidyr::pivot_longer(cols = tidyselect::all_of(c(jfmpNames,"No_JFMP")),names_to = "JFMP_Name",values_to = "Burn_NoBurn")%>%
+      dplyr::mutate(FaunaRA = ifelse(Burn_NoBurn == "BURN", WtSumRA_Burn, WtSumRA_NoBurn)) %>%
+      dplyr::mutate(NeverBBTFI = ifelse(
         Burn_NoBurn == "BURN",
         PuHectares - Burn_BBTFI - NoBurn_BBTFI,
         PuHectares -  NoBurn_BBTFI)
       ) %>%
-      dplyr::mutate(LP1 = if_else(Burn_NoBurn == "BURN", LP1_Burn, LP1_NoBurn)) %>%
-      dplyr::mutate(LP2 = if_else(Burn_NoBurn == "BURN", LP2_Burn, LP2_NoBurn))
+      dplyr::mutate(LP1 = ifelse(Burn_NoBurn == "BURN", LP1_Burn, LP1_NoBurn)) %>%
+      dplyr::mutate(LP2 = ifelse(Burn_NoBurn == "BURN", LP2_Burn, LP2_NoBurn))
 
     JFMP_Summ<- DF1 %>%
       dplyr::group_by(JFMP_Name,DISTRICT_N)%>%
-      dplyr::summarize(
+      dplyr::summarise(
         AreaHa = sum(PuHectares, na.rm = T),
         SumFaunaRA = sum(FaunaRA, na.rm = T),
         SumNeverBBTFI = sum(NeverBBTFI, na.rm = T),
@@ -68,8 +68,8 @@ jfmpSummary <-
     names(AreasBurnedbyFMZ_CODE)[c(-1,-2)] <-
       paste("Burned_ha ", names(AreasBurnedbyFMZ_CODE)[c(-1,-2)])
 
-    JFMP_Summ <- left_join(AreasBurnedUnburned, JFMP_Summ)
-    JFMP_Summ <- left_join(JFMP_Summ, AreasBurnedbyFMZ_CODE)
+    JFMP_Summ <- dplyr::left_join(AreasBurnedUnburned, JFMP_Summ)
+    JFMP_Summ <- dplyr::left_join(JFMP_Summ, AreasBurnedbyFMZ_CODE)
     return(JFMP_Summ)
 
   }

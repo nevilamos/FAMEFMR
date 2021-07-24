@@ -1,11 +1,11 @@
 #' join draft JFMP inputs
 #' @details Takes a table of burn units with identical PU ids to the autoJFMP can makes table of burn status for the draft JFMP and relevant ecological resilience and life and property risk scores per burn unit.
 
-#' @param DraftJFMPFile path to csv file containing two or more columns:
+#' @param myDraftJFMPFile path to csv file containing two or more columns:
 #'  PU  and draft_JFMP_State column(s) which contain which is the burn state
 #'  ("Burn" or "NoBurn") for the planning unit(PU) in the draft JFMP
 #'  The PU values must be identical to those in myAutoJFMP, the draft JFMP columns must have unique names (No spaces or special characters other than _ ) to identify them.
-#' @param AutoJFMP autoJFMP for the corresponding fire History and
+#' @param myAutoJFMP autoJFMP for the corresponding fire History and
 #'  planning units
 #' @return data.frame JFMP table with one row for each planning unit,
 #'  and columns for:
@@ -24,14 +24,14 @@ joinDraftJFMP <- function(
   myDraftJFMPFile =rv$draftJFMPFile,
   myAutoJFMP =rv$autoJFMP) {
 
-  draftJFMP<-read_csv(myDraftJFMPFile)
+  draftJFMP<-readr::read_csv(myDraftJFMPFile)
 
   if(!identical(sort(draftJFMP$PU),sort(myAutoJFMP$PU))){
     stop("The Draft JFMP input PU \n must be identical to the\n AutoJFMP_DF PU, NA values can be assigned to those in other districts")
   }else{
 
     myJFMP_DF<-myAutoJFMP %>%
-      left_join(draftJFMP)
+      dplyr::left_join(draftJFMP)
 
   }
   return(myJFMP_DF)

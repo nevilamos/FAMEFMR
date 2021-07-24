@@ -7,12 +7,12 @@
 joinDraftJFMP(myDraftJFMPFile = rv$draftJFMPFile, myAutoJFMP = rv$autoJFMP)
 }
 \arguments{
-\item{DraftJFMPFile}{path to csv file containing two or more columns:
+\item{myDraftJFMPFile}{path to csv file containing two or more columns:
 PU  and draft_JFMP_State column(s) which contain which is the burn state
 ("Burn" or "NoBurn") for the planning unit(PU) in the draft JFMP
 The PU values must be identical to those in myAutoJFMP, the draft JFMP columns must have unique names (No spaces or special characters other than _ ) to identify them.}
 
-\item{AutoJFMP}{autoJFMP for the corresponding fire History and
+\item{myAutoJFMP}{autoJFMP for the corresponding fire History and
 planning units}
 }
 \value{
