@@ -79,10 +79,10 @@ jfmp1 <- function(myPUPath = rv$puPath,
 # ranking process
     puDF<-puDF%>%
       #By WHOLE AREA
-      dplyr::mutate(WtSumRA_DiffStd=zeroToOne(WtSumRA_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
-      dplyr::mutate(BBTFI_DiffStd=zeroToOne(BBTFI_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
-      dplyr::mutate(LP1Std=zeroToOne(LP1_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
-      dplyr::mutate(LP2Std=zeroToOne(LP2_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
+      dplyr::mutate(WtSumRA_DiffStd=scales::rescale(WtSumRA_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
+      dplyr::mutate(BBTFI_DiffStd=scales::rescale(BBTFI_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
+      dplyr::mutate(LP1Std=scales::rescale(LP1_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
+      dplyr::mutate(LP2Std=scales::rescale(LP2_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
       dplyr::mutate(WtSumRA_RankREGION=dense_rank(WtSumRA_Diff))%>%#ranking by Diff
       dplyr::mutate(BBTFI_RankREGION=dense_rank(BBTFI_Diff))%>%#ranking by Diff
       dplyr::mutate(LP1_RankREGION=dense_rank(LP1_Diff))%>%#ranking by Diff
@@ -102,10 +102,10 @@ jfmp1 <- function(myPUPath = rv$puPath,
 
     #Scale the scores and then calcuate weighted aggreagate score for JFMP
   puDF<-puDF%>%
-    dplyr::mutate(WtSumRA_DiffStd=zeroToOne(WtSumRA_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
-    dplyr::mutate(BBTFI_DiffStd=zeroToOne(BBTFI_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
-    dplyr::mutate(LP1Std=zeroToOne(LP1_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
-    dplyr::mutate(LP2Std=zeroToOne(LP2_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
+    dplyr::mutate(WtSumRA_DiffStd=scales::rescale(WtSumRA_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
+    dplyr::mutate(BBTFI_DiffStd=scales::rescale(BBTFI_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
+    dplyr::mutate(LP1Std=scales::rescale(LP1_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
+    dplyr::mutate(LP2Std=scales::rescale(LP2_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
     dplyr::mutate(WtSumRA_RankREGION=dense_rank(WtSumRA_Diff))%>%#ranking by Diff
     dplyr::mutate(BBTFI_RankREGION=dense_rank(BBTFI_Diff))%>%#ranking by Diff
     dplyr::mutate(LP1_RankREGION=dense_rank(LP1_Diff))%>%#ranking by Diff
