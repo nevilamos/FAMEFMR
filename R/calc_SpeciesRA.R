@@ -32,6 +32,7 @@
 #' \item grpSpYearSumm summary of abundance of species by pivoted wide by SEASONS grouped by
 #' myAllCombs
 #' }
+
 #' @export
 calc_SpeciesRA <- function(myFHAnalysis,
                            myAllCombs = allCombs,
