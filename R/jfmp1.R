@@ -101,22 +101,22 @@ jfmp1 <- function(myPUPath = rv$puPath,
     dplyr::mutate(BBTFI_DiffStd=scales::rescale(BBTFI_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
     dplyr::mutate(LP1Std=scales::rescale(LP1_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
     dplyr::mutate(LP2Std=scales::rescale(LP2_Diff,na.rm=T))%>% #standardised the Diffs ( scale 0-1) so that it makes sense to add them
-    dplyr::mutate(WtSumRA_RankREGION=dense_rank(WtSumRA_Diff))%>%#ranking by Diff
-    dplyr::mutate(BBTFI_RankREGION=dense_rank(BBTFI_Diff))%>%#ranking by Diff
-    dplyr::mutate(LP1_RankREGION=dense_rank(LP1_Diff))%>%#ranking by Diff
-    dplyr::mutate(LP2_RankREGION=dense_rank(LP2_Diff))%>%#ranking by Diff
+    dplyr::mutate(WtSumRA_RankREGION=dplyr::dense_rank(WtSumRA_Diff))%>%#ranking by Diff
+    dplyr::mutate(BBTFI_RankREGION=dplyr::dense_rank(BBTFI_Diff))%>%#ranking by Diff
+    dplyr::mutate(LP1_RankREGION=dplyr::dense_rank(LP1_Diff))%>%#ranking by Diff
+    dplyr::mutate(LP2_RankREGION=dplyr::dense_rank(LP2_Diff))%>%#ranking by Diff
     #By DISTRICT
     dplyr::group_by(DISTRICT_N)%>%
-    dplyr::mutate(WtSumRA_RankDISTRICT=dense_rank(WtSumRA_Diff))%>%#ranking by Diff within District
-    dplyr::mutate(BBTFI_RankDISTRICT=dense_rank(BBTFI_Diff))%>%#ranking by Diff within District
-    dplyr::mutate(LP1_RankDISTRICT=dense_rank(LP1_Diff))%>%#ranking by Diff within District
-    dplyr::mutate(LP2_RankDISTRICT=dense_rank(LP2_Diff))%>%#ranking by Diff within District
+    dplyr::mutate(WtSumRA_RankDISTRICT=dplyr::dense_rank(WtSumRA_Diff))%>%#ranking by Diff within District
+    dplyr::mutate(BBTFI_RankDISTRICT=dplyr::dense_rank(BBTFI_Diff))%>%#ranking by Diff within District
+    dplyr::mutate(LP1_RankDISTRICT=dplyr::dense_rank(LP1_Diff))%>%#ranking by Diff within District
+    dplyr::mutate(LP2_RankDISTRICT=dplyr::dense_rank(LP2_Diff))%>%#ranking by Diff within District
     #By DISTRICT and ZONE
     dplyr::group_by(DISTRICT_N,FMZ_CODE)%>%
-    dplyr::mutate(WtSumRA_RankDISTRICT_FMZ=dense_rank(WtSumRA_Diff))%>%#ranking by Diff within District and FMZ
-    dplyr::mutate(BBTFI_RankDISTRICT_FMZ=dense_rank(BBTFI_Diff))%>%#ranking by Diff within District and FMZ
-    dplyr::mutate(LP1_RankDISTRICT_FMZ=dense_rank(LP1_Diff))%>%#ranking by Diff within District and FMZ
-    dplyr::mutate(LP2_RankDISTRICT_FMZ=dense_rank(LP2_Diff))#ranking by Diff within District and FMZ
+    dplyr::mutate(WtSumRA_RankDISTRICT_FMZ=dplyr::dense_rank(WtSumRA_Diff))%>%#ranking by Diff within District and FMZ
+    dplyr::mutate(BBTFI_RankDISTRICT_FMZ=dplyr::dense_rank(BBTFI_Diff))%>%#ranking by Diff within District and FMZ
+    dplyr::mutate(LP1_RankDISTRICT_FMZ=dplyr::dense_rank(LP1_Diff))%>%#ranking by Diff within District and FMZ
+    dplyr::mutate(LP2_RankDISTRICT_FMZ=dplyr::dense_rank(LP2_Diff))#ranking by Diff within District and FMZ
 
   #Scale the scores and then calculate weighted aggregate score for JFMP
   puDF<-puDF%>%dplyr::left_join(merge(zoneWt,jfmpMetricWt))%>% # calculate scaled scores with weightings to get overall score
