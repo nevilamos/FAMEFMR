@@ -32,7 +32,6 @@
 #' \item grpSpYearSumm summary of abundance of species by pivoted wide by SEASONS grouped by
 #' myAllCombs
 #' }
-#' @importFrom magrittr %>%
 #' @importFrom stats na.omit
 #' @export
 calc_SpeciesRA <- function(myFHAnalysis,
