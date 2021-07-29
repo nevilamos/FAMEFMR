@@ -22,6 +22,7 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
                         makeBBTFIrasters = makeBBTFIrasters,
                         myResultsDir = NULL)
 {
+  . = NULL
   #import the allCombs data table and vector of raster cell values
   U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
   Index_AllCombs = myAllCombs$Index_AllCombs

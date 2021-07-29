@@ -21,8 +21,8 @@
 #'  This is the same as autoJFMP table  except different areas are considered for burning
 #' @export
 joinDraftJFMP <- function(
-  myDraftJFMPFile =rv$draftJFMPFile,
-  myAutoJFMP =rv$autoJFMP) {
+  myDraftJFMPFile,
+  myAutoJFMP) {
 
   draftJFMP<-readr::read_csv(myDraftJFMPFile)
 

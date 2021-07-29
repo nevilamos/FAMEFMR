@@ -4,7 +4,7 @@
 \alias{autoJFMP}
 \title{Create Automatic JFMP burn allocation}
 \usage{
-autoJFMP(myJFMP1 = rv$puDF, myTargetHa = rv$targetHa)
+autoJFMP(myJFMP1, myTargetHa)
 }
 \arguments{
 \item{myJFMP1}{data frame of planning unit attributes and JFMP scores for each polygon burned and no t burned between JFMPSEASON0 and JFMPSEASON 0 +4 as produced by function jfmp1()}

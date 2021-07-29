@@ -166,7 +166,7 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
   LUM <- matrix(NA, nrow(SEAS_Matrix), max.SEASON)
   for (i in 1:nrow(SEAS_Matrix)){
     R <- i
-    C <- as.numeric(na.omit(SEAS_Matrix[i,]))
+    C <- as.numeric(stats::na.omit(SEAS_Matrix[i,]))
     V <- (FT_matrix[i,(1:length(C))])
     LUM[R,C] <- V
   }

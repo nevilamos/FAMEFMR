@@ -18,19 +18,19 @@
 #' @return dataframe of planning units/ from input shapefile attributes with appended columns for Biodiversity scores ( area first BBTFI and sum of realive abundance scores weighted by the number of pixels of each species in the study area, Differences of scores between Burned and Unburned status at JFMPseason0 +4
 #' @export
 
-jfmp1 <- function(myPUPath = rv$puPath,
-                  grpSpYearSumm = rv$SpYearSumm$grpSpYearSumm,
-                  myAllCombs = rv$allCombs,
-                  myTaxonList = rv$TaxonList,
-                  myBBTFI = rv$BBTFI,
-                  myJFMPSeason0 = rv$JFMPSeason0,
-                  zoneWt = rv$zoneWt,
-                  jfmpMetricWt = rv$jfmpMetricWt)
+jfmp1 <- function(myPUPath,
+                  grpSpYearSumm,
+                  myAllCombs,
+                  myTaxonList,
+                  myBBTFI  ,
+                  myJFMPSeason0,
+                  zoneWt,
+                  jfmpMetricWt)
 {
 
   #Wrangle the SpYearSummRA grouped on index of all combinations of rasters, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU ------
 
-  #calcuate the SEASON after the end of the JFMP this is the SEASON for which scores are calculated
+  #calcuate the SEASON after the end of the JFMP this is the SEASON for which scores are calcuated
   JFMPSeason4 = myJFMPSeason0 + 4
 
   PU_WeightedSumRA <- grpSpYearSumm %>%
@@ -123,4 +123,6 @@ jfmp1 <- function(myPUPath = rv$puPath,
     dplyr::mutate(DiffSum = (LP1Std * LP1Wt + LP2Std * LP2Wt) * LPwt + (WtSumRA_DiffStd * FaunaWt + BBTFI_DiffStd *FloraWt) * BDwt)
 
   print("finished jfmp1")
+
+  return (puDF)
   }

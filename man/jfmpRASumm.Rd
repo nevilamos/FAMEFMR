@@ -5,12 +5,12 @@
 \title{Summary of relative abundance changes comparing JFMP results}
 \usage{
 jfmpRASumm(
-  myDraftJfmpOut = rv$draftJfmpOut,
-  myGrpSpYearSummLong = rv$grpSpYearSummLong,
-  myTaxonList = rv$TaxonList,
-  myStartBaseline = rv$startBaseline,
-  myEndBaseline = rv$endBaseline,
-  myJFMPSeason0 = rv$JFMPSeason0
+  myDraftJfmpOut,
+  myGrpSpYearSummLong,
+  myTaxonList,
+  myStartBaseline,
+  myEndBaseline,
+  myJFMPSeason0
 )
 }
 \arguments{

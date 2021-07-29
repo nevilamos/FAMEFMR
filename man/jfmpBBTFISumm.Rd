@@ -4,7 +4,7 @@
 \alias{jfmpBBTFISumm}
 \title{Summarise areas never BBTFI by scenario.}
 \usage{
-jfmpBBTFISumm(mydraftJfmpOut = rv$draftJfmpOut)
+jfmpBBTFISumm(mydraftJfmpOut)
 }
 \arguments{
 \item{mydraftJfmpOut}{data.frame combining autoJFMP table and one

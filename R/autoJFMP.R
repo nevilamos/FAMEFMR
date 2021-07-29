@@ -15,14 +15,14 @@
 #'– Ranking as above but within District X FMZ_CODE combination (x 4)
 #' @export
 
-autoJFMP<-function(myJFMP1 = rv$puDF,myTargetHa = rv$targetHa)
+autoJFMP<-function(myJFMP1,myTargetHa)
   {
   AutomJFMP_DF<-myJFMP1 %>%
-    dplyr::left_join(myTargetHa)%>%
-    dplyr::arrange(DISTRICT_N,FMZ_CODE,DiffSum)%>%
-    dplyr::group_by(DISTRICT_N,FMZ_CODE)%>%
-    dplyr::mutate(Dist_FMZ_cum_ha=cumsum(PuHectares))%>%
-    dplyr::mutate(cumbefore=Dist_FMZ_cum_ha-PuHectares)%>%
+    dplyr::left_join(myTargetHa) %>%
+    dplyr::arrange(DISTRICT_N,FMZ_CODE,DiffSum) %>%
+    dplyr::group_by(DISTRICT_N,FMZ_CODE) %>%
+    dplyr::mutate(Dist_FMZ_cum_ha=cumsum(PuHectares)) %>%
+    dplyr::mutate(cumbefore=Dist_FMZ_cum_ha-PuHectares) %>%
     dplyr::mutate(AutoJFMP_State=ifelse(cumbefore > targetHa,"NO BURN","BURN"))
 
   return(AutomJFMP_DF)

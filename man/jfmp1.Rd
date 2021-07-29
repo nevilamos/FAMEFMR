@@ -5,14 +5,14 @@
 \title{JFMP Stage 1 calculations}
 \usage{
 jfmp1(
-  myPUPath = rv$puPath,
-  grpSpYearSumm = rv$SpYearSumm$grpSpYearSumm,
-  myAllCombs = rv$allCombs,
-  myTaxonList = rv$TaxonList,
-  myBBTFI = rv$BBTFI,
-  myJFMPSeason0 = rv$JFMPSeason0,
-  zoneWt = rv$zoneWt,
-  jfmpMetricWt = rv$jfmpMetricWt
+  myPUPath,
+  grpSpYearSumm,
+  myAllCombs,
+  myTaxonList,
+  myBBTFI,
+  myJFMPSeason0,
+  zoneWt,
+  jfmpMetricWt
 )
 }
 \arguments{

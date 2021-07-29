@@ -22,7 +22,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
                        myTFI_LUT = TFI_LUT,
                        OutputRasters = makeTFIRasters,
                        myResultsDir = ResultsDir){
-
+  . = NULL
   U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
   Index_AllCombs = myAllCombs$Index_AllCombs
   TimeRange <- as.integer(myFHAnalysis$TimeSpan)
@@ -105,20 +105,6 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
 
 
 
-  #This next section is only run for debugging unusual TFI statuses it allows their isolation at the level of unique combination of fire history and EFG
-  # Check_TFI<-cbind(TFI_VAL,U_AllCombs_TFI) %>%
-  #     dplyr::select(-FIRE_REG,-FIREFMZ,-PLM,-DELWP) %>%
-  #       pivot_longer(tidyselect::all_of(TimeNames),names_to="SEASON",values_to="TFI_VAL") %>%
-  #         filter(!TFI_VAL%in%c(-99,0,1,5)) %>%
-  #           dplyr::group_by(EFG,MIN_LO_TFI,MIN_HI_TFI,MAX_TFI,EFG_NAME,Index,FH_ID, SEASON,TFI_VAL) %>%
-  #             summarise(Cells=sum(nPixel))
-  #
-  # Check_TFI<-data.table::as.data.table(Check_TFI)
-  # setkey(Check_TFI,"FH_ID")
-  # utils::write.csv(Check_TFI,"Check_TFI.csv")
-  # OutTab<-data.table::as.data.table(OutTab)
-  # Check_TFI<-OutTab[Check_TFI]
-  #END of DEBUGGING CODE
 
   # prepare output data summary tables via dplyr wrangling
   TFI_Summary <- cbind(TFI_VAL, U_AllCombs_TFI) %>%

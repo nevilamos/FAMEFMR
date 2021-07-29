@@ -11,12 +11,12 @@
 #'
 #' @return data.frame Summary per species for each JFMP and NoJFMP of change relative to baseline, thresholds and summed relative abundance
 #' @export
-jfmpRASumm <- function(myDraftJfmpOut =rv$draftJfmpOut,
-                       myGrpSpYearSummLong = rv$grpSpYearSummLong,
-                       myTaxonList =rv$TaxonList,
-                       myStartBaseline=rv$startBaseline,
-                       myEndBaseline = rv$endBaseline,
-                       myJFMPSeason0 = rv$JFMPSeason0)
+jfmpRASumm <- function(myDraftJfmpOut,
+                       myGrpSpYearSummLong,
+                       myTaxonList,
+                       myStartBaseline,
+                       myEndBaseline,
+                       myJFMPSeason0)
   {
 
   BaseLine = as.character(myStartBaseline:myEndBaseline)

@@ -4,7 +4,7 @@
 \alias{makeGS_Summary}
 \title{Summarise area by growth stage.}
 \usage{
-makeGS_Summary(myFHAnalysis = rv$FHAnalysis, myAllCombs = rv$allCombs)
+makeGS_Summary(myFHAnalysis, myAllCombs)
 }
 \arguments{
 \item{myFHAnalysis}{list containing all the fire history spatial attributes

@@ -4,7 +4,7 @@
 \alias{joinDraftJFMP}
 \title{join draft JFMP inputs}
 \usage{
-joinDraftJFMP(myDraftJFMPFile = rv$draftJFMPFile, myAutoJFMP = rv$autoJFMP)
+joinDraftJFMP(myDraftJFMPFile, myAutoJFMP)
 }
 \arguments{
 \item{myDraftJFMPFile}{path to csv file containing two or more columns:

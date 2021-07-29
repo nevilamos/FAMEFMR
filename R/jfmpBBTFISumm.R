@@ -6,7 +6,7 @@
 #' @return data.frame summary of area never BBTFI for No Burning, AutoJFMP and each included
 #'   JFMP scenario, Total for whole area and broken down by DISTRICT_N
 #' @export
-jfmpBBTFISumm <- function(mydraftJfmpOut =rv$draftJfmpOut ) {
+jfmpBBTFISumm <- function(mydraftJfmpOut) {
 
   jfmpNames<-c(names(mydraftJfmpOut)[grep("AutoJFMP_State",names(mydraftJfmpOut)):ncol(mydraftJfmpOut)],"No_JFMP")
 
