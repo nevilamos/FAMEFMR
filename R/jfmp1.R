@@ -30,7 +30,7 @@ jfmp1 <- function(myPUPath,
 
   #Wrangle the SpYearSummRA grouped on index of all combinations of rasters, plus the TaxonList that includes count of cells in area of interest to get the weighted sum of change all species in area of interest for each PU ------
 
-  #calcuate the SEASON after the end of the JFMP this is the SEASON for which scores are calcuated
+  #calcuate the SEASON after the end of the JFMP this is the SEASON for which scores are calculated
   JFMPSeason4 = myJFMPSeason0 + 4
 
   PU_WeightedSumRA <- grpSpYearSumm %>%
@@ -59,7 +59,7 @@ jfmp1 <- function(myPUPath,
     #sum the weighted sum of Relative abundance for all species in each PU for burned and unburned state
     dplyr::group_by(PU, SEASON) %>%
     dplyr::summarise(WeightedSumRA = sum(weightedRA)) %>%
-    #calcuate the difference between the sum for burned and unburned states to
+    #calculate the difference between the sum for burned and unburned states to
     #get the score for impact of burning for the PU value will be larger
     #where burning has a negative impact. It will be negative where burning increases the abundance of a species ( smaller is good)
     tidyr::pivot_wider(names_from = SEASON, values_from = WeightedSumRA) %>%
