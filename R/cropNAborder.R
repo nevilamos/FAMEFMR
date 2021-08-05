@@ -1,4 +1,4 @@
-#' crop border of NA cells from rasters and get cell indices for remaining cells
+#' crop border of NA cells from rasters and get cell indices for remaning cells
 #' function to get the minimum bounding box of the cells with non NA values in
 #' a raster and save them to crop other rasters to same extent.
 #' also creates some rasters cropped to correct extent for instance for region and EFG
@@ -56,7 +56,7 @@ cropNAborder  <- function(REG_NO = 7,              #see look up table REG_LUT fo
     RGN <- Template
     raster::values(RGN)[cn] <- REG_NO
   }
-  # set parameters for
+  # set parameters for extent of output
   x = RGN
   x.matrix <- is.na(raster::as.matrix(x))
   colNotNA <- which(colSums(x.matrix) != nrow(x))
@@ -68,20 +68,47 @@ cropNAborder  <- function(REG_NO = 7,              #see look up table REG_LUT fo
                    c2 = colNotNA[length(colNotNA)]
   )
 
-  # crop rasters
+  #  and crop rasters to output extent and  mask to selected area (RGN)
   RGN_ras <- raster::crop(RGN, Extent)
-  FIREFMZ_ras <- raster::crop(raster::raster(file.path(generalRasterDir, inputR$FIREFMZ.tif)), Extent)
-  DELWP_ras <- raster::crop( raster::raster(file.path(generalRasterDir, inputR$DELWP.tif)), Extent)
-  EFG_ras <- raster::crop( raster::raster(file.path(generalRasterDir, inputR$EFG.tif)), Extent)
+
+  FIREFMZ_ras <- raster::mask(
+    raster::crop(
+      raster::raster(file.path(generalRasterDir, inputR$FIREFMZ.tif)),
+      Extent),
+    RGN_ras)
+
+  DELWP_ras <- raster::mask(
+    raster::crop(
+      raster::raster(file.path(generalRasterDir, inputR$DELWP.tif)),
+      Extent),
+    RGN_ras)
+
+  EFG_ras <- raster::mask(
+    raster::crop(
+      raster::raster(file.path(generalRasterDir, inputR$EFG.tif)),
+      Extent),
+    RGN_ras)
+
+  PLM_ras <- raster::mask(
+    raster::crop(
+      raster::raster(file.path(generalRasterDir, inputR$PLM_GEN.tif)),
+      Extent),
+    RGN_ras)
+
+  #IDX is not masked since we need the values for all cells in the extent
   IDX <- raster::values( raster::crop( raster::raster(file.path(generalRasterDir, inputR$IDX.tif)), Extent))
-  PLM_ras <- raster::crop( raster::raster(file.path(generalRasterDir, inputR$PLM_GEN.tif)), Extent)
-  EFG_ras <- raster::mask(EFG_ras, RGN_ras)
+																								   
+										   
+
+
+
 
   # if choice has been made to restrict to public land (default) then EFG is masked to public land
   if(PUBLIC_LAND_ONLY == TRUE){
     EFG_ras <- raster::mask(EFG_ras, PLM_ras)
     DELWP_ras <- raster::mask(DELWP_ras, PLM_ras)
     FIREFMZ_ras <- raster::mask(FIREFMZ_ras, PLM_ras)
+    RGN_ras<-raster::mask(RGN_ras,PLM_ras)
   }
 
   # set values as integers for rasters
