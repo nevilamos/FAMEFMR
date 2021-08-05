@@ -147,7 +147,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
     print(file.path(myResultsDir,"TFI_Rasters"))
     dir.create(file.path(myResultsDir,"TFI_Rasters"))
     raster::values(r) <- Index_AllCombs
-    rasterDatatype <- ifelse(max(Index_AllCombs) <= 65534, 'INT2S', 'INT4S') #selects the most efficient datatype depending on the size of integers in the input
+    rasterDatatype <- ifelse(max(Index_AllCombs) <= 32767, 'INT2S', 'INT4S') #selects the most efficient datatype depending on the size of integers in the input
     r <- ratify(r)
     colnames(TFI_VAL) <- paste0("TFI_", colnames(TFI_VAL))
     levels(r)[[1]] <- cbind(levels(r)[[1]], as.data.frame(TFI_VAL))
