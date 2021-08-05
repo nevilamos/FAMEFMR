@@ -141,7 +141,7 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
                          "BBTFI_Rasters"), showWarnings = TRUE)
 
     raster::values(r) <- Index_AllCombs
-    rasterDatatype <- ifelse(max(Index_AllCombs) <= 65534, 'INT2S', 'INT4S')
+    rasterDatatype <- ifelse(max(Index_AllCombs) <= 32767, 'INT2S', 'INT4S')
     r <- raster::ratify(r)
 
     levels(r)[[1]] <- cbind(levels(r)[[1]], as.data.frame(BBTFI_WIDE), FirstBBTFI, totalTimesBBTFI)
