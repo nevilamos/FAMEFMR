@@ -1,21 +1,23 @@
 cff-version: 1.2.0
-title: FAMEFMR
+title: >-
+  FAMEFMR an R package for calcaution of fire history
+  sequences, tolerable fire interval status of
+  vegetation and changes of fauna abundance with time
+  since fire.
 message: >-
   If you use this software, please cite it using the
-  metadata from this file.
+  metadata from this file. Please incude the version
+  ( release number ) used.
 type: software
 authors:
   - given-names: Nevil
     family-names: Amos
+    orcid: 'https://orcid.org/0000-0003-1271-4767'
     affiliation: >-
       Department of Environment, Land,Water and
       Planning. Victoria, Australia.
-    orcid: 'https://orcid.org/0000-0003-1271-4767'
-abstract: >-
-  An R package for the analysis of bushfire history
-  sequences, tolerable fire intervals of vegetation,
-  and changes in abundace of fauna  with time since
-  fire.
+repository-artifact: 'https://github.com/nevilamos/FAMEFMR/tree/v0.2.8'
 commit: 2d0e855710d147e51de0d77df84f6fe6ae0d51e2
 version: 0.2.8
-date-released: '2020-08-05'
+date-released: '2021-08-05'
+
