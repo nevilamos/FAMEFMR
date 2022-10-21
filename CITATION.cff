@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 title: >-
-  FAMEFMR an R package for calcaution of fire history
+  FAMEFMR an R package for calculation of fire history
   sequences, tolerable fire interval status of
   vegetation and changes of fauna abundance with time
   since fire.
@@ -18,7 +18,7 @@ authors:
       Planning. Victoria, Australia.
 repository-artifact: 'https://github.com/nevilamos/FAMEFMR/tree/v0.2.8'
 commit: 2d0e855710d147e51de0d77df84f6fe6ae0d51e2
-version: 0.2.8
+version: 0.5
 date-released: '2021-08-05'
 
 
