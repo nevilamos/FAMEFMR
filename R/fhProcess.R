@@ -28,14 +28,13 @@
 #' \item LBYNames names of  LBY years in output, needed by downstream functions
 #' \item LFTNames names of  LBY years in output, needed by downstream functions
 #' }
-#' @import tictoc
 #' @export
-fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
-                    start.SEASON = NULL,    # first season for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
-                    end.SEASON = NULL,      # last season required, if NULL then largest value in fire history scenario used
-                    OtherAndUnknown,     # ## link to look up table FIRETYPE_LUT?? ## Default is 2 ("BUSHFIRE").  (2,1,NA) value to use for cases where fire type is: "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis.
-                    #####----- the OtherAndUnknown default should be NA? currently you include bushfires (unless otherwise stated)
-                    validFIRETYPE
+fhProcess2<-function(rawFH = "path of the rawFH file to use - a shapefile",
+                     start.SEASON = NULL,    # first season for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
+                     end.SEASON = NULL,      # last season required, if NULL then largest value in fire history scenario used
+                     OtherAndUnknown,     # ## link to look up table FIRETYPE_LUT?? ## Default is 2 ("BUSHFIRE").  (2,1,NA) value to use for cases where fire type is: "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis.
+                     #####----- the OtherAndUnknown default should be NA? currently you include bushfires (unless otherwise stated)
+                     validFIRETYPE
 ){
   # read in shapefile
   myDF <- sf::st_read(rawFH)
@@ -110,7 +109,7 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
   # reduction to the unique sequences of fires with no gaps using dplyr::pivot_wider
   # in order to acheive this efficently the sf object made from the rawFH file is converted
   # to a standard data frame with a geometry column then converted back to an sf object at the end of the process
-  tictoc::tic("Making OutDF")
+
   OutDF <- myDF %>%
     dplyr::select(XYString, Sequence, FireType = FIRETYPE_NO, SEAS = SEASON) %>%
     dplyr::mutate(Sequence = sprintf("%02d", Sequence)) %>%
@@ -135,7 +134,7 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
     dplyr::select(-XYString)
 
   OutDF <- sf::st_as_sf(OutDF)
-  tictoc::toc()#"Making OutDF")
+
 
   # calculating the last burnt season for each sequences for each year
   # this process is duplicated here and in CALC_TFI2 function
@@ -163,7 +162,6 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
   colnames(LBY) <- LBYNames
 
   # Create matrix used for getting last firetype by year
-  tictoc::tic("calculating lookup matrix for getting last FireType by SEASON")
   SEAS_Matrix[SEAS_Matrix == 0] <- NA
   LUM <- matrix(NA, nrow(SEAS_Matrix), max.SEASON)
   for (i in 1:nrow(SEAS_Matrix)){
@@ -172,16 +170,16 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
     V <- (FT_matrix[i,(1:length(C))])
     LUM[R,C] <- V
   }
-  tictoc::toc()#"calculating lookup matrix for getting last FireType by SEASON"
+
 
   # Calculate last fire type
-  tictoc::tic("calculating last fire type")
+
   LFT <- matrix(NA, nrow(SEAS_Matrix), LTR)
   for(i in 1:nrow(SEAS_Matrix)){
     LFT[i,] <- LUM[i, LBY[i,]]
   }
   colnames(LFT) <- LFTNames
-  tictoc::toc()#"calculating last fire type")
+
 
   # put together output dataframe
   OutDF <- cbind(OutDF, YSF)
