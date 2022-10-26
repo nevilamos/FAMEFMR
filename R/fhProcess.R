@@ -29,12 +29,12 @@
 #' \item LFTNames names of  LBY years in output, needed by downstream functions
 #' }
 #' @export
-fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
-                    start.SEASON = NULL,    # first season for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
-                    end.SEASON = NULL,      # last season required, if NULL then largest value in fire history scenario used
-                    OtherAndUnknown,     # ## link to look up table FIRETYPE_LUT?? ## Default is 2 ("BUSHFIRE").  (2,1,NA) value to use for cases where fire type is: "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis.
-                    #####----- the OtherAndUnknown default should be NA? currently you include bushfires (unless otherwise stated)
-                    validFIRETYPE
+fhProcess2<-function(rawFH = "path of the rawFH file to use - a shapefile",
+                     start.SEASON = NULL,    # first season for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
+                     end.SEASON = NULL,      # last season required, if NULL then largest value in fire history scenario used
+                     OtherAndUnknown,     # ## link to look up table FIRETYPE_LUT?? ## Default is 2 ("BUSHFIRE").  (2,1,NA) value to use for cases where fire type is: "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis.
+                     #####----- the OtherAndUnknown default should be NA? currently you include bushfires (unless otherwise stated)
+                     validFIRETYPE
 ){
   # read in shapefile
   myDF <- sf::st_read(rawFH)
@@ -135,6 +135,7 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
 
   OutDF <- sf::st_as_sf(OutDF)
 
+
   # calculating the last burnt season for each sequences for each year
   # this process is duplicated here and in CALC_TFI2 function
   # ideally it should only be run once but it is pretty fast so probably does not matter too much.
@@ -179,6 +180,7 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
     LFT[i,] <- LUM[i, LBY[i,]]
   }
   colnames(LFT) <- LFTNames
+
 
   # put together output dataframe
   OutDF <- cbind(OutDF, YSF)

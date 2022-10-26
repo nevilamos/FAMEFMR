@@ -26,16 +26,7 @@ calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
   TimeNames <- as.character(myFHAnalysis$TimeSpan)
   LTR <- length(TimeRange)
   r <- myFHAnalysis$FH_IDr
-  FH_ID <- raster::values(r)
-  # make raster template
-  r <- raster::raster(nrows = nrow(r),
-              ncols = ncol(r),
-              ext = raster::extent(r),
-              crs = raster::crs(r),
-              vals = NULL
-              )
-
-  # clean memory
+  FH_ID <- terra::values(r)
   gc()
 
   # get combination input data
