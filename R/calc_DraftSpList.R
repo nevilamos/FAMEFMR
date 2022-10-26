@@ -13,7 +13,7 @@
 #' @param splist path to default species attribute table default is
 #' @param myHDMVals matrix of cell values for Habitat Distribution Model rasters always 225m for speed
 #'
-#' @return data.frame created from splist with columns appended for:
+#' @return data.frame created from  TaxonList with columns appended for:
 #' \itemize{
 #' \item cellsInState count of the number of cells in the state within the Binary HDM for the species
 #' \item cellsInArea count of the number of cells within myPoly and within the Binary HDM for the species

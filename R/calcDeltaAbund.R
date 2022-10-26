@@ -5,13 +5,14 @@
 
 #' Summary of changes in relative abundance
 #' @details Calculates the change in relative abundance compared to a baseline SEASON or mean of SEASONS
-#' @param SpYearSumm data.frame output by function calc_SpeciesRA()
+#' @param SpYearSumm wide format data.frame output by function calc_SpeciesRA() ( one of several
+#' data.frames in the list returned)
 #' @param myFHAnalysis list containing all the fire history spatial attributes created by function fhProcess
 #' @param myBaseline integer single SEASON or sequence of SEASONS used to create the baseline relative species abundance for comparison of change
 #' #'
 #' @return data frame wide format summary change in relative abundance of species by SEASON relative to a Baseline
 #' @export
-calcDeltaAbund <- function(SpYearSumm = SpYearSummWide,
+calcDeltaAbund <- function(SpYearSumm = SpYearSumm$SpYearSummWide,
                            myFHAnalysis,
                            myBaseline
 )
@@ -20,49 +21,40 @@ calcDeltaAbund <- function(SpYearSumm = SpYearSummWide,
   # to get % of baseline need to define which columns provide the baseline
   # (one or mean of several using apply (mean)) then divide remaining values by this column.
   if (length(myBaseline) == 1){
-    Baseline <- SpYearSumm[, as.character(myBaseline)]
+    BaselineVals <- SpYearSumm[, as.character(myBaseline)]
     BaselineText<- as.character(myBaseline)
   } else {
-    Baseline <- apply(SpYearSumm[, as.character(myBaseline)], 1, mean)
+    BaselineVals <- apply(SpYearSumm[, as.character(myBaseline)], 1, mean)
     BaselineText<- paste(min(myBaseline),"-", max(myBaseline))
   }
 
-  #add baseline data to dataframe
-  SpYearSumm$Baseline <- Baseline
+  #add baseline SEASON(s) to dataframe
+  SpYearSumm$Baseline <- BaselineText
 
-  # get integer value for current year. Used so that changes to baseline
-  # are only displayed for future years or if no future years then years since baseline.
-  ThisYear <- as.integer(format(Sys.Date(), "%Y"))
-
-  # SinceYear <- ifelse(sum(TimeSpan > ThisYear) > 0,
-  #                     ThisYear,
-  #                     max(myBaseline)
-  # )
   SinceYear <- max(myBaseline)
 
+  # calculate the changes from baseline, if clause deals with new cases where BaselineVals are tibble or data frame
+  if(is.data.frame(BaselineVals)){BaselineVals <- dplyr::pull(BaselineVals)}
+  Deltas <- as.matrix(SpYearSumm[, as.character(TimeSpan[TimeSpan > SinceYear])] / BaselineVals)
 
-  # calculate the changes from baseline
-  Deltas <- as.matrix(SpYearSumm[, as.character(TimeSpan[TimeSpan > SinceYear])] / Baseline)
-  names(Deltas) <- paste(names(Deltas), "prop baseline")
 
   # calculates two potential comparative metrics;
   # the total number of years below threshold, and whether the last year is below threshold
   NoLessthanThreshhold <- rowSums(Deltas <= SpYearSumm$CombThreshold)
   LastLessThanThreshold <- Deltas[,ncol(Deltas)] <= SpYearSumm$CombThreshold
 
-  #Subsets input columns and appends results to make an output table
-  SpYearSumm<-SpYearSumm[,c("TAXON_ID",
-                "COMMON_NAME",
-                "SCIENTIFIC_NAME",
-                "DIVNAME",
-                "EPBC_ACT_STATUS",
-                "VIC_ADVISORY_STATUS",
-                "CombThreshold")]
-  SpYearSumm$Baseline <- BaselineText
-  ChangeRelativeToBaseline <- cbind(SpYearSumm,
+#puts together the "labelling columns from input table with the Deltas and other results for output
+  ChangeRelativeToBaseline <- cbind(SpYearSumm%>%
+                                      dplyr::select(TAXON_ID,
+                                                    COMMON_NAME,
+                                                    SCIENTIFIC_NAME,
+                                                    EPBC_ACT_STATUS,
+                                                    VIC_ADVISORY_STATUS,
+                                                    CombThreshold,
+                                                    Baseline),
                                     Deltas,
                                     NoLessthanThreshhold,
                                     LastLessThanThreshold
   )
-  return(ChangeRelativeToBaseline)
+
 }

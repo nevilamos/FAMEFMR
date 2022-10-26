@@ -4,10 +4,15 @@
 \alias{calcDeltaAbund}
 \title{Summary of changes in relative abundance}
 \usage{
-calcDeltaAbund(SpYearSumm = SpYearSummWide, myFHAnalysis, myBaseline)
+calcDeltaAbund(
+  SpYearSumm = SpYearSumm$SpYearSummWide,
+  myFHAnalysis,
+  myBaseline
+)
 }
 \arguments{
-\item{SpYearSumm}{data.frame output by function calc_SpeciesRA()}
+\item{SpYearSumm}{wide format data.frame output by function calc_SpeciesRA() ( one of several
+data.frames in the list returned)}
 
 \item{myFHAnalysis}{list containing all the fire history spatial attributes created by function fhProcess}
 

@@ -1,8 +1,3 @@
-
-
-
-
-
 #' Summarise area by growth stage.
 #' @param myFHAnalysis list containing all the fire history spatial attributes
 #'   created by function fhProcess
@@ -18,13 +13,14 @@
 #'   DELWP_REGION.
 #' @importFrom data.table setnames
 #' @export
-makeGS_Summary <- function(myFHAnalysis = FHAnalysis,
-                           myAllCombs = allCombs)
+makeGS_Summary <- function(myFHAnalysis,
+                           myAllCombs)
 {
   U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
   Index_AllCombs = myAllCombs$Index_AllCombs
 
   TimeNames <- as.character(myFHAnalysis$TimeSpan)
+  if(length(grep("NoBurn",myFHAnalysis$YSFNames))>0){TimeNames=c(TimeNames,"NoBurn")}
   GS_LU <-
     makeGS_LU() ####----- does this change between runs? i.e. is the csv input a user input that can change.
   #####  Potentially yes so keep for now ( input .csv can be defined in settings file)

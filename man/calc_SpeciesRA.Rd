@@ -33,7 +33,7 @@ rasters to disk}
 \item{myLU_List}{list of species abundance lookup arrays created by function
 make_Spp_LU_list()}
 
-\item{myResultsDir}{path of directory where results will be written usually
+\item{myResultsDir}{path of directory where raster results will be written usually
 generated  by FAME script}
 
 \item{myHDMVals}{list of sparse matrices of cell values for Habitat Distribution Model rasters
@@ -53,10 +53,12 @@ rasters are required as output.}
 \item{myIDX}{index of cells to extract values for from cropRasters object}
 }
 \value{
-list of two data frames:
+list of two or three data frames:
 \itemize{
 \item SpYearSummWide summary of relative abundance of species by pivoted wide by SEASONS
 \item SpYearSummLong Long Format summary of relative abundance of species by SEASONS
+\item grpSpYearSumm summary of abundance of species by pivoted wide by SEASONS grouped by
+myAllCombs
 }
 }
 \description{

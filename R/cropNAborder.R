@@ -97,6 +97,8 @@ cropNAborder  <- function(REG_NO = 7,              #see look up table REG_LUT fo
 
   #IDX is not masked since we need the values for all cells in the extent
   IDX <- raster::values( raster::crop( raster::raster(file.path(generalRasterDir, inputR$IDX.tif)), Extent))
+																								   
+										   
 
 
 

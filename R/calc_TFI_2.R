@@ -22,7 +22,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
                        myTFI_LUT = TFI_LUT,
                        OutputRasters = makeTFIRasters,
                        myResultsDir = ResultsDir){
-
+  . = NULL
   U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
   Index_AllCombs = myAllCombs$Index_AllCombs
   TimeRange <- as.integer(myFHAnalysis$TimeSpan)
@@ -105,37 +105,30 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
 
 
 
-  #This next section is only run for debugging unusual TFI statuses it allows their isolation at the level of unique combination of fire history and EFG
-  # Check_TFI<-cbind(TFI_VAL,U_AllCombs_TFI) %>%
-  #     dplyr::select(-FIRE_REG,-FIREFMZ,-PLM,-DELWP) %>%
-  #       pivot_longer(tidyselect::all_of(TimeNames),names_to="SEASON",values_to="TFI_VAL") %>%
-  #         filter(!TFI_VAL%in%c(-99,0,1,5)) %>%
-  #           group_by(EFG,MIN_LO_TFI,MIN_HI_TFI,MAX_TFI,EFG_NAME,Index,FH_ID, SEASON,TFI_VAL) %>%
-  #             summarize(Cells=sum(nPixel))
-  #
-  # Check_TFI<-data.table::as.data.table(Check_TFI)
-  # setkey(Check_TFI,"FH_ID")
-  # utils::write.csv(Check_TFI,"Check_TFI.csv")
-  # OutTab<-data.table::as.data.table(OutTab)
-  # Check_TFI<-OutTab[Check_TFI]
-  #END of DEBUGGING CODE
 
   # prepare output data summary tables via dplyr wrangling
   TFI_Summary <- cbind(TFI_VAL, U_AllCombs_TFI) %>%
     tidyr::pivot_longer(tidyselect::all_of(TimeNames), names_to = "SEASON", values_to = "TFI_VAL") %>%
-    dplyr::group_by(EFG_NAME,
-                    FIRE_FMZ_NAME,
-                    FIRE_FMZ_SHORT_NAME,
-                    FIRE_REGION_NAME,
-                    DELWP_REGION,
-                    EFG,
-                    FIRE_REG,
-                    FIREFMZ,
-                    PLM,
-                    DELWP,
-                    SEASON,
-                    TFI_VAL) %>%
-    dplyr::summarize(nCells = sum(nPixel), Hectares = sum(Hectares))
+    dplyr::select(tidyselect::matches(c("EFG_NAME",
+                    "FIRE_FMZ_NAME",
+                    "FIRE_FMZ_SHORT_NAME",
+                    "FIRE_REGION_NAME",
+                    "DELWP_REGION",
+                    "EFG",
+                    "FIRE_REG",
+                    "FIREFMZ",
+                    "PLM",
+                    "DELWP",
+                    "SEASON",
+                    "TFI_VAL",
+                    "PU",
+                    "nPixel",
+                    "Hectares")))%>%
+                     dplyr::group_by(dplyr::across(c(-Hectares,-nPixel)))%>%
+    dplyr::summarise(nCells = sum(nPixel), Hectares = sum(Hectares))
+
+
+
 
   TFI_Summary <- dplyr::left_join(TFI_Summary, TFI_STATUS_LUT)
 

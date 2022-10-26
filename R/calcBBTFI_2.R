@@ -9,12 +9,11 @@
 #' rasters for BBTFI to disk
 #' @param myResultsDir path of directory where results will be written usually
 #'   generated  by FAME script
+#'
 #' @return list containing:
 #' \itemize{
-#' \item the date sequence matrix for each cell of the raster
-#' \item the EFG TFI Lookup for each cell of the raster
-#' \item the raster resolution used.
-#' \item Optionally outputs rasters of BBTFI to disk if makeBBTFIrasters==TRUE.
+#' \item BBTFI_WIDE wide by SEASON  table of the number of times BBTTFI and area for each unique combination of fire history FireType,EFG, PU, and administrative subunits (District, Region etc) of area.
+#' \item BBTFI_LONG long format table ( ie not spread by season) otherwise as BBTFI used for production of charts
 #' }
 #' @importFrom rlang .data
 #' @export
@@ -23,6 +22,7 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
                         makeBBTFIrasters = makeBBTFIrasters,
                         myResultsDir = NULL)
 {
+  . = NULL
   #import the allCombs data table and vector of raster cell values
   U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
   Index_AllCombs = myAllCombs$Index_AllCombs
@@ -119,9 +119,19 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
     BBTFI_WIDE[,i] <- unlistPivot_wider(BBTFI_WIDE[,i])
   }
 
-  BBTFI_LONG_Summary <- BBTFI_LONG %>%
-    dplyr::group_by(PLM, FIRE_REGION_NAME, DELWP_REGION, EFG_NAME, FIRE_FMZ_NAME, SEAS, FireType, TBTFI) %>%
-    dplyr::summarize(Hectares = sum(Hectares))
+  BBTFI_LONG_Summary <- BBTFI_LONG%>%
+    dplyr::select(tidyselect::matches(c("PLM",
+                     "FIRE_REGION_NAME",
+                     "DELWP_REGION",
+                     "EFG_NAME",
+                     "FIRE_FMZ_NAME",
+                     "SEAS",
+                     "FireType",
+                     "TBTFI",
+                     "PU",
+                     "Hectares")))%>%
+    dplyr::group_by(dplyr::across(c(-Hectares)))%>%
+    dplyr::summarise(Hectares = sum(Hectares))
 
   # output rasters if applicable
   if(makeBBTFIrasters){

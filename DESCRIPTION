@@ -1,6 +1,6 @@
 Package: FAMEFMR
 Title: Functions used in the DELWP FAME fire analysis process
-Version: 0.2.8
+Version: 0.5.0
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
@@ -16,9 +16,11 @@ Description: The package contains all the functions necessary to run the DELWP F
             The FAME analysis can be run using standard R scripts, or alternatively via a
             shiny web GUI. The package does not contain the required input files (lookup
             tables, rasters of species HDMs etc) as these are too large to be loaded to 
-            github and are availble separately from an aws repository.  The package is
+            github and are available separately from an aws repository.  The package is
             best used with the associated scripts and shiny app that can be cloned or 
-            downloaded from https://github.com/nevilamos/FAMEshiny.
+            downloaded from https://github.com/nevilamos/FAMEshiny. The functions used 
+            in the Growth Stage Optimisation are modified from code written by Paul
+            Moloney (Arthur Rylah institute) and Holly Sitters (Melbounre University)
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
@@ -31,18 +33,20 @@ Imports:
     foreign,
     foreach,
     iterators,
-    magrittr,
     Matrix.utils,
     mgcv,
+    nloptr,
     qs,
     raster,
     Rfast,
     rlang,
     sf,
+    stringr,
     tabularaster,
     tibble,
-    tictoc,
     tidyr,
-    tidyselect
+    tidyselect,
+    scales,
+    readr
 Depends: 
     data.table
