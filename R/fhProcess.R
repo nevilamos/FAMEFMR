@@ -29,7 +29,7 @@
 #' \item LFTNames names of  LBY years in output, needed by downstream functions
 #' }
 #' @export
-fhProcess2<-function(rawFH = "path of the rawFH file to use - a shapefile",
+fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
                      start.SEASON = NULL,    # first season for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
                      end.SEASON = NULL,      # last season required, if NULL then largest value in fire history scenario used
                      OtherAndUnknown,     # ## link to look up table FIRETYPE_LUT?? ## Default is 2 ("BUSHFIRE").  (2,1,NA) value to use for cases where fire type is: "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis.
