@@ -30,15 +30,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
   LTR <- length(TimeRange)
   r <- myFHAnalysis$FH_IDr #raster with spatial attributes for analysis previously stored
                           #in analysis object used as template for output rasters
-  FH_ID <- raster::values(r)
-  r <- raster::raster(nrows = nrow(r),
-              ncols = ncol(r),
-              ext = raster::extent(r),
-              crs = raster::crs(r),
-              vals = NULL
-  )
-  # clean memory
-  gc()
+
 
   # get the sf polygon data frame contain all the FHAnalysis  attributes created in fhProcess() function
   OutTab <- myFHAnalysis$OutDF
@@ -87,8 +79,8 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
 
   # partial inflation using U_AllCombs_TFI$FH_ID
   # and TFI vaules using U_AllCombs_TFI$MIN_LO_TFI
-  LBY_LO <- LBY_LO[U_AllCombs_TFI$FH_ID,]
-  LBY_HI <- LBY_HI[U_AllCombs_TFI$FH_ID,]
+  LBY_LO <- LBY_LO[U_AllCombs_TFI$ID,]
+  LBY_HI <- LBY_HI[U_AllCombs_TFI$ID,]
 
   # Calc the TFI status
   # this is the section to check if there are unusual TFI statuses
@@ -138,13 +130,16 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
 
   if (OutputRasters == TRUE){
     print(file.path(myResultsDir,"TFI_Rasters"))
+
     dir.create(file.path(myResultsDir,"TFI_Rasters"))
-    raster::values(r) <- Index_AllCombs
+
+    terra::values(r) <- Index_AllCombs
     rasterDatatype <- ifelse(max(Index_AllCombs) <= 32767, 'INT2S', 'INT4S') #selects the most efficient datatype depending on the size of integers in the input
-    r <- ratify(r)
+
+    r <- terra::as.factor(r)
     colnames(TFI_VAL) <- paste0("TFI_", colnames(TFI_VAL))
-    levels(r)[[1]] <- cbind(levels(r)[[1]], as.data.frame(TFI_VAL))
-    levels(r)[[1]] %>%
+    #make raster attribute table by binding attributes to ID from raster levels.
+    RAT<-cbind(terra::levels(r)[[1]], as.data.frame(TFI_VAL))%>%
       dplyr::rename(VALUE = ID) %>%
       dplyr::mutate(VALUE = as.integer(VALUE)) %>%
       foreign::write.dbf(.,
@@ -152,13 +147,14 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
                                    'TFI_BY_YEAR.tif.vat.dbf'),
                          factor2char = TRUE,
                          max_nchar = 254)
+
     raster::writeRaster(r,
                         file.path(myResultsDir,
                                   "TFI_Rasters",
                                   "TFI_BY_YEAR.tif"),
                         datatype = rasterDatatype,
                         overwrite=TRUE,
-                        options=c("COMPRESS=LZW", "TFW=YES"))
+                        gdal=c("COMPRESS=LZW", "TFW=YES"))
 
   }
   TFI_Summary <- TFI_Summary%>%dplyr::mutate(SEASON = as.integer(SEASON))
