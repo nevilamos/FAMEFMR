@@ -29,7 +29,6 @@ RoxygenNote: 7.1.1
 Imports: 
     doParallel,
     dplyr,
-    fasterize,
     foreign,
     foreach,
     iterators,
@@ -42,7 +41,6 @@ Imports:
     rlang,
     sf,
     stringr,
-    tabularaster,
     tibble,
     tidyr,
     tidyselect,
