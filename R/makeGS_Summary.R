@@ -33,8 +33,8 @@ makeGS_Summary <- function(myFHAnalysis,
 
   YSF_Fields <- names(OutTab)[grep("^YSF", names(OutTab))]
   YSFplus1 <- OutTab[, YSF_Fields] + 1
-  # partial inflation using U_AllCombs_TFI$FH_ID
-  YSFplus1 <- YSFplus1[U_AllCombs_TFI$FH_ID, ]
+  # partial inflation using U_AllCombs_TFI$ID
+  YSFplus1 <- YSFplus1[U_AllCombs_TFI$ID, ]
   YSFplus1 <- as.matrix(YSFplus1)
   # inflate GS_LU on EFG axis using U_AllCombs_TFI$EFG
   # EFG nested within U_AllCombs_TFI in calc_SpeciesRA function
@@ -53,7 +53,7 @@ makeGS_Summary <- function(myFHAnalysis,
       MIN_HI_TFI,
       MAX_TFI,
       Index,
-      FH_ID,
+      ID,
       FIRE_REG,
       FIREFMZ,
       DELWP
