@@ -28,13 +28,13 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
   Index_AllCombs = myAllCombs$Index_AllCombs
   # import fire history raster and make template
   r <- myFHAnalysis$FH_IDr
-  FH_ID <- raster::values(r)
-  r <- raster::raster(nrows = nrow(r),
-              ncols = ncol(r),
-              ext = raster::extent(r),
-              crs = raster::crs(r),
-              vals = NULL
-              )
+  # FH_ID <- raster::values(r)
+  # r <- raster::raster(nrows = nrow(r),
+  #             ncols = ncol(r),
+  #             ext = raster::extent(r),
+  #             crs = raster::crs(r),
+  #             vals = NULL
+  #             )
 
 
   #read the sf polygon data.frame all the fire history spatial attributes created by function fhProcess()
@@ -60,11 +60,11 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
   TYPE_LO <- TYPE == 1                                               # TRUE where the type of the first fire is LO(1)
 
   # expand matrices by FH_ID
-  SEAS <- SEAS[U_AllCombs_TFI$FH_ID,]
-  INTS <- INTS[U_AllCombs_TFI$FH_ID,]
-  TYPE_HI <- TYPE_HI[U_AllCombs_TFI$FH_ID,]
-  TYPE1 <- TYPE[U_AllCombs_TFI$FH_ID,]
-  TYPE2 <- TYPE2[U_AllCombs_TFI$FH_ID,]
+  SEAS <- SEAS[U_AllCombs_TFI$ID,]
+  INTS <- INTS[U_AllCombs_TFI$ID,]
+  TYPE_HI <- TYPE_HI[U_AllCombs_TFI$ID,]
+  TYPE1 <- TYPE[U_AllCombs_TFI$ID,]
+  TYPE2 <- TYPE2[U_AllCombs_TFI$ID,]
 
   # make  matrices populated only with SEAS where where the inter-fire intervals are below TFI  when burned
 
@@ -96,40 +96,43 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
   cumBBTFI[is.na(BBTFI_COMB)] <- NA
   colnames(cumBBTFI) <- gsub("SEAS", "TBTFI", colnames(cumBBTFI))
 
-  # this needs a little more annotation about what/why e.g. make 3 dataframes (WIDEish, LONG, WIDE) and their differences   #####-----are the three outputs fundamentally different? does each user use each one, or only one of them?
   # have called this combined item BBTFI_WIDEish because is is the same
   # number of rows as the true wide item but cumBBTFI is in sequence for still not spread by year.
   #BBTFI_WIDEish<-cbind(U_AllCombs_TFI,BBTFI_COMB,cumBBTFI,TYPE2,FirstBBTFI,totalTimesBBTFI)      #####-----remove
   BBTFI_WIDEish <- cbind(U_AllCombs_TFI, SEAS, cumBBTFI, TYPE2, FirstBBTFI, totalTimesBBTFI)
   BBTFI_LONG <- BBTFI_WIDEish %>%
     #select(-FirstBBTFI,-totalTimesBBTFI) %>%
-                  tidyr::pivot_longer(tidyselect::all_of(names(BBTFI_WIDEish)[(ncol(U_AllCombs_TFI)+1):(ncol(BBTFI_WIDEish)-2)]),
-                               names_to = c(".value", "SEQ"),
-                               names_pattern = "([^0-9]+)([0-9]+)")
+    tidyr::pivot_longer(tidyselect::all_of(names(BBTFI_WIDEish)[(ncol(U_AllCombs_TFI)+1):(ncol(BBTFI_WIDEish)-2)]),
+                        names_to = c(".value", "SEQ"),
+                        names_pattern = "([^0-9]+)([0-9]+)")
+  if (all(is.na(BBTFI_LONG$FirstBBTFI))){
+    BBTFI_WIDE <-data.frame("NIL_AREA_BBTFI")
+  }else{
 
-  BBTFI_WIDE <- BBTFI_LONG %>%
-    dplyr::select(-SEQ,-totalTimesBBTFI,-FirstBBTFI) %>%
-    tidyr::pivot_wider(names_from = SEAS,
-                  values_from = c(TBTFI, FireType),
-                  values_fn = sum,
-                  names_sort = TRUE)
-  #needed to deal with pivot_wider above returning list of list for non unique cases
-  #using helper function unlistPivot_wider
-  for (i in grep("Hectares", names(BBTFI_WIDE)):ncol(BBTFI_WIDE)){
-    BBTFI_WIDE[,i] <- unlistPivot_wider(BBTFI_WIDE[,i])
+    BBTFI_WIDE <- BBTFI_LONG %>%
+      dplyr::select(-SEQ,-totalTimesBBTFI,-FirstBBTFI) %>%
+      tidyr::pivot_wider(names_from = SEAS,
+                         values_from = c(TBTFI, FireType),
+                         values_fn = sum,
+                         names_sort = TRUE)
+    #needed to deal with pivot_wider above returning list of list for non unique cases
+    #using helper function unlistPivot_wider
+    for (i in grep("Hectares", names(BBTFI_WIDE)):ncol(BBTFI_WIDE)){
+      BBTFI_WIDE[,i] <- unlistPivot_wider(BBTFI_WIDE[,i])
+    }
   }
 
   BBTFI_LONG_Summary <- BBTFI_LONG%>%
     dplyr::select(tidyselect::matches(c("PLM",
-                     "FIRE_REGION_NAME",
-                     "DELWP_REGION",
-                     "EFG_NAME",
-                     "FIRE_FMZ_NAME",
-                     "SEAS",
-                     "FireType",
-                     "TBTFI",
-                     "PU",
-                     "Hectares")))%>%
+                                        "FIRE_REGION_NAME",
+                                        "DELWP_REGION",
+                                        "EFG_NAME",
+                                        "FIRE_FMZ_NAME",
+                                        "SEAS",
+                                        "FireType",
+                                        "TBTFI",
+                                        "PU",
+                                        "Hectares")))%>%
     dplyr::group_by(dplyr::across(c(-Hectares)))%>%
     dplyr::summarise(Hectares = sum(Hectares))
 
@@ -142,25 +145,24 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
 
     raster::values(r) <- Index_AllCombs
     rasterDatatype <- ifelse(max(Index_AllCombs) <= 32767, 'INT2S', 'INT4S')
-    r <- raster::ratify(r)
+    r <- terra::as.factor(r)
 
-    levels(r)[[1]] <- cbind(levels(r)[[1]], as.data.frame(BBTFI_WIDE), FirstBBTFI, totalTimesBBTFI)
-    levels(r)[[1]] %>%
+    RAT <- cbind(levels(r)[[1]], as.data.frame(BBTFI_WIDE), FirstBBTFI, totalTimesBBTFI)%>%
       dplyr::rename(VALUE =ID) %>%
       dplyr::mutate(VALUE = as.integer(VALUE)) %>%
-          foreign::write.dbf(.,
-                             file.path(myResultsDir,
-                                       "BBTFI_Rasters",
-                                       "BBTFI_BY_YEAR.tif.vat.dbf"),
-                             factor2char = TRUE,
-                             max_nchar = 254)
-                print(paste("BbtfiTiff=",file.path(myResultsDir, "BBTFI_Rasters", 'BBTFI_BY_YEAR.tif')))#debug
-    raster::writeRaster(r,
-                file.path(myResultsDir, "BBTFI_Rasters", 'BBTFI_BY_YEAR.tif'),
-                datatype = rasterDatatype,
-                overwrite=TRUE,
-                options=c("COMPRESS=LZW", "TFW=YES")
-                )
+      foreign::write.dbf(.,
+                         file.path(myResultsDir,
+                                   "BBTFI_Rasters",
+                                   "BBTFI_BY_YEAR.tif.vat.dbf"),
+                         factor2char = TRUE,
+                         max_nchar = 254)
+    print(paste("BbtfiTiff=",file.path(myResultsDir, "BBTFI_Rasters", 'BBTFI_BY_YEAR.tif')))#debug
+    terra::writeRaster(r,
+                       file.path(myResultsDir, "BBTFI_Rasters", 'BBTFI_BY_YEAR.tif'),
+                       datatype = rasterDatatype,
+                       overwrite=TRUE,
+                       gdal=c("COMPRESS=LZW", "TFW=YES")
+    )
 
 
   }
@@ -168,6 +170,7 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
   return(list("BBTFI_WIDE" = BBTFI_WIDE, "BBTFI_LONG" = BBTFI_LONG_Summary, "BBTFI_WIDEish" = BBTFI_WIDEish))
 
 }
+
 
 
 

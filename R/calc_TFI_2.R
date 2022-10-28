@@ -77,7 +77,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
     })
   }
 
-  # partial inflation using U_AllCombs_TFI$FH_ID
+  # partial inflation using U_AllCombs_TFI$ID
   # and TFI vaules using U_AllCombs_TFI$MIN_LO_TFI
   LBY_LO <- LBY_LO[U_AllCombs_TFI$ID,]
   LBY_HI <- LBY_HI[U_AllCombs_TFI$ID,]
