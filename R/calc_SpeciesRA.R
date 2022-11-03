@@ -53,14 +53,6 @@ calc_SpeciesRA <- function(myFHAnalysis,
 
   # reads in raster from fhAnalysis as Template
   r <- myFHAnalysis$FH_IDr
-  # define blank raster with same dimensions as template
-  r <- raster::raster(
-    nrows = nrow(r),
-    ncols = ncol(r),
-    ext = raster::extent(r),
-    crs = raster::crs(r),
-    vals = NULL
-  )
 
   # determine what years to write out (each year or TimeSpan)
   TimeSpan <- myFHAnalysis$TimeSpan
@@ -101,7 +93,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
     # species. values multiplied by 100 so that they can later be converted to
     # integer if necessary without losing small values
 
-    HDM_Vector<-as.vector(myHDMVals[[mySpp]][myIDX,1])*100
+    HDM_Vector<-as.vector(myHDMVals[[mySpp]][myIDX[,1],1])*100
 
     # makes matrices of YSF, EFG, and LFT to use in lookup from LU array
     YSF_M <-
@@ -150,7 +142,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
     if (myWriteSpRasters == TRUE) {
       for (myYear in as.character(writeYears)) {
         cat("\r", paste("writing species abund rasters for", myYear))
-        print(paste("writing species abund rasters for", myYear))
+        #print(paste("writing species abund rasters for", myYear))
         if (sp %in% myWriteSp | is.null(myWriteSp)) {
           OutTif <-
             file.path(myResultsDir,
@@ -158,12 +150,12 @@ calc_SpeciesRA <- function(myFHAnalysis,
                       paste0("Spp", sp, "_", myYear, ".tif"))
           print(OutTif)
           emptySpraster <- r
-          raster::values(emptySpraster) <-
+          terra::values(emptySpraster) <-
             Spp_Val_Cell_Year[, myYear]
-          raster::writeRaster(
+          terra::writeRaster(
             x = emptySpraster,
             filename = OutTif,
-            options = c("COMPRESS=LZW", "TFW=YES"),
+            gdal = c("COMPRESS=LZW", "TFW=YES"),
             datatype = 'INT1U',
             overwrite = TRUE
           )
