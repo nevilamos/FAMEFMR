@@ -2,10 +2,7 @@
 % Please edit documentation in R/cropNAborder.R
 \name{cropNAborder}
 \alias{cropNAborder}
-\title{crop border of NA cells from rasters and get cell indices for remaining cells
-function to get the minimum bounding box of the cells with non NA values in
-a raster and save them to crop other rasters to same extent.
-also creates some rasters cropped to correct extent for instance for region and EFG
+\title{also creates some rasters cropped to correct extent for instance for region and EFG
 also gets indices of cells in raster of same extent as crop to the shape provided}
 \usage{
 cropNAborder(
@@ -41,9 +38,6 @@ A list containing:
 }
 }
 \description{
-crop border of NA cells from rasters and get cell indices for remaining cells
-function to get the minimum bounding box of the cells with non NA values in
-a raster and save them to crop other rasters to same extent.
 also creates some rasters cropped to correct extent for instance for region and EFG
 also gets indices of cells in raster of same extent as crop to the shape provided
 }

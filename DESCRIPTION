@@ -1,6 +1,6 @@
 Package: FAMEFMR
-Title: Functions used in the DELWP FAME fire analysis process
-Version: 0.5.1
+Title: Functions For DELWP FAME Fire Analysis
+Version: 0.5.2
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
@@ -20,18 +20,19 @@ Description: The package contains all the functions necessary to run the DELWP F
             best used with the associated scripts and shiny app that can be cloned or 
             downloaded from https://github.com/nevilamos/FAMEshiny. The functions used 
             in the Growth Stage Optimisation are modified from code written by Paul
-            Moloney (Arthur Rylah institute) and Holly Sitters (Melbounre University)
+            Moloney (Arthur Rylah institute) and Holly Sitters (Melbourne University)
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1
 Imports: 
     doParallel,
     dplyr,
     foreign,
     foreach,
     iterators,
+    magrittr,
     Matrix.utils,
     mgcv,
     nloptr,
@@ -41,6 +42,7 @@ Imports:
     rlang,
     sf,
     stringr,
+    terra,
     tibble,
     tidyr,
     tidyselect,

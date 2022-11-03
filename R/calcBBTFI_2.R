@@ -16,6 +16,7 @@
 #' \item BBTFI_LONG long format table ( ie not spread by season) otherwise as BBTFI used for production of charts
 #' }
 #' @importFrom rlang .data
+#' @importFrom magrittr %>%
 #' @export
 calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
                         myAllCombs = allCombs,

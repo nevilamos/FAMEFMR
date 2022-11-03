@@ -105,9 +105,9 @@ calc_SpeciesRA <- function(myFHAnalysis,
 
     # makes matrices of YSF, EFG, and LFT to use in lookup from LU array
     YSF_M <-
-      as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID, myFHAnalysis$YSFNames]) + 1
+      as.matrix(myDF[myAllCombs$U_AllCombs_TFI$ID, myFHAnalysis$YSFNames]) + 1
     LFT_M <-
-      as.matrix(myDF[myAllCombs$U_AllCombs_TFI$FH_ID, myFHAnalysis$LFTNames])
+      as.matrix(myDF[myAllCombs$U_AllCombs_TFI$ID, myFHAnalysis$LFTNames])
     EFG_M <-
       matrix(myAllCombs$U_AllCombs_TFI$EFG, nrow(YSF_M), ncol(YSF_M))
 
