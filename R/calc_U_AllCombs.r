@@ -37,7 +37,7 @@ calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
   DELWP <- myCropRasters$DELWP
 
   if(is.null(puPoly) == FALSE){
-    PU<-raster::values(terra::rasterize(x = terra::vect(puPoly),y = r,field = "PU"))
+    PU<-terra::values(terra::rasterize(x = terra::vect(puPoly),y = r,field = "PU"))
     # combine into data table
     AllCombs<-data.table::as.data.table(cbind(FH_ID,EFG,FIRE_REG,FIREFMZ,PLM,DELWP,PU))
     rm(PU)
