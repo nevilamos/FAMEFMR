@@ -11,21 +11,32 @@
 #'   YSF x EFG x FIRETYPE_NO
 #' @export
 make_Spp_LU_list <- function(myHDMSpp_NO = HDMSpp_NO,
-                             myAbundDataLong = ExpertDataLong){
-
-  myList <- list()
-  for(i in myHDMSpp_NO){
-    y <- myAbundDataLong[myAbundDataLong$TAXON_ID == i,]
-    b = (y$YSF) + 1
-    c = y$EFG_NO
-    d = y$FireTypeNo
-    e = y$Abund
-    x <- array(NA, dim = c(max(b), 40, 4))
-    for(j in 1:nrow(y)){
-      x[b[j],c[j],d[j]] <- e[j]
+                             myAbundDataLong = ExpertDataLong) {
+  z <- myHDMSpp_NO %in% unique(myAbundDataLong[["TAXON_ID"]])
+  if (all(z)) {
+    myList <- list()
+    for (i in myHDMSpp_NO) {
+      y <- myAbundDataLong[myAbundDataLong$TAXON_ID == i, ]
+      b = (y$YSF) + 1
+      c = y$EFG_NO
+      d = y$FireTypeNo
+      e = y$Abund
+      x <- array(NA, dim = c(max(b), 40, 4))
+      for (j in 1:nrow(y)) {
+        x[b[j], c[j], d[j]] <- e[j]
+      }
+      myList[[as.character(i)]] <- x
+      rm(y)
     }
-    myList[[as.character(i)]] <- x
-    rm(y)
+    return(myList)
+  } else {
+    TAXON_ID_ERROR <-
+      paste(
+        "Species with TAXON_IDs:",
+        paste(myHDMSpp_NO[!z], collapse = " "),
+        "are missing from the input Abundance data"
+      )
+    stop(TAXON_ID_ERROR)
+
   }
-  return(myList)
 }
