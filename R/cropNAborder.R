@@ -105,7 +105,7 @@ cropNAborder  <- function(REG_NO = 7,
 
   # create list of values for function output
   output <- list("Raster" = RGN_ras,
-                 "Extent" = Extent,
+                 #"Extent" = Extent,
                  "clipIDX" = cn,
                  "EFG" = EFGvals,
                  "RGN" = RGNvals,
