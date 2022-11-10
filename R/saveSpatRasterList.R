@@ -14,7 +14,7 @@
 saveSpatRasterList<-function(myList,filePath ="filepath to save list file to ending in qs"){
   stopifnot(tools::file_ext(filePath) == "qs")
 
-  mylist<-rapply(myList,f=terra::wrap,classes = "SpatRaster",how="replace")
+  myList<-rapply(myList,f=terra::wrap,classes = "SpatRaster",how="replace")
   qs::qsave(myList,filePath)
 
 }
