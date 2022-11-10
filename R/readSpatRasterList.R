@@ -7,7 +7,7 @@
 #' @return list - if the input file contained saved PackedSpatRasters the list will contain the usable SpatRasters
 #' @importFrom terra rast
 #' @importFrom qs qread
-#'  
+#'
 #' @export
 
 
@@ -15,10 +15,10 @@ readSpatRasterList<-function(filePath ="filepath to save list file to ending in 
   stopifnot(tools::file_ext(filePath) == "qs")
   myList<-qs::qread(filePath)
   myList<-rapply(myList,
-                 f=terra::wrap,
+                 f=terra::rast,
                  classes = "PackedSpatRaster",
                  how="replace")
   return(myList)
-  
-  
+
+
 }
