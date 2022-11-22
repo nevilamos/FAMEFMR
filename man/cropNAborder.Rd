@@ -27,8 +27,7 @@ cropNAborder(
 \value{
 A list containing:
 \itemize{
-\item Raster  raster cropped of all border rows and columns that are all NA,
-\item Extent extent of the raster
+\item Raster  raster cropped to extent of area of interest,
 \item IDX integer vector cell numbers of cells in the cropped raster
 \item clipIDX integer vector cell numbers only for cells with the input polygon
 \item EFG integer vector EFG values for cells within clipped area

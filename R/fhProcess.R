@@ -1,51 +1,84 @@
 #' Main Fire History Fire Sequence analysis function
 #'
-#' @details The function takes a shapefile of Fire history contain polygons with two
-#' fields FIRETYPE and SEASON Where polygons of different FIRETYPE or SEASON
-#' overlap the function constructs unique non-overlapping polygon of their
-#' intersections ( and non intersecting areas ) and attributes each polygon with
-#' sequential fire SEASON (SEAS01, SEAS02 ...) and corresponding FIRETYPE
-#' (TYPE01,TYPE02 ...)
-#' @details It then calculates all the intervals between sequential fires, and Time Since
-#' fire (TSF) and Last Fire Type (LFT) and Last burnt year (LBY) for each SEASON as defined in the input
-#' arguments, these values are append to the output sf polygon dataframe.
+#' @details The function takes a shapefile or geodatabase layer of Fire history
+#'   containing polygons with two fields: FIRETYPE and SEASON Where polygons of
+#'   different FIRETYPE or SEASON overlap the function constructs unique
+#'   non-overlapping polygon of their intersections ( and non intersecting areas
+#'   ) and attributes each polygon with sequential fire SEASON (SEAS01, SEAS02
+#'   ...) and corresponding FIRETYPE (TYPE01,TYPE02 ...)
+#' @details It then calculates all the intervals between sequential fires, and
+#'   Time Since fire (TSF) and Last Fire Type (LFT) and Last burnt year (LBY)
+#'   for each SEASON as defined in the input arguments, these values are append
+#'   to the output sf polygon dataframe.
 #'
-#' @param rawFH path to the input fire history shapefile usually  provided in settings
+#' @param rawFH path to the input fire history geodatabase (".gdb" or ".gpkg")
+#'   or shapefile (".shp") usually  provided in settings
+#' @param rawFHLayer if rawFH is a geodatabase the name of the layer containing
+#'   the Fire History if this is not provided and the raw FH is a geodatabase or
+#'   geopackage then the first layer in the file is returned.
+#' @param start.SEASON integer First SEASON for which output is wanted (four
+#'   digit year as integer), if NUll then second season in in history is used
+#'   (cannot use first season because it has no interval, this may still fail if
+#'   there is no overlap)
 #'
-#' @param start.SEASON integer First SEASON for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
+#' @param end.SEASON  integer Last SEASON required, if NULL then largest value
+#'   in fire history scenario used
 #'
-#' @param end.SEASON  integer Last SEASON required, if NULL then largest value in fire history scenario used
+#' @param OtherAndUnknown integer Value to use for cases where fire type is:
+#'   "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded
+#'   from analysis. usually set in settings file
 #'
-#' @param OtherAndUnknown integer Value to use for cases where fire type is: "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis. usually set in settings file
+#' @param validFIRETYPE character vector of valid FIRETYPE values for checking
+#'   the input file , provided in settings file.
 #'
-#' @param validFIRETYPE character vector of valid FIRETYPE values for checking the input file , provided in settings file.
-#'
-#' @return A list containing:
-#' \itemize{
+#' @return A list containing: \itemize{
 #' \item OutDF sf polygons dataframe containing all the fire history attributes
 #' \item TimeSpan integer vector sequence of SEASONS to in the analysis output
-#' \item YSFNames names of  TSF years in output, needed by downstream functions
-#' \item LBYNames names of  LBY years in output, needed by downstream functions
-#' \item LFTNames names of  LBY years in output, needed by downstream functions
-#' }
+#' \item YSFNames names of TSF years in output, needed by downstream functions
+#' \item LBYNames names of LBY years in output, needed by downstream functions
+#' \item LFTNames names of LBY years in output, needed by downstream functions }
 #' @export
-fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
+fhProcess<-function(rawFH = "path of the rawFH file geopackage or gdb to use",
+                    rawFHLayer = NULL,
                      start.SEASON = NULL,    # first season for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
                      end.SEASON = NULL,      # last season required, if NULL then largest value in fire history scenario used
                      OtherAndUnknown,     # ## link to look up table FIRETYPE_LUT?? ## Default is 2 ("BUSHFIRE").  (2,1,NA) value to use for cases where fire type is: "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis.
                      #####----- the OtherAndUnknown default should be NA? currently you include bushfires (unless otherwise stated)
-                     validFIRETYPE
+                     validFIRETYPE =c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER")
 ){
   # read in shapefile
-  myDF <- sf::st_read(rawFH)
 
-  # check that the input shapefile (rawFH) contains the two required fields
+  # error checks------
+  if(tools::file_ext(rawFH)%in%c("shp","gdb","gpkg")){
+  if( is.null(rawFHLayer)){
+    myDF <- sf::st_read(dsn = rawFH)
+  }else{
+    myDF <- sf::st_read(dsn = rawFH,layer = rawFHlayer)
+  }
+  }else{stop("rawFH file is not a shapefile,geopackage or ESRI geodatabase")}
+
+
+
+
+  # check that the input fire History (rawFH) contains the two required fields
   # and that these do not have a missing values
+
   myDFNames <- names(myDF)
+
+  if ("geom" %in% myDFNames) {
+    geometryName = "geom"
+  } else if ("geometry" %in% myDFNames){
+    geometryName = "geometry"
+  } else {
+    stop("Fire History file does not contain geometry")
+  }
+  if (!st_geometry_type(myDF,by_geometry = F)[1]%in%c("POLYGON","MULTIPOLYGON")){stop("rawFH file is not a polygon dataset")}
   if((!"SEASON" %in% myDFNames)) stop ("rawFH shapefile does not contain field 'SEASON'")
   if(anyNA(myDF$SEASON)) stop ("rawFH shapefile has missing values in  field 'SEASON'")
   if((!"FIRETYPE"%in% myDFNames)) stop ("rawFH shapefile does not contain field 'FIRETYPE'")
   if(notAllIn(x = myDF$FIRETYPE, v = validFIRETYPE)) stop ("rawFH shapefile has missing or invalid values in field 'FIRETYPE'")
+
+
 
   # timespan (range of consecutive years) for which Fire History sequences are calculated
   # from start and end seasons defined in the settings file
@@ -90,8 +123,9 @@ fhProcess<-function(rawFH = "path of the rawFH file to use - a shapefile",
 
 
   # filter spatial dataframe by unique combinations polygons geometry and XYString
-  #with seasON and FIRETYPE
-  myDF<-unique(myDF[,c("geometry",
+  #with SEASON and FIRETYPE
+
+  myDF<-unique(myDF[,c(geometryName,
                        "XYString",
                        "SEASON",
                        "FIRETYPE_NO")
