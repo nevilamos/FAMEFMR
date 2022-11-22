@@ -11,9 +11,11 @@
 #'   make_Spp_LU_list()
 #' @param myResultsDir path of directory where raster results will be written usually
 #'   generated  by FAME script
+#' @param myHDMVals list of sparse matrices of cell values for Habitat Distribution Model rasters
+#'   for (at least) all TAXON_ID in myHDMSpp_NO generally provided in settings
+#'   file and read by FAME script
 #' @param myTaxonList data.frame of species attributes ( read from default or
-#' user provided .csv) including field HDMPaths with the relative or abolute
-#' path to the HDM raster used in the analysis.
+#'   user provided .csv)
 #' @param writeYears  vector for SEASONS for which rasters are to be written
 #'   otherwise if writeSpRasters == TRUE, if writeYears == NULL then all SEASONS
 #'   are written out
