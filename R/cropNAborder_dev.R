@@ -24,97 +24,49 @@ cropNAborder  <- function(REG_NO = 7,
                           generalRasterDir = "./InputGeneralRasters"
 ){
   inputR <- inputRasters(myRasterRes)
-  inR <- terra::rast(file.path(generalRasterDir, inputR$REGION.tif))
+  inR <- terra::rast(file.path(generalRasterDir, inputR[[1]]))
   Template <- inR
-  terra::values(Template) <- NA
+  terra::values(Template) <- 0
+  idx<-cells(Template)
 
-  #determines which file to use for masking to regions
+
+  #determines which file to use for masking to regions and values for cells in output region raster
   if(REG_NO %in% 1:6){
     Shape <- terra::vect(myPoly)
     Shape <- Shape[Shape$REGION_NO == REG_NO,]
     #cn <- tabularaster::cellnumbers(Template, Shape)
-    cn <- terra::cells(Template, Shape)[,"cell"]
+    inCells <- terra::cells(Template, Shape)[,"cell"]
     RGN <- Template
     terra::values(RGN)[cn] <- REG_NO
-  }
-
-  if(REG_NO == 99){
+  } else  if(REG_NO == 99){
     Shape <- terra::vect(myPoly)
-    cn <- terra::cells(Template, Shape)[,"cell"]
+    inCells <- terra::cells(Template, Shape)[,"cell"]
     RGN <- inR
+  } else  if(REG_NO == 7){
+    Shape <- terra::vect(myPoly)
+    inCells <- terra::cells(Template, Shape)[,"cell"]
+    RGN <- Template
+    terra::values(RGN)[inCells] <- REG_NO
   }
 
-  if(REG_NO == 7){
-    Shape <- terra::vect(myPoly)
-    cn <- terra::cells(Template, Shape)[,"cell"]
-    RGN <- Template
-    terra::values(RGN)[cn] <- REG_NO
-  }
   # set parameters for extent of output
   Extent<-terra::ext(Shape)
-
   #  and crop rasters to output extent and  mask to selected area (RGN)
-  RGN_ras <- terra::crop(RGN, Extent)
+  RGNcrop <- terra::crop(RGN, Extent)
   #next line ensures extent aligned to RGN raster cells
-  Extent<-terra::ext(RGN_ras)
+  Extent<-terra::ext(RGNcrop)
+  outCells<-terra::cells(RGNcrop,Shape)[,"cell"]
+
+  inputRasters<-rast(file.path(generalRasterDir,unlist(inputR)))
+
+  output<-as.list(as.data.frame(terra::values(inputRasters)[inCells,]))
+  names(output)<-names(inputR)
+
+  output$Raster<-rast(extent=Extent,res=225)
+  output$inCells<-inCells
+  output$outCells<-outCells
 
 
-  FIREFMZ_ras <- terra::mask(
-    terra::crop(
-      terra::rast(file.path(generalRasterDir, inputR$FIREFMZ.tif)),
-      Extent),
-    RGN_ras)
-
-  DELWP_ras <- terra::mask(
-    terra::crop(
-      terra::rast(file.path(generalRasterDir, inputR$DELWP.tif)),
-      Extent),
-    RGN_ras)
-
-  EFG_ras <- terra::mask(
-    terra::crop(
-      terra::rast(file.path(generalRasterDir, inputR$EFG.tif)),
-      Extent),
-    RGN_ras)
-
-  PLM_ras <- terra::mask(
-    terra::crop(
-      terra::rast(file.path(generalRasterDir, inputR$PLM_GEN.tif)),
-      Extent),
-    RGN_ras)
-
-  #IDX is not masked since we need the values for all cells in the extent
-  IDX <- terra::values( terra::crop( terra::rast(file.path(generalRasterDir, inputR$IDX.tif)), Extent))
-
-
-
-
-  # if choice has been made to restrict to public land (default) then EFG is masked to public land
-  if(PUBLIC_LAND_ONLY == TRUE){
-    EFG_ras <- terra::mask(EFG_ras, PLM_ras)
-    DELWP_ras <- terra::mask(DELWP_ras, PLM_ras)
-    FIREFMZ_ras <- terra::mask(FIREFMZ_ras, PLM_ras)
-    RGN_ras<-terra::mask(RGN_ras,PLM_ras)
-  }
-
-  # set values as integers for rasters
-  PLMVals <- as.integer(terra::values(PLM_ras))
-  EFGvals <- as.integer(terra::values(EFG_ras))
-  RGNvals <- as.integer(terra::values(RGN_ras))
-  FIREFMZvals <- as.integer(terra::values(FIREFMZ_ras))
-  DELWPvals <- as.integer(terra::values(DELWP_ras))
-
-  # create list of values for function output
-  output <- list("Raster" = RGN_ras,
-                 #"Extent" = Extent,
-                 "clipIDX" = cn,
-                 "EFG" = EFGvals,
-                 "RGN" = RGNvals,
-                 "IDX" = IDX,
-                 "DELWP" = DELWPvals,
-                 "FIREFMZ" = FIREFMZvals,
-                 "PLM" = PLMVals
-  )
 
   # end of raster crop function
   return(output)
