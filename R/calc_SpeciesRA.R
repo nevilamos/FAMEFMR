@@ -11,8 +11,8 @@
 #'   make_Spp_LU_list()
 #' @param myResultsDir path of directory where raster results will be written usually
 #'   generated  by FAME script
-#' @param myTaxonList data.frame of species attributes ( read from default or
-#' user provided .csv) including field HDMPaths with the relative or abolute
+#' @param myTaxonList data.frame of species attributes (read from default or
+#' user provided .csv) including field HDMPaths with the relative or absolute
 #' path to the HDM raster used in the analysis.
 #' @param writeYears  vector for SEASONS for which rasters are to be written
 #'   otherwise if writeSpRasters == TRUE, if writeYears == NULL then all SEASONS
