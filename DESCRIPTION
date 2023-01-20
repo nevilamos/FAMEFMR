@@ -1,6 +1,6 @@
 Package: FAMEFMR
 Title: Functions For DELWP FAME Fire Analysis
-Version: 0.5.3
+Version: 0.5.4
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
@@ -36,6 +36,7 @@ Imports:
     Matrix.utils,
     mgcv,
     nloptr,
+    purrr,
     qs,
     raster,
     Rfast,

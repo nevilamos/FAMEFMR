@@ -11,7 +11,6 @@ calc_SpeciesRA(
   myWriteSpRasters = FALSE,
   myLU_List = LU_List,
   myResultsDir = ResultsDir,
-  myHDMVals = HDMVals,
   myTaxonList = TaxonList,
   writeYears = NULL,
   myWriteSp = writeSp,
@@ -36,12 +35,9 @@ make_Spp_LU_list()}
 \item{myResultsDir}{path of directory where raster results will be written usually
 generated  by FAME script}
 
-\item{myHDMVals}{list of sparse matrices of cell values for Habitat Distribution Model rasters
-for (at least) all TAXON_ID in myHDMSpp_NO generally provided in settings
-file and read by FAME script}
-
-\item{myTaxonList}{data.frame of species attributes ( read from default or
-user provided .csv)}
+\item{myTaxonList}{data.frame of species attributes (read from default or
+user provided .csv) including field HDMPaths with the relative or absolute
+path to the HDM raster used in the analysis.}
 
 \item{writeYears}{vector for SEASONS for which rasters are to be written
 otherwise if writeSpRasters == TRUE, if writeYears == NULL then all SEASONS
