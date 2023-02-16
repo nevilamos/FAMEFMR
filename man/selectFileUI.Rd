@@ -4,7 +4,7 @@
 \alias{selectFileUI}
 \title{Module UI function for file selection}
 \usage{
-selectFileUI(id, label = "Select file", title = "", multiple)
+selectFileUI(id, label = "Select file", title = "", multiple = FALSE)
 }
 \arguments{
 \item{id}{string namespace id for module (same as in server)}

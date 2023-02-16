@@ -29,7 +29,7 @@
 #' shinyApp(ui,server)
 #'
 #'
-selectFileUI <- function(id, label = "Select file", title ="", multiple) {
+selectFileUI <- function(id, label = "Select file", title ="", multiple = FALSE) {
   # Create a namespace function using the provided id
   ns <- shiny::NS(id)
 
