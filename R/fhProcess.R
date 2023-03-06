@@ -1,6 +1,6 @@
 #' Main Fire History Fire Sequence analysis function
 #'
-#' @details The function takes a shapefile or geodatabase layer of Fire history
+#' @details The function takes a shapefile or  geopackage layer of Fire history
 #'   containing polygons with two fields: FIRETYPE and SEASON Where polygons of
 #'   different FIRETYPE or SEASON overlap the function constructs unique
 #'   non-overlapping polygon of their intersections ( and non intersecting areas
