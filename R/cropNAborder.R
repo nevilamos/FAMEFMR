@@ -16,7 +16,7 @@
 #' \item PLM logical for cells within clipped area
 #' }
 #' @export
-cropNAborder  <- function(REG_NO = 7,
+cropNAborderold  <- function(REG_NO = 7,
                           #see look up table REG_LUT for values
                           myRasterRes = RasterRes,
                           PUBLIC_LAND_ONLY,
@@ -24,7 +24,7 @@ cropNAborder  <- function(REG_NO = 7,
                           generalRasterDir = "./InputGeneralRasters"
 ){
   inputR <- inputRasters(myRasterRes)
-  inR <- terra::rast(file.path(generalRasterDir, inputR$REGION.tif))
+  inR <- terra::rast(file.path(generalRasterDir, inputR$RGN))
   Template <- inR
   terra::values(Template) <- NA
 
@@ -61,30 +61,30 @@ cropNAborder  <- function(REG_NO = 7,
 
   FIREFMZ_ras <- terra::mask(
     terra::crop(
-      terra::rast(file.path(generalRasterDir, inputR$FIREFMZ.tif)),
+      terra::rast(file.path(generalRasterDir, inputR$FIREFMZ)),
       Extent),
     RGN_ras)
 
   DELWP_ras <- terra::mask(
     terra::crop(
-      terra::rast(file.path(generalRasterDir, inputR$DELWP.tif)),
+      terra::rast(file.path(generalRasterDir, inputR$DELWP)),
       Extent),
     RGN_ras)
 
   EFG_ras <- terra::mask(
     terra::crop(
-      terra::rast(file.path(generalRasterDir, inputR$EFG.tif)),
+      terra::rast(file.path(generalRasterDir, inputR$EFG)),
       Extent),
     RGN_ras)
 
   PLM_ras <- terra::mask(
     terra::crop(
-      terra::rast(file.path(generalRasterDir, inputR$PLM_GEN.tif)),
+      terra::rast(file.path(generalRasterDir, inputR$PLM)),
       Extent),
     RGN_ras)
 
   #IDX is not masked since we need the values for all cells in the extent
-  IDX <- terra::values( terra::crop( terra::rast(file.path(generalRasterDir, inputR$IDX.tif)), Extent))
+  IDX <- terra::values( terra::crop( terra::rast(file.path(generalRasterDir, inputR$IDX)), Extent))
 
 
 
@@ -107,7 +107,7 @@ cropNAborder  <- function(REG_NO = 7,
   # create list of values for function output
   output <- list("Raster" = RGN_ras,
                  #"Extent" = Extent,
-                 "clipIDX" = cn,
+                 "clipIDX" = as.integer(cn),
                  "EFG" = EFGvals,
                  "RGN" = RGNvals,
                  "IDX" = IDX,
