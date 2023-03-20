@@ -64,18 +64,12 @@ fhProcess<-function(rawFH = "path of the rawFH file geopackage or gdb to use",
   # and that these do not have a missing values
 
   myDFNames <- names(myDF)
-
-  if ("geom" %in% myDFNames) {
-    geometryName = "geom"
-  } else if ("geometry" %in% myDFNames){
-    geometryName = "geometry"
-  } else {
-    stop("Fire History file does not contain geometry")
-  }
+  if(!"sf"%in%class(myDF)){stop("rawFH file is not a spatial dataset")}
   if (!st_geometry_type(myDF,by_geometry = F)[1]%in%c("POLYGON","MULTIPOLYGON")){stop("rawFH file is not a polygon dataset")}
-  if((!"SEASON" %in% myDFNames)) stop ("rawFH shapefile does not contain field 'SEASON'")
-  if(anyNA(myDF$SEASON)) stop ("rawFH shapefile has missing values in  field 'SEASON'")
-  if((!"FIRETYPE"%in% myDFNames)) stop ("rawFH shapefile does not contain field 'FIRETYPE'")
+  if((!"SEASON" %in% myDFNames)) stop ("rawFH file does not contain field 'SEASON'")
+  if(!class(myDF[["SEASON"]]) %in% c("numeric","integer"))stop ("rawFH file field 'SEASON' is not type integer")
+  if(anyNA(myDF$SEASON)) stop ("rawFH file has missing values in  field 'SEASON'")
+  if((!"FIRETYPE"%in% myDFNames)) stop ("rawFH file does not contain field 'FIRETYPE'")
   if(notAllIn(x = myDF$FIRETYPE, v = validFIRETYPE)) stop ("rawFH shapefile has missing or invalid values in field 'FIRETYPE'")
 
 
@@ -125,11 +119,7 @@ fhProcess<-function(rawFH = "path of the rawFH file geopackage or gdb to use",
   # filter spatial dataframe by unique combinations polygons geometry and XYString
   #with SEASON and FIRETYPE
 
-  myDF<-unique(myDF[,c(geometryName,
-                       "XYString",
-                       "SEASON",
-                       "FIRETYPE_NO")
-  ]
+  myDF<-unique(myDF[,names(myDF)]
   )
 
   # order the spatially unique polygons by SEASON then FIRETYPE_NO
