@@ -7,39 +7,42 @@
 #' @param title text title for button (not used) default ""
 #' @param multiple TRUE for allowing mutiple selection, default FALSE to select single file
 #'
-#' @return tibble of file attributes name, size, type, and path ( relative to root_dirs argument in fileSelectServer)
+#' @return datapath path of selected file ( relative to root_dirs argument in fileSelectServer)
 #' @export
 #'
 #' @examples
-#' simple file selection shiny app
-#' ui <-   fluidPage(
-#' selectFileUI(
-#'   id = "fileSelect1",label ="New Label"
-#' ),
-#' verbatimTextOutput("datapath")
-#' )
+#'#simple file selection shiny app
+#'library(shiny)
+#'ui <-   fluidPage(
+#'  selectFileUI(
+#'    id = "fileSelect1",label ="Select File"
+#'  ),
+#'  textOutput("datapath")
 #'
-#' server <- function(input, output, session) {
-#'   rv<-reactiveValues()
-#'   x <- selectFileServer(id = "fileSelect1")
-#'   observe(rv$x<-x$datapathtab()$datapath)
-#'   observeEvent(rv$x,output$datapath<-renderText(rv$x))
+#')
 #'
-#' }
-#' shinyApp(ui,server)
+#'server <- function(input, output, session) {
+#'  rv<-reactiveValues()
+#'  x <- selectFileServer(id = "fileSelect1")
+#'  observe(rv$datapath<-x$datapath)
+#'  observe(output$datapath<-renderText(rv$datapath))
 #'
 #'
+#'}
+#'shinyApp(ui,server)
+
 selectFileUI <- function(id, label = "Select file", title ="", multiple = FALSE) {
   # Create a namespace function using the provided id
   ns <- shiny::NS(id)
 
-  shiny::tagList(shiny::verbatimTextOutput(ns("file_path")),
-                 shinyFiles::shinyFilesButton(
-                   id = ns("get_file_path"),
-                   label =label,
-                   title = title,
-                   multiple = FALSE)
-                 )
+  shiny::tagList(
+    shinyFiles::shinyFilesButton(
+      id = ns("get_file_path"),
+      label =label,
+      title = title,
+      multiple = FALSE)
+  )
+
 }
 
 #' Module Server function for file selection
@@ -52,27 +55,29 @@ selectFileUI <- function(id, label = "Select file", title ="", multiple = FALSE)
 #' @param filetypes vector of filetypes (by file extension) that may be selected from
 #' eg c("txt", "csv", "gpkg")
 #'
-#' @return tibble of file attributes name, size, type, and path ( relative to root_dirs argument in fileSelectServer)
+#' @return filepath as reactiveValue named same as module id  ( relative to root_dirs argument in fileSelectServer)
 #' @export
 #'
 #' @examples
-#' simple file selection shiny app
-#' ui <-   fluidPage(
-#' selectFileUI(
-#'   id = "fileSelect1",label ="New Label"
-#' ),
-#' verbatimTextOutput("datapath")
-#' )
+#'#simple file selection shiny app
+#'library(shiny)
+#'ui <-   fluidPage(
+#'  selectFileUI(
+#'    id = "fileSelect1",label ="Select File"
+#'  ),
+#'  textOutput("datapath")
 #'
-#' server <- function(input, output, session) {
-#'   rv<-reactiveValues()
-#'   x <- selectFileServer(id = "fileSelect1")
-#'   observe(rv$x<-x$datapathtab()$datapath)
-#'   observeEvent(rv$x,output$datapath<-renderText(rv$x))
+#')
 #'
-#' }
-#' shinyApp(ui,server)
+#'server <- function(input, output, session) {
+#'  rv<-reactiveValues()
+#'  x <- selectFileServer(id = "fileSelect1")
+#'  observe(rv$datapath<-x$datapath)
+#'  observe(output$datapath<-renderText(rv$datapath))
 #'
+#'
+#'}
+#'shinyApp(ui,server)
 selectFileServer <- function(id,
                              root_dirs = c(root = "."),
                              filetypes= NULL){
@@ -83,19 +88,18 @@ selectFileServer <- function(id,
                ){
                  rv<-shiny::reactiveValues()
                  shinyFiles::shinyFileChoose(input,
-                                 id = "get_file_path",
-                                 roots = root_dirs,
-                                 session = session,
-                                 filetypes = filetypes)
-                 rv$datapathtab <-
+                                             id = "get_file_path",
+                                             roots = root_dirs,
+                                             session = session,
+                                             filetypes = filetypes)
+                 datapathtab <-
                    shiny::reactive(
                      shinyFiles::parseFilePaths(
                        roots = root_dirs,
                        input$get_file_path)
-                     )
+                   )
+                 observe(rv$datapath<-datapathtab()$datapath)
                  return(rv)
                }
   )
 }
-
-

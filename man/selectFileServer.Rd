@@ -16,7 +16,7 @@ which files may be selected default is the cwd ie c(root = "."))}
 eg c("txt", "csv", "gpkg")}
 }
 \value{
-tibble of file attributes name, size, type, and path ( relative to root_dirs argument in fileSelectServer)
+filepath as reactiveValue named same as module id  ( relative to root_dirs argument in fileSelectServer)
 }
 \description{
 Module Server function for file selection
@@ -26,21 +26,23 @@ Select File Module UI used with selectFileUI
 modified from https://stackoverflow.com/questions/38747129/how-to-use-shinyfiles-package-within-shiny-modules-namespace-issue
 }
 \examples{
-simple file selection shiny app
+#simple file selection shiny app
+library(shiny)
 ui <-   fluidPage(
-selectFileUI(
-  id = "fileSelect1",label ="New Label"
-),
-verbatimTextOutput("datapath")
+ selectFileUI(
+   id = "fileSelect1",label ="Select File"
+ ),
+ textOutput("datapath")
+
 )
 
 server <- function(input, output, session) {
-  rv<-reactiveValues()
-  x <- selectFileServer(id = "fileSelect1")
-  observe(rv$x<-x$datapathtab()$datapath)
-  observeEvent(rv$x,output$datapath<-renderText(rv$x))
+ rv<-reactiveValues()
+ x <- selectFileServer(id = "fileSelect1")
+ observe(rv$datapath<-x$datapath)
+ observe(output$datapath<-renderText(rv$datapath))
+
 
 }
 shinyApp(ui,server)
-
 }
