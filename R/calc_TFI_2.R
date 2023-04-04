@@ -18,6 +18,7 @@
 #' @export
 
 calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
+                       myCropRasters = rv$cropRasters,
                        myAllCombs = allCombs,
                        myTFI_LUT = TFI_LUT,
                        OutputRasters = makeTFIRasters,
@@ -28,7 +29,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
   TimeRange <- as.integer(myFHAnalysis$TimeSpan)
   TimeNames <- as.character(myFHAnalysis$TimeSpan)
   LTR <- length(TimeRange)
-  r <- myFHAnalysis$FH_IDr #raster with spatial attributes for analysis previously stored
+  r <- r <- eval(myCropRasters$rasterDef) #raster with spatial attributes for analysis previously stored
                           #in analysis object used as template for output rasters
 
 

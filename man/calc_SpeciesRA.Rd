@@ -14,7 +14,7 @@ calc_SpeciesRA(
   myTaxonList = TaxonList,
   writeYears = NULL,
   myWriteSp = writeSp,
-  myIDX = cropRasters$IDX
+  myCropRasters = rv$cropRasters
 )
 }
 \arguments{

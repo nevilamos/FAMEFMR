@@ -13,7 +13,6 @@
 #'– Difference in each metric between burn/non-burn states (x4)
 #'– Ranking on difference in each metric between states within District (x4)
 #'– Ranking as above but within District X FMZ_CODE combination (x 4)
-#' @importFrom magrittr %>%
 #' @export
 
 autoJFMP<-function(myJFMP1,myTargetHa)

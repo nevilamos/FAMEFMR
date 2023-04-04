@@ -6,13 +6,13 @@
 #' @param REG_NO integer DELWP fire region number 1:6 ,99 for Statewide analysis,  or 7 for ad hoc boundary polygon default =7 (see look up table REG_LUT for values)
 #' @param PUBLIC_LAND_ONLY Logical TRUE/FALSE
 #' @param myRasterRes numeric raster resolution of the analysis in metres ( usually set in settings file or shiny app)
-#' @param myPoly default clipPoly sf polygon data frame of LF_REGIONs (default) or ad hoc polygon - used in conjunction with REG_NO
+#' @param myPoly path of polygon file  LF_REGIONs (default) or ad hoc polygon - used in conjunction with REG_NO to crop the and output rasters.
 #' @param generalRasterDir relative path to directory containing rasters of DELWP FIRE_REG, DELWP REGION, EFG, PUBLIC LAND (PLM_GEN)
 #' @return A list containing:
 #' \itemize{
 #' \item Raster  raster cropped to extent of area of interest,
 #' \item inCells integer vector cell numbers of cells in the inputRaster(s)
-#'  that correspond to the outputRaster
+#'  that correspond to myPoly
 #' \item outCells integer vector cell numbers of cells in the outputRaster(s)
 #'  that correspond to the inputRaster
 #' \item rasterDef an expression defining an empty raster with the correct extent
@@ -21,7 +21,6 @@
 #' \item RGN integer vector Fire Region numbers for cells within clipped area
 #' \item DELWP integer vector DELWP Region numbers for cells within clipped area
 #' \item PLM logical for cells within clipped area
-#' \item inCells
 #' }
 #' @export
 cropToOutput  <- function(REG_NO = 7,
@@ -34,8 +33,7 @@ cropToOutput  <- function(REG_NO = 7,
   inputR <- inputRasters(myRasterRes)
   inR <- terra::rast(file.path(generalRasterDir, inputR[[1]]))
   Template <- inR
-  terra::values(Template) <- 0
-  idx<-terra::cells(Template)
+  terra::values(Template) <- NA
 
 
   #determines which file to use for masking to regions and values for cells in output region raster
@@ -57,27 +55,36 @@ cropToOutput  <- function(REG_NO = 7,
     terra::values(RGN)[inCells] <- REG_NO
   }
 
-  # set parameters for extent of output
-  Extent<-terra::ext(Shape)
+  # set  or extent of output
+  #Extent<-terra::ext(Shape)
   #  and crop rasters to output extent and  mask to selected area (RGN)
-  RGNcrop <- terra::crop(RGN, Extent)
+  RGNTrim <- terra::trim(RGN)
   #next line ensures extent aligned to RGN raster cells
-  Extent<-terra::ext(RGNcrop)
-  outCells<-terra::cells(RGNcrop,Shape)[,"cell"]
+  Extent<-terra::ext(RGNTrim)
 
+  outCells<-terra::cells(RGNTrim,Shape)[,"cell"]
+
+  #get the values from all the standard input rasters cropped and masked to the region of interest masking to PLM if required
   inputRasters<-terra::rast(file.path(generalRasterDir,unlist(inputR)))
+  croppedInputs<-mask(crop(inputRasters,Extent),RGNTrim,maskvalues =c(NA,0))
+  names(croppedInputs)<-names(inputR)
+  #need to replace value for RGN which at the moment is take from the default regions
 
-  output<-as.list(as.data.frame(terra::values(inputRasters)[inCells,]))
-  names(output)<-names(inputR)
+  croppedInputs$RGN<-RGNTrim
+  if (PUBLIC_LAND_ONLY ==TRUE){
+    croppedInputs<-mask(croppedInputs,croppedInputs$PLM)
+  }
+
+
+  output<-as.list(as.data.frame(terra::values(croppedInputs)))
+
+
 
   #output$Raster<-rast(extent=Extent,res=225)
   output$inCells<-inCells
   output$outCells<-outCells
   output$rasterDef<-parse(text =paste("terra::rast( extent = c(",Extent[1],",",Extent[2],",",Extent[3],",",Extent[4],")",",resolution =",myRasterRes,")"))
-
-
-
-  # end of raster crop function
+ # end of raster crop function
   return(output)
 }
 

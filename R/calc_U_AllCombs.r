@@ -25,8 +25,8 @@ calcU_All_Combs<-function (myFHAnalysis = FHAnalysis,
   TimeRange <- as.integer(myFHAnalysis$TimeSpan)
   TimeNames <- as.character(myFHAnalysis$TimeSpan)
   LTR <- length(TimeRange)
-  r <- myFHAnalysis$FH_IDr
-  FH_ID <- terra::values(r)
+  r <- eval(myCropRasters$rasterDef)
+  FH_ID <- myCropRasters$FH_ID#terra::values(r)
   gc()
 
   # get combination input data

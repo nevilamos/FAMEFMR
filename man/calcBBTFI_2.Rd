@@ -7,6 +7,7 @@
 calcBBTFI_2(
   myFHAnalysis = FHAnalysis,
   myAllCombs = allCombs,
+  myCropRasters = rv$cropRasters,
   makeBBTFIrasters = makeBBTFIrasters,
   myResultsDir = NULL
 )
@@ -16,6 +17,11 @@ calcBBTFI_2(
 created by function fhProcess()}
 
 \item{myAllCombs}{list made by function calc_U_AllCombs}
+
+\item{myCropRasters}{cropRasters object mad using function cropToOutput.
+It contains a definition of a terra::rast, cropped to the extent of the
+area of interest and the values from the input rasters for that same
+cropped area}
 
 \item{makeBBTFIrasters}{logical whether or not to export
 rasters for BBTFI to disk}

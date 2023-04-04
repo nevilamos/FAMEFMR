@@ -63,6 +63,11 @@ fhProcess<-function(rawFH = "path of the rawFH file geopackage or gdb to use",
   # check that the input fire History (rawFH) contains the two required fields
   # and that these do not have a missing values
 
+
+  #this can be speeded up by a sql query to read in 0 lines before reading in whole thing
+
+  #FFRAU_FH2_JFMP2023_sql = sf::st_read("C:/Users/na03/Downloads/StateFH_JFMP2023/FFRAU_FH2_JFMP2023.shp", query="select * from \"FFRAU_FH2_JFMP2023\" limit 0")
+
   myDFNames <- names(myDF)
   if(!"sf"%in%class(myDF)){stop("rawFH file is not a spatial dataset")}
   if (!st_geometry_type(myDF,by_geometry = F)[1]%in%c("POLYGON","MULTIPOLYGON")){stop("rawFH file is not a polygon dataset")}
