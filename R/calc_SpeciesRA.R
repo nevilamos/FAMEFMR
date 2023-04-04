@@ -38,11 +38,12 @@ calc_SpeciesRA <- function(myFHAnalysis,
                            myWriteSpRasters = FALSE,
                            myLU_List = LU_List,
                            myResultsDir = ResultsDir,
-                           #myHDMVals = HDMVals,
                            myTaxonList = TaxonList,
                            writeYears = NULL,
                            myWriteSp = writeSp,
-                           myIDX=cropRasters$IDX) {
+                           myCropRasters = rv$cropRasters
+                           ) {
+  myIDX=myCropRasters$IDX
   # set time range for analysis
   TimeRange <- as.integer(myFHAnalysis$TimeSpan)
   TimeNames <- as.character(myFHAnalysis$TimeSpan)
@@ -50,7 +51,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
   LTR <- length(TimeNames)
 
   # reads in raster from fhAnalysis as Template
-  r <- myFHAnalysis$FH_IDr
+  r <- eval(myCropRasters$rasterDef)
 
   # determine what years to write out (each year or TimeSpan)
   TimeSpan <- myFHAnalysis$TimeSpan
@@ -91,7 +92,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
     # species. values multiplied by 100 so that they can later be converted to
     # integer if necessary without losing small values
 
-    HDM_Vector<-terra::rast(myTaxonList[myTaxonList$TAXON_ID== sp,][["HDMPath"]])[myIDX][[1]]*100
+    HDM_Vector<-values(terra::rast(myTaxonList[myTaxonList$TAXON_ID== sp,][["HDMPath"]]))[myIDX]*100
 
     # makes matrices of YSF, EFG, and LFT to use in lookup from LU array
     YSF_M <-
@@ -168,13 +169,15 @@ calc_SpeciesRA <- function(myFHAnalysis,
   names(SpYearSumm)[1] <- "TAXON_ID"
   TL <- myTaxonList %>%
     dplyr::mutate(TAXON_ID = as.character(TAXON_ID))
-  SpYearSummWide <- dplyr::right_join(TL, SpYearSumm)
+  SpYearSummWide <- dplyr::right_join(TL,
+                                      SpYearSumm)
   SpYearSummLong <- dplyr::right_join(
     TL,
     SpYearSumm %>%
       tidyr::pivot_longer(-TAXON_ID,
                           names_to = "SEASON",
-                          values_to = "SUM_RAx100")) %>%
+                          values_to = "SUM_RAx100"),
+    multiple = "all") %>%
     dplyr::mutate(SEASON = ifelse(SEASON == "NoBurn","9999",SEASON))%>%
     dplyr::mutate(SEASON = as.integer(SEASON))
 

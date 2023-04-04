@@ -6,6 +6,7 @@
 \usage{
 calc_TFI_2(
   myFHAnalysis = FHAnalysis,
+  myCropRasters = rv$cropRasters,
   myAllCombs = allCombs,
   myTFI_LUT = TFI_LUT,
   OutputRasters = makeTFIRasters,

@@ -5,6 +5,10 @@
 #' @param myFHAnalysis list of Fhire history analysis components
 #'   created by function fhProcess()
 #' @param myAllCombs list made by function calc_U_AllCombs
+#' @param myCropRasters cropRasters object mad using function cropToOutput.
+#' It contains a definition of a terra::rast, cropped to the extent of the
+#'  area of interest and the values from the input rasters for that same
+#'  cropped area
 #' @param makeBBTFIrasters logical whether or not to export
 #' rasters for BBTFI to disk
 #' @param myResultsDir path of directory where results will be written usually
@@ -16,10 +20,10 @@
 #' \item BBTFI_LONG long format table ( ie not spread by season) otherwise as BBTFI used for production of charts
 #' }
 #' @importFrom rlang .data
-#' @importFrom magrittr %>%
 #' @export
 calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
                         myAllCombs = allCombs,
+                        myCropRasters = rv$cropRasters,
                         makeBBTFIrasters = makeBBTFIrasters,
                         myResultsDir = NULL)
 {
@@ -27,15 +31,7 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
   #import the allCombs data table and vector of raster cell values
   U_AllCombs_TFI = myAllCombs$U_AllCombs_TFI
   Index_AllCombs = myAllCombs$Index_AllCombs
-  # import fire history raster and make template
-  r <- myFHAnalysis$FH_IDr
-  # FH_ID <- raster::values(r)
-  # r <- raster::raster(nrows = nrow(r),
-  #             ncols = ncol(r),
-  #             ext = raster::extent(r),
-  #             crs = raster::crs(r),
-  #             vals = NULL
-  #             )
+
 
 
   #read the sf polygon data.frame all the fire history spatial attributes created by function fhProcess()
@@ -144,12 +140,13 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
     dir.create(file.path(myResultsDir,
                          "BBTFI_Rasters"), showWarnings = TRUE)
 
+    r <- eval(myCropRasters$rasterDef)
     raster::values(r) <- Index_AllCombs
     rasterDatatype <- ifelse(max(Index_AllCombs) <= 32767, 'INT2S', 'INT4S')
     r <- terra::as.factor(r)
 
-    RAT <- cbind(levels(r)[[1]], as.data.frame(BBTFI_WIDE), FirstBBTFI, totalTimesBBTFI)%>%
-      dplyr::rename(VALUE =ID) %>%
+    RAT <- cbind(levels(r)[[1]], as.data.frame(BBTFI_WIDE) %>% rename(FH_ID = ID), FirstBBTFI, totalTimesBBTFI)%>%
+      dplyr::rename(VALUE = ID) %>%
       dplyr::mutate(VALUE = as.integer(VALUE)) %>%
       foreign::write.dbf(.,
                          file.path(myResultsDir,
