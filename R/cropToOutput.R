@@ -40,10 +40,9 @@ cropToOutput  <- function(REG_NO = 7,
   if(REG_NO %in% 1:6){
     Shape <- terra::vect(myPoly)
     Shape <- Shape[Shape$REGION_NO == REG_NO,]
-    #cn <- tabularaster::cellnumbers(Template, Shape)
     inCells <- terra::cells(Template, Shape)[,"cell"]
     RGN <- Template
-    terra::values(RGN)[cn] <- REG_NO
+    terra::values(RGN)[inCells] <- REG_NO
   } else  if(REG_NO == 99){
     Shape <- terra::vect(myPoly)
     inCells <- terra::cells(Template, Shape)[,"cell"]
@@ -56,8 +55,7 @@ cropToOutput  <- function(REG_NO = 7,
   }
 
   # set  or extent of output
-  #Extent<-terra::ext(Shape)
-  #  and crop rasters to output extent and  mask to selected area (RGN)
+    #  and crop rasters to output extent and  mask to selected area (RGN)
   RGNTrim <- terra::trim(RGN)
   #next line ensures extent aligned to RGN raster cells
   Extent<-terra::ext(RGNTrim)
@@ -66,19 +64,23 @@ cropToOutput  <- function(REG_NO = 7,
 
   #get the values from all the standard input rasters cropped and masked to the region of interest masking to PLM if required
   inputRasters<-terra::rast(file.path(generalRasterDir,unlist(inputR)))
-  croppedInputs<-mask(crop(inputRasters,Extent),RGNTrim,maskvalues =c(NA,0))
+  #croppedInputs<-mask(crop(inputRasters,Extent),RGNTrim,maskvalues =c(NA,0))
+  croppedInputs<-crop(inputRasters,Extent)
   names(croppedInputs)<-names(inputR)
   #need to replace value for RGN which at the moment is take from the default regions
+  IDX<-croppedInputs$IDX
 
   croppedInputs$RGN<-RGNTrim
   if (PUBLIC_LAND_ONLY ==TRUE){
     croppedInputs<-mask(croppedInputs,croppedInputs$PLM)
+    #need to reinstate all values of index not masked to public land only
+    croppedInputs$IDX<-IDX
   }
+  rm(IDX)
+
 
 
   output<-as.list(as.data.frame(terra::values(croppedInputs)))
-
-
 
   #output$Raster<-rast(extent=Extent,res=225)
   output$inCells<-inCells
