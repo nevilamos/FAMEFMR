@@ -35,7 +35,7 @@
 calc_SpeciesRA <- function(myFHAnalysis,
                            myAllCombs = allCombs,
                            myHDMSpp_NO = HDMSpp_NO,
-                           myWriteSpRasters = FALSE,
+                           myWriteSpRasters = TRUE,
                            myLU_List = LU_List,
                            myResultsDir = ResultsDir,
                            myTaxonList = TaxonList,
@@ -92,8 +92,8 @@ calc_SpeciesRA <- function(myFHAnalysis,
     # species. values multiplied by 100 so that they can later be converted to
     # integer if necessary without losing small values
 
-    HDM_Vector<-values(terra::rast(myTaxonList[myTaxonList$TAXON_ID== sp,][["HDMPath"]]))[myIDX]*100
-
+    HDM_Vector<-terra::extract(terra::rast(myTaxonList[myTaxonList$TAXON_ID== sp,][["HDMPath"]]),myIDX)[,1]*100
+    #HDM_Vector_<-as.vector(myHDMVals[,mySpp])*100
     # makes matrices of YSF, EFG, and LFT to use in lookup from LU array
     YSF_M <-
       as.matrix(myDF[myAllCombs$U_AllCombs_TFI$ID, myFHAnalysis$YSFNames]) + 1
@@ -126,7 +126,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
                           data.table::as.data.table(Spp_Val_Cell_Year)%>%
                             dplyr::group_by(myAllCombs$Index_AllCombs)%>%
                             dplyr::summarise(dplyr::across(tidyselect::everything(),
-                                                           sum,na.rm=T))%>%
+                                                           \ (x) sum(x,na.rm=T)))%>%
                             dplyr::mutate(TAXON_ID = mySpp)
     )
 
