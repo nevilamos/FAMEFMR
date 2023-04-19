@@ -32,7 +32,7 @@
 #' }
 
 #' @export
-calc_SpeciesRAdev <- function(myFHAnalysis,
+calc_SpeciesRA <- function(myFHAnalysis,
                            myAllCombs = allCombs,
                            myHDMSpp_NO = HDMSpp_NO,
                            myWriteSpRasters = TRUE,
@@ -93,7 +93,7 @@ calc_SpeciesRAdev <- function(myFHAnalysis,
     # integer if necessary without losing small values
 
     HDM_Vector<-terra::extract(terra::rast(myTaxonList[myTaxonList$TAXON_ID== sp,][["HDMPath"]]),myIDX)[,1]*100
-    #HDM_Vector_<-as.vector(myHDMVals[,mySpp])*100
+
     # makes matrices of YSF, EFG, and LFT to use in lookup from LU array
     YSF_M <-
       as.matrix(myDF[myAllCombs$U_AllCombs_TFI$ID, myFHAnalysis$YSFNames]) + 1
