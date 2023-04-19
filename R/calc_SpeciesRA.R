@@ -32,7 +32,7 @@
 #' }
 
 #' @export
-calc_SpeciesRA <- function(myFHAnalysis,
+calc_SpeciesRAdev <- function(myFHAnalysis,
                            myAllCombs = allCombs,
                            myHDMSpp_NO = HDMSpp_NO,
                            myWriteSpRasters = TRUE,
