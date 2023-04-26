@@ -57,7 +57,7 @@ uploadFileUI <-  function(id,
 #'  esri geodatabases. Thee zip file is unzipped after upload. OR
 #'  any other specified file suffix - tests for and allows upload
 #'  only of the defined suffix
-#' @param saveToPath
+#' @param saveToPath Path to save files to on server
 #'
 #' @return text message on status of upload for printing to ui
 #' @export

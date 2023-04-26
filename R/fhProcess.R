@@ -70,7 +70,7 @@ fhProcess<-function(rawFH = "path of the rawFH file geopackage or gdb to use",
 
   myDFNames <- names(myDF)
   if(!"sf"%in%class(myDF)){stop("rawFH file is not a spatial dataset")}
-  if (!st_geometry_type(myDF,by_geometry = F)[1]%in%c("POLYGON","MULTIPOLYGON")){stop("rawFH file is not a polygon dataset")}
+  if (!sf::st_geometry_type(myDF,by_geometry = F)[1]%in%c("POLYGON","MULTIPOLYGON")){stop("rawFH file is not a polygon dataset")}
   if((!"SEASON" %in% myDFNames)) stop ("rawFH file does not contain field 'SEASON'")
   if(!class(myDF[["SEASON"]]) %in% c("numeric","integer"))stop ("rawFH file field 'SEASON' is not type integer")
   if(anyNA(myDF$SEASON)) stop ("rawFH file has missing values in  field 'SEASON'")

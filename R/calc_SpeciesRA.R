@@ -21,7 +21,7 @@
 #'   rasters are required as output.
 #' @param myAllCombs all combinations of raster values object produced by
 #'   function calc_U_AllCombs
-#' @param myIDX index of cells to extract values for from cropRasters object
+#' @param myCropRasters  object containing cell indices and values of input rasters cropped to area of interest created by cropToOutput()
 #'
 #' @return list of two or three data frames:
 #' \itemize{
@@ -41,7 +41,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
                            myTaxonList = TaxonList,
                            writeYears = NULL,
                            myWriteSp = writeSp,
-                           myCropRasters = rv$cropRasters
+                           myCropRasters = cropRasters
                            ) {
   myIDX=myCropRasters$IDX
   # set time range for analysis
