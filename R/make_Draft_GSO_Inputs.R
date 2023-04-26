@@ -30,7 +30,7 @@ make_Draft_GSO_inputs <- function(REG_NO,
   mySpList <- utils::read.csv(splist)[,c( "TAXON_ID","COMMON_NAME","SCIENTIFIC_NAME")]
   #get path to correct resolution EFG raster
   EFGRas<-file.path(generalRasterDir,paste0("EFG_NUM_",RasterRes,".tif"))
-  #EFG <- raster::values(raster(EFGRas))
+  #EFG <- terra::values(raster(EFGRas))
   REG_NO <- as.integer(as.numeric(REG_NO))
   CropDetails <- cropNAborder (REG_NO = REG_NO,
                                myRasterRes = RasterRes,
@@ -41,7 +41,7 @@ make_Draft_GSO_inputs <- function(REG_NO,
 
   TFI_LUT<-dplyr::rename(TFI_LUT,EFG_NO = EFG)
   # crop EFG and HDMVals
-  EFG <- raster::values(raster::raster(EFGRas))[CropDetails$clipIDX]
+  EFG <- terra::values(terra::raster(EFGRas))[CropDetails$clipIDX]
   EFG[is.na(EFG)] <- 99
   HDMVals <- HDMVals[CropDetails$clipIDX,]
   mode(EFG) <- "integer"

@@ -5,7 +5,7 @@
 #' @param myFHAnalysis list of Fhire history analysis components
 #'   created by function fhProcess()
 #' @param myAllCombs list made by function calc_U_AllCombs
-#' @param myCropRasters cropRasters object mad using function cropToOutput.
+#' @param myCropRasters cropRasters object made using function cropToOutput.
 #' It contains a definition of a terra::rast, cropped to the extent of the
 #'  area of interest and the values from the input rasters for that same
 #'  cropped area
@@ -23,7 +23,7 @@
 #' @export
 calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
                         myAllCombs = allCombs,
-                        myCropRasters = rv$cropRasters,
+                        myCropRasters = cropRasters,
                         makeBBTFIrasters = makeBBTFIrasters,
                         myResultsDir = NULL)
 {
@@ -135,17 +135,24 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
 
   # output rasters if applicable
   if(makeBBTFIrasters){
-    print(file.path(myResultsDir,
-                    "BBTFI_Rasters"))
+
     dir.create(file.path(myResultsDir,
                          "BBTFI_Rasters"), showWarnings = TRUE)
 
     r <- eval(myCropRasters$rasterDef)
-    raster::values(r) <- Index_AllCombs
+    terra::values(r) <- Index_AllCombs
     rasterDatatype <- ifelse(max(Index_AllCombs) <= 32767, 'INT2S', 'INT4S')
     r <- terra::as.factor(r)
 
-    RAT <- cbind(levels(r)[[1]], as.data.frame(BBTFI_WIDE) %>% rename(FH_ID = ID), FirstBBTFI, totalTimesBBTFI)%>%
+
+
+    terra::writeRaster(r,
+                       file.path(myResultsDir, "BBTFI_Rasters", 'BBTFI_BY_YEAR.tif'),
+                       datatype = rasterDatatype,
+                       overwrite=TRUE,
+                       gdal=c("COMPRESS=LZW", "TFW=YES")
+    )
+    RAT <- cbind(levels(r)[[1]], as.data.frame(BBTFI_WIDE) %>% dplyr::rename(FH_ID = ID), FirstBBTFI, totalTimesBBTFI)%>%
       dplyr::rename(VALUE = ID) %>%
       dplyr::mutate(VALUE = as.integer(VALUE)) %>%
       foreign::write.dbf(.,
@@ -154,13 +161,6 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
                                    "BBTFI_BY_YEAR.tif.vat.dbf"),
                          factor2char = TRUE,
                          max_nchar = 254)
-    print(paste("BbtfiTiff=",file.path(myResultsDir, "BBTFI_Rasters", 'BBTFI_BY_YEAR.tif')))#debug
-    terra::writeRaster(r,
-                       file.path(myResultsDir, "BBTFI_Rasters", 'BBTFI_BY_YEAR.tif'),
-                       datatype = rasterDatatype,
-                       overwrite=TRUE,
-                       gdal=c("COMPRESS=LZW", "TFW=YES")
-    )
 
 
   }

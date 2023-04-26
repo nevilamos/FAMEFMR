@@ -2,23 +2,21 @@
 #' @details Calculates where each cell is currently at below MinTFI or above
 #'   MAX_TFI returns the per cell and long table summarised by multiple admin
 #'   units and evc
-#' @param myFHAnalysis 	list containing all the fire history spatial attributes
-#'   created by function fhProcess()
+#' @param myFHAnalysis 	list containing all the fire history spatial attributes created by function fhProcess()
+#' @param myCropRasters  object containing cell indices and values of input rasters cropped to area of interest created by cropToOutput()
 #' @param myAllCombs list made by function calc_U_AllCombs
 #' @param myTFI_LUT data.frame Lookup table from EFG for
 #'   "MIN_LO_TFI","MIN_HI_TFI","MAX_TFI","EFG_NAME", read from settings
-#' @param OutputRasters logical whether to output rasters of TFI status for each
-#'   year
+#' @param OutputRasters logical whether to output rasters of TFI status for each year
 #' @param myResultsDir path of directory where results will be written usually
 #'   generated  by FAME script
 #' @importFrom rlang .data
 #' @importFrom data.table as.data.table
-#' @import raster
 #' @return data.frame with area in each TFI status for each combination in myAllCombs
 #' @export
 
 calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
-                       myCropRasters = rv$cropRasters,
+                       myCropRasters = cropRasters,
                        myAllCombs = allCombs,
                        myTFI_LUT = TFI_LUT,
                        OutputRasters = makeTFIRasters,
@@ -139,6 +137,13 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
 
     r <- terra::as.factor(r)
     colnames(TFI_VAL) <- paste0("TFI_", colnames(TFI_VAL))
+    terra::writeRaster(r,
+                        file.path(myResultsDir,
+                                  "TFI_Rasters",
+                                  "TFI_BY_YEAR.tif"),
+                        datatype = rasterDatatype,
+                        overwrite=TRUE,
+                        gdal=c("COMPRESS=LZW", "TFW=YES"))
     #make raster attribute table by binding attributes to ID from raster levels.
     RAT<-cbind(terra::levels(r)[[1]], as.data.frame(TFI_VAL))%>%
       dplyr::rename(VALUE = ID) %>%
@@ -149,13 +154,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
                          factor2char = TRUE,
                          max_nchar = 254)
 
-    raster::writeRaster(r,
-                        file.path(myResultsDir,
-                                  "TFI_Rasters",
-                                  "TFI_BY_YEAR.tif"),
-                        datatype = rasterDatatype,
-                        overwrite=TRUE,
-                        gdal=c("COMPRESS=LZW", "TFW=YES"))
+
 
   }
   TFI_Summary <- TFI_Summary%>%dplyr::mutate(SEASON = as.integer(SEASON))
