@@ -152,6 +152,7 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
                        overwrite=TRUE,
                        gdal=c("COMPRESS=LZW", "TFW=YES")
     )
+
     RAT <- cbind(levels(r)[[1]], as.data.frame(BBTFI_WIDE) %>% dplyr::rename(FH_ID = ID), FirstBBTFI, totalTimesBBTFI)%>%
       dplyr::rename(VALUE = ID) %>%
       dplyr::mutate(VALUE = as.integer(VALUE)) %>%
