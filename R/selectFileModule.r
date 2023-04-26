@@ -81,7 +81,7 @@ selectFileUI <- function(id, label = "Select file", title ="", multiple = FALSE)
 selectFileServer <- function(id,
                              root_dirs = c(root = "."),
                              filetypes= NULL){
-  moduleServer(id,
+  shiny::moduleServer(id,
                function(input,
                         output,
                         session
@@ -98,7 +98,7 @@ selectFileServer <- function(id,
                        roots = root_dirs,
                        input$get_file_path)
                    )
-                 observe(rv$datapath<-datapathtab()$datapath)
+                 shiny::observe(rv$datapath<-datapathtab()$datapath)
                  return(rv)
                }
   )

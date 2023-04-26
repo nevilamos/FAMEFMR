@@ -6,7 +6,7 @@
 \usage{
 calc_TFI_2(
   myFHAnalysis = FHAnalysis,
-  myCropRasters = rv$cropRasters,
+  myCropRasters = cropRasters,
   myAllCombs = allCombs,
   myTFI_LUT = TFI_LUT,
   OutputRasters = makeTFIRasters,
@@ -14,16 +14,16 @@ calc_TFI_2(
 )
 }
 \arguments{
-\item{myFHAnalysis}{list containing all the fire history spatial attributes
-created by function fhProcess()}
+\item{myFHAnalysis}{list containing all the fire history spatial attributes created by function fhProcess()}
+
+\item{myCropRasters}{object containing cell indices and values of input rasters cropped to area of interest created by cropToOutput()}
 
 \item{myAllCombs}{list made by function calc_U_AllCombs}
 
 \item{myTFI_LUT}{data.frame Lookup table from EFG for
 "MIN_LO_TFI","MIN_HI_TFI","MAX_TFI","EFG_NAME", read from settings}
 
-\item{OutputRasters}{logical whether to output rasters of TFI status for each
-year}
+\item{OutputRasters}{logical whether to output rasters of TFI status for each year}
 
 \item{myResultsDir}{path of directory where results will be written usually
 generated  by FAME script}

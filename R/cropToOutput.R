@@ -65,14 +65,14 @@ cropToOutput  <- function(REG_NO = 7,
   #get the values from all the standard input rasters cropped and masked to the region of interest masking to PLM if required
   inputRasters<-terra::rast(file.path(generalRasterDir,unlist(inputR)))
   #croppedInputs<-mask(crop(inputRasters,Extent),RGNTrim,maskvalues =c(NA,0))
-  croppedInputs<-crop(inputRasters,Extent)
+  croppedInputs<-terra::crop(inputRasters,Extent)
   names(croppedInputs)<-names(inputR)
   #need to replace value for RGN which at the moment is take from the default regions
   IDX<-croppedInputs$IDX
 
   croppedInputs$RGN<-RGNTrim
   if (PUBLIC_LAND_ONLY ==TRUE){
-    croppedInputs<-mask(croppedInputs,croppedInputs$PLM)
+    croppedInputs<-terra::mask(croppedInputs,croppedInputs$PLM)
     #need to reinstate all values of index not masked to public land only
     croppedInputs$IDX<-IDX
   }

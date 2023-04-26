@@ -22,7 +22,7 @@ esri geodatabases. Thee zip file is unzipped after upload. OR
 any other specified file suffix - tests for and allows upload
 only of the defined suffix}
 
-\item{saveToPath}{}
+\item{saveToPath}{Path to save files to on server}
 }
 \value{
 text message on status of upload for printing to ui
@@ -48,6 +48,5 @@ saveToPath = "./temp",
 filetype ="geog")
 
 }
-# Run the applicationshinyApp
-(ui = ui, server = server)
+shiny::shinyApp(ui = ui, server = server)
 }

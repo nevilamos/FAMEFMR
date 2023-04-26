@@ -1,6 +1,6 @@
 Package: FAMEFMR
 Title: Functions For DELWP FAME Fire Analysis
-Version: 0.5.7.5
+Version: 0.6.0.0
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
@@ -32,22 +32,24 @@ Imports:
     foreign,
     foreach,
     iterators,
+    magrittr,
     Matrix.utils,
     mgcv,
     nloptr,
     purrr,
     qs,
+    readr,
     Rfast,
     rlang,
+    scales,
     sf,
+    shiny,
+    shinyFiles,
     stringr,
     terra,
     tibble,
     tidyr,
     tidyselect,
-    scales,
-    shiny,
-    shinyFiles,
-    readr
+    utils
 Depends: 
     data.table

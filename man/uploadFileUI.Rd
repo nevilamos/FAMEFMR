@@ -38,6 +38,5 @@ saveToPath = "./temp",
 filetype ="geog")
 
 }
-# Run the applicationshinyApp
-(ui = ui, server = server)
+shiny::shinyApp(ui = ui, server = server)
 }

@@ -27,8 +27,7 @@
 #' filetype ="geog")
 #'
 #'}
-#'# Run the applicationshinyApp
-#'(ui = ui, server = server)
+#'shiny::shinyApp(ui = ui, server = server)
 uploadFileUI <-  function(id,
                           label = "Select file",
                           multiple = TRUE) {
@@ -57,7 +56,7 @@ uploadFileUI <-  function(id,
 #'  esri geodatabases. Thee zip file is unzipped after upload. OR
 #'  any other specified file suffix - tests for and allows upload
 #'  only of the defined suffix
-#' @param saveToPath
+#' @param saveToPath Path to save files to on server
 #'
 #' @return text message on status of upload for printing to ui
 #' @export
@@ -80,8 +79,7 @@ uploadFileUI <-  function(id,
 #' filetype ="geog")
 #'
 #'}
-#'# Run the applicationshinyApp
-#'(ui = ui, server = server)
+#'shiny::shinyApp(ui = ui, server = server)
 uploadFileServer <-
   function(id,
            filetype = c(NULL,"geog","any other file suffix can be used ( without the dot)"),

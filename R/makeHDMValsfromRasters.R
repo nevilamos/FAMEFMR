@@ -21,7 +21,7 @@ makeHDMValsfromRasters <- function(myHDMSpp_NO = HDMSpp_NO,
   doParallel::registerDoParallel(cl, cores=Ncores)
 
   myHDMVals <- foreach::foreach(i = iterators::iter(HDMPaths),.combine = cbind,.packages = "raster") %dopar% {
-    myVals <- raster::values(raster::raster(i))[myCropRasters$IDX]
+    myVals <- terra::values(terra::rast(i))[myCropRasters$IDX]
     myVals}
   parallel::stopCluster(cl)
 

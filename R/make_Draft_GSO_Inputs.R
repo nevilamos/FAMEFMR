@@ -41,7 +41,7 @@ make_Draft_GSO_inputs <- function(REG_NO,
 
   TFI_LUT<-dplyr::rename(TFI_LUT,EFG_NO = EFG)
   # crop EFG and HDMVals
-  EFG <- terra::values(terra::raster(EFGRas))[CropDetails$clipIDX]
+  EFG <- terra::values(terra::rast(EFGRas))[CropDetails$clipIDX]
   EFG[is.na(EFG)] <- 99
   HDMVals <- HDMVals[CropDetails$clipIDX,]
   mode(EFG) <- "integer"

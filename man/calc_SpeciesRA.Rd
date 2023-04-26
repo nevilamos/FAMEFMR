@@ -14,7 +14,7 @@ calc_SpeciesRA(
   myTaxonList = TaxonList,
   writeYears = NULL,
   myWriteSp = writeSp,
-  myCropRasters = rv$cropRasters
+  myCropRasters = cropRasters
 )
 }
 \arguments{
@@ -46,7 +46,7 @@ are written out}
 \item{myWriteSp}{vector of TAXON_IDs provided if only subset of species
 rasters are required as output.}
 
-\item{myIDX}{index of cells to extract values for from cropRasters object}
+\item{myCropRasters}{object containing cell indices and values of input rasters cropped to area of interest created by cropToOutput()}
 }
 \value{
 list of two or three data frames:
