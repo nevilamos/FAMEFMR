@@ -10,8 +10,7 @@ calc_DraftSpList(
   PUBLIC_LAND_ONLY,
   myPoly = clipPoly,
   generalRasterDir = "./InputGeneralRasters",
-  splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
-  myHDMVals = "./HDMS/HDMVals225.qs"
+  TaxonList = "./ReferenceTables/DraftTaxonListStatewidev2.csv"
 )
 }
 \arguments{
@@ -25,9 +24,7 @@ calc_DraftSpList(
 
 \item{generalRasterDir}{relative path to directory containing rasters of FIRE_REG, and PUBLIC LAND (PLM_GEN)}
 
-\item{splist}{path to default species attribute table default is}
-
-\item{myHDMVals}{matrix of cell values for Habitat Distribution Model rasters always 225m for speed}
+\item{TaxonList}{path to default species attribute table coantianing paths to HDMs in column HDMPath}
 }
 \value{
 data.frame created from  TaxonList with columns appended for:

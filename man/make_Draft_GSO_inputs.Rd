@@ -10,8 +10,7 @@ make_Draft_GSO_inputs(
   PUBLIC_LAND_ONLY,
   myPoly = clipPoly,
   generalRasterDir = "./InputGeneralRasters",
-  splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
-  myHDMVals = "./HDMS/HDMVals225.qs",
+  TaxonList = "D:/FAMEshiny/ReferenceTables/FAME_TAXON_LIST.csv",
   myResultsDir = ResultsDir,
   TFI_LUT = TFI_LUT
 )
@@ -27,9 +26,7 @@ make_Draft_GSO_inputs(
 
 \item{generalRasterDir}{relative path to directory containing rasters of FIRE_REG, and PUBLIC LAND (PLM_GEN)}
 
-\item{splist}{path to default species attribute table default is "./ReferenceTables/DraftTaxonListStatewidev2.csv"}
-
-\item{myHDMVals}{sparse matrix of cell values for Habitat Distribution Model rasters at 225m pixel size #' saved as a qs file on disk}
+\item{TaxonList}{path to  species attribute table containing paths to HDMs default is "./ReferenceTables/FAME_TAXON_LIST.csv"}
 
 \item{myResultsDir}{path of directory where output will be saved}
 

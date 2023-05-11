@@ -14,7 +14,7 @@ calcU_All_Combs(
 \arguments{
 \item{myFHAnalysis}{list containing all the fire history spatial attributes created by function fhProcess()}
 
-\item{myCropRasters}{list of rasters and indices and cell values created by function cropNAborder()}
+\item{myCropRasters}{list of rasters and indices and cell values created by function cropToOutput()}
 
 \item{myRasterRes}{Resolution of Rasters to be used in the analysis set in settings file in R-script version needs to be set in shiny version}
 

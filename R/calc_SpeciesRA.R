@@ -43,6 +43,8 @@ calc_SpeciesRA <- function(myFHAnalysis,
                            myWriteSp = writeSp,
                            myCropRasters = cropRasters
                            ) {
+  #change the directory for HDMs to the correct resolution
+  if(myFHAnalysis$RasterRes == 225){}else{myTaxonList$HDMPath = gsub("/225m/","/75m/",myTaxonList$HDMPath)}
   myIDX=myCropRasters$IDX
   # set time range for analysis
   TimeRange <- as.integer(myFHAnalysis$TimeSpan)

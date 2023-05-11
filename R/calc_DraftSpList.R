@@ -10,8 +10,7 @@
 #' @param PUBLIC_LAND_ONLY logical whether to restrict analysis to public land only or the whole polygon
 #' @param myPoly default clipPoly sf polygon data frame of LF_REGIONs (default) or ad hoc polygon - used in conjunction with REG_NO
 #' @param generalRasterDir relative path to directory containing rasters of FIRE_REG, and PUBLIC LAND (PLM_GEN)
-#' @param splist path to default species attribute table default is
-#' @param myHDMVals matrix of cell values for Habitat Distribution Model rasters always 225m for speed
+#' @param TaxonList path to default species attribute table coantianing paths to HDMs in column HDMPath
 #'
 #' @return data.frame created from  TaxonList with columns appended for:
 #' \itemize{
@@ -25,27 +24,30 @@ calc_DraftSpList <- function(REG_NO,
                             PUBLIC_LAND_ONLY,
                             myPoly = clipPoly,
                             generalRasterDir = "./InputGeneralRasters",
-                            splist = "./ReferenceTables/DraftTaxonListStatewidev2.csv",
-                            myHDMVals = "./HDMS/HDMVals225.qs"){
-  HDMVals<-qs::qread(myHDMVals)#loads matrix of binary thrsholded  HDMVals  called "HDMvals"
+                            TaxonList = "./ReferenceTables/DraftTaxonListStatewidev2.csv"
+                            #,myHDMVals = "./HDMS/HDMVals225.qs"
+                            ){
+  #HDMVals<-qs::qread(myHDMVals)#loads matrix of binary thrsholded  HDMVals  called "HDMvals"
   REG_NO <- as.integer(as.numeric(REG_NO))                                  ######-----go straight to int? rather than wrap the numeric -did not seem to work when tried as.integer(REG_NO)
-  splist <- utils::read.csv(splist)
-  CropDetails <- cropNAborder (REG_NO = REG_NO,
+  TaxonList <- readr::read_csv(TaxonList)
+  CropDetails <- cropToOutput (REG_NO = REG_NO,
                                myRasterRes = RasterRes,
                                PUBLIC_LAND_ONLY = PUBLIC_LAND_ONLY,
                                myPoly = myPoly,
                                generalRasterDir = "./InputGeneralRasters"
   )
 
-  # get cells in polygon
-  cellsInArea <- colSums(HDMVals[CropDetails$clipIDX,])
-  cellsInState <- colSums(HDMVals)
+  for (i in 1:nrow(TaxonList)){
+    if (file.exists(TaxonList$HDMPath[i])){
+    r <- terra::rast(TaxonList$HDMPath[i])
+    TaxonList$cellsInArea[i] <- sum(terra::extract(x = r,y = CropDetails$inCells),na.rm=T)[1]
+    TaxonList$cellsInState[i] <- sum(terra::extract(x = r,y = terra::cells(r)))
+    }
 
+
+  }
   # calc proportion of statwide population
-  areaProp <- signif(cellsInArea / cellsInState, digits = 2)
-  # pull data into dataframe
-  TAXON_ID <- as.numeric(colnames(HDMVals))
-  myDF <- data.frame(TAXON_ID, cellsInState, cellsInArea, areaProp)
-  myDF <- dplyr::left_join(splist, myDF)
-  return(myDF)
+  TaxonList <-TaxonList %>% dplyr::mutate(areaProp = signif(cellsInArea / cellsInState, digits = 2))
+
+  return(TaxonList)
 }

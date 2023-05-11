@@ -2,7 +2,7 @@
 #' Calculate all combinations of input raster values
 #'
 #' @param myFHAnalysis list containing all the fire history spatial attributes created by function fhProcess()
-#' @param myCropRasters list of rasters and indices and cell values created by function cropNAborder()
+#' @param myCropRasters list of rasters and indices and cell values created by function cropToOutput()
 #' @param myRasterRes Resolution of Rasters to be used in the analysis set in settings file in R-script version needs to be set in shiny version
 #' @param puPoly either NULL if no planning unit polygons are to be included in the combinations or path to planning unit polygon shapefile covering the entire extent in VicGrid94 projection
 #'
