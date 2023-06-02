@@ -55,9 +55,10 @@ make_Draft_GSO_inputs <- function(REG_NO,
   mode(EFG) <- "integer"
 
   # write spp EFG LMU csv
-  A <- Matrix.utils::aggregate.Matrix	(HDMVals, EFG ,fun = 'sum')
-  myDf <- as.data.frame(as.matrix(A))
-  myDf$EFG_NO <- as.integer(rownames(myDf))
+  #A <- Matrix.utils::aggregate.Matrix	(HDMVals, EFG ,fun = 'sum')
+  aggregate(HDMVals,list(EFG),FUN='sum')
+  myDf <- aggregate(HDMVals,list(EFG),FUN='sum')
+  names(myDF)[1]<-EFG_NO
   myDf <- tidyr::gather(myDf, key = "TAXON_ID", "CellCount", -EFG_NO)
   myDf <- myDf[myDf$CellCount > 0,]
   myDf$TAXON_ID <- as.integer(myDf$TAXON_ID)

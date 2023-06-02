@@ -30,7 +30,6 @@ Imports:
     dplyr,
     foreign,
     magrittr,
-    Matrix.utils,
     mgcv,
     nloptr,
     purrr,
