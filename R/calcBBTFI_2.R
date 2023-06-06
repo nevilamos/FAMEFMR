@@ -153,7 +153,7 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
                        gdal=c("COMPRESS=LZW", "TFW=YES")
     )
 
-    RAT <- cbind(levels(r)[[1]], as.data.frame(BBTFI_WIDE) %>% dplyr::rename(FH_ID = ID), FirstBBTFI, totalTimesBBTFI)%>%
+    RAT <- cbind(terra::levels(r)[[1]], as.data.frame(BBTFI_WIDE) %>% dplyr::rename(FH_ID = ID), FirstBBTFI, totalTimesBBTFI)%>%
       dplyr::rename(VALUE = ID) %>%
       dplyr::mutate(VALUE = as.integer(VALUE)) %>%
       foreign::write.dbf(.,
@@ -169,8 +169,3 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
   return(list("BBTFI_WIDE" = BBTFI_WIDE, "BBTFI_LONG" = BBTFI_LONG_Summary, "BBTFI_WIDEish" = BBTFI_WIDEish))
 
 }
-
-
-
-
-
