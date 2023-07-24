@@ -157,7 +157,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
             x = emptySpraster,
             filename = OutTif,
             gdal = c("COMPRESS=LZW", "TFW=YES"),
-            datatype = 'INT1U',
+            datatype = 'INT2U',
             overwrite = TRUE
           )
         }

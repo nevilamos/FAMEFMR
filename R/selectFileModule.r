@@ -86,7 +86,7 @@ selectFileServer <- function(id,
                         output,
                         session
                ){
-                 rv<-shiny::reactiveValues()
+                 rv <- shiny::reactiveValues()
                  shinyFiles::shinyFileChoose(input,
                                              id = "get_file_path",
                                              roots = root_dirs,
