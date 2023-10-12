@@ -31,6 +31,10 @@
 #' @param validFIRETYPE character vector of valid FIRETYPE values for checking
 #'   the input file , provided in settings file.
 #'
+#' @param max_interval = NULL #integer number of years  maximum inter fire interval after a HIGH fir for
+#'  which subsequent fire is reassigned to HIGH default is NULL in which case there
+#'  is no reassignement
+#'
 #' @return A list containing: \itemize{
 #' \item OutDF sf polygons dataframe containing all the fire history attributes
 #' \item TimeSpan integer vector sequence of SEASONS to in the analysis output
@@ -40,21 +44,24 @@
 #' @export
 fhProcess<-function(rawFH = "path of the rawFH file geopackage or gdb to use",
                     rawFHLayer = NULL,
-                     start.SEASON = NULL,    # first season for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
-                     end.SEASON = NULL,      # last season required, if NULL then largest value in fire history scenario used
-                     OtherAndUnknown,     # ## link to look up table FIRETYPE_LUT?? ## Default is 2 ("BUSHFIRE").  (2,1,NA) value to use for cases where fire type is: "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis.
-                     #####----- the OtherAndUnknown default should be NA? currently you include bushfires (unless otherwise stated)
-                     validFIRETYPE =c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER")
+                    start.SEASON = NULL,    # first season for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
+                    end.SEASON = NULL,      # last season required, if NULL then largest value in fire history scenario used
+                    OtherAndUnknown,     # ## link to look up table FIRETYPE_LUT?? ## Default is 2 ("BUSHFIRE").  (2,1,NA) value to use for cases where fire type is: "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis.
+                    #####----- the OtherAndUnknown default should be NA? currently you include bushfires (unless otherwise stated)
+                    validFIRETYPE =c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+                    max_interval = NULL # maximum inter fire interval after a HIGH fir for whci subsequent fire is reassigned to HIGH
+
+
 ){
   # read in shapefile
 
   # error checks------
   if(tools::file_ext(rawFH)%in%c("shp","gdb","gpkg")){
-  if( is.null(rawFHLayer)){
-    myDF <- sf::st_read(dsn = rawFH)
-  }else{
-    myDF <- sf::st_read(dsn = rawFH,layer = rawFHlayer)
-  }
+    if( is.null(rawFHLayer)){
+      myDF <- sf::st_read(dsn = rawFH)
+    }else{
+      myDF <- sf::st_read(dsn = rawFH,layer = rawFHlayer)
+    }
   }else{stop("rawFH file is not a shapefile,geopackage or ESRI geodatabase")}
 
 
@@ -79,7 +86,7 @@ fhProcess<-function(rawFH = "path of the rawFH file geopackage or gdb to use",
 
 
 
-  # timespan (range of consecutive years) for which Fire History sequences are calculated
+  # time span (range of consecutive years) for which Fire History sequences are calculated
   # from start and end seasons defined in the settings file
   # else if NULL; start and end season for calculation is determined by the min+1 and max values in the dataset
   # the earliest start season is the date of a second season in the input data (min+1), next 3 lines prevent manual start
@@ -158,9 +165,16 @@ fhProcess<-function(rawFH = "path of the rawFH file geopackage or gdb to use",
   IntNames <- paste("INT", sprintf("%02d", 1:(Cols-1)), sep = "")
   colnames(Interval) <- IntNames
 
-  # bind the intervals calcuated back to the main dataframe
+  # bind the intervals calculated back to the main dataframe
   OutDF <- cbind(OutDF, Interval) %>%
     dplyr::select(-XYString)
+
+  # work around for low firetype following after high firetype
+  if(!is.null()){
+    FT_matrix<-fireTypeLowToHigh(max_interval = 5,Interval_Matrix = Interval,Firetype_Matrix = FT_matrix)
+    OutDF[, FTNames]<-FT_matrix
+  }
+
 
   OutDF <- sf::st_as_sf(OutDF)
 
@@ -225,4 +239,38 @@ fhProcess<-function(rawFH = "path of the rawFH file geopackage or gdb to use",
   results <- list(OutDF = OutDF, TimeSpan = TimeSpan, YSFNames = YSFNames,
                   LBYNames = LBYNames, LFTNames = LFTNames)
   return(results)
+}
+
+
+#' FireType Low to high
+#'
+#' Helper function to deal with cases where there is a LOW intensity fire ( planned Burn)
+#' shortly after a HIGH intensity Fire, shortly after is defined as <= max_interval
+#'
+#' @param max_interval the maximum inter fire interval where a LOW firetyppe for the second fire should be coverted to HIGH
+#' @param Interval_Matrix matrix of sequential intervals between fire in unique fire history sequence
+#'  ( generated internally as party of FAMEFMR::fhProcess())
+#' @param Firetype_Matrix firetype matrix giving fireTypes (1=LOW 2=HIGH) for fires in unique fire history sequence
+#'  ( generated internally as party of FAMEFMR::fhProcess())
+#'
+#' @return modified Firetype_Matrix where the fireytpe of LOW fires have been changed to HIGH if the interval since the last
+#' LOW fire is <=
+#' @export
+#'
+#' @examples
+#' #firetype matrix giving fitetypes (1=LOW 2=HIGH) for fires in unique fire hsitory sequence ( generated internally as party of FAMEFMR::fhProcess())
+#' FT_matrix<-structure(c(2, 2, 2, 2, NA, 1, 2, 2, NA, NA, NA, 1), dim = 4:3, dimnames = list(NULL, c("FireType01", "FireType02", "FireType03")))
+#'
+#' #Fire interval matrix
+#' Interval<-structure(c(NA, 245L, 235L, 235L, NA, NA, NA, 10L), dim = c(4L, 2L), dimnames = list(NULL, c("INT01", "INT02")))
+#' fireTypeLowToHigh(max_interval = 5,Interval_Matrix = Interval,Firetype_Matrix = FT_matrix)
+fireTypeLowToHigh<-function(max_interval = NULL,Interval_Matrix = Interval,Firetype_Matrix = FT_matrix){
+  print ("WARNING you are using the fireTypeLowToHigh() function to modify the fhProcess this may lead to
+         unexpected TFI status and BBTFI values")
+  correction_Matrix<-Interval_Matrix<=max_interval
+  correction_Matrix<- cbind(rep(0,nrow(correction_Matrix)),correction_Matrix)
+  correction_Matrix
+  Firetype_Matrix[correction_Matrix==TRUE]<-2
+  return(Firetype_Matrix)
+
 }
