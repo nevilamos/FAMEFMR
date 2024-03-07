@@ -10,7 +10,8 @@ fhProcess(
   start.SEASON = NULL,
   end.SEASON = NULL,
   OtherAndUnknown,
-  validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER")
+  validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+  max_interval = 0
 )
 }
 \arguments{
@@ -35,6 +36,10 @@ from analysis. usually set in settings file}
 
 \item{validFIRETYPE}{character vector of valid FIRETYPE values for checking
 the input file , provided in settings file.}
+
+\item{max_interval}{= NULL #integer number of years  maximum inter fire interval after a HIGH fir for
+which subsequent fire is reassigned to HIGH default is NULL in which case there
+is no reassignement}
 }
 \value{
 A list containing: \itemize{

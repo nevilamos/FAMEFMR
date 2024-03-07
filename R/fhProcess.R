@@ -49,7 +49,7 @@ fhProcess<-function(rawFH = "path of the rawFH file geopackage or gdb to use",
                     OtherAndUnknown,     # ## link to look up table FIRETYPE_LUT?? ## Default is 2 ("BUSHFIRE").  (2,1,NA) value to use for cases where fire type is: "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis.
                     #####----- the OtherAndUnknown default should be NA? currently you include bushfires (unless otherwise stated)
                     validFIRETYPE =c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
-                    max_interval = NULL # maximum inter fire interval after a HIGH fir for whci subsequent fire is reassigned to HIGH
+                    max_interval = 0 # maximum inter fire interval after a HIGH fire for which subsequent fire is reassigned to HIGH, if 0 then no reassignment
 
 
 ){
@@ -170,10 +170,18 @@ fhProcess<-function(rawFH = "path of the rawFH file geopackage or gdb to use",
     dplyr::select(-XYString)
 
   # work around for low firetype following after high firetype
-  if(!is.null()){
-    FT_matrix<-fireTypeLowToHigh(max_interval = 5,Interval_Matrix = Interval,Firetype_Matrix = FT_matrix)
+  if(max_interval>0){
+    FT_matrix<-fireTypeLowToHigh(max_interval = as.integer(max_interval),Interval_Matrix = Interval,Firetype_Matrix = FT_matrix)
     OutDF[, FTNames]<-FT_matrix
-  }
+    }else if (max_interval<0)
+      {
+    stop ("max interfal cannot be less than 0")
+    }else {
+
+    }
+
+
+
 
 
   OutDF <- sf::st_as_sf(OutDF)

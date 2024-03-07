@@ -1,6 +1,6 @@
 Package: FAMEFMR
 Title: Functions For DELWP FAME Fire Analysis
-Version: 1.0.1
+Version: 1.0.6
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
@@ -20,7 +20,7 @@ Description: The package contains all the functions necessary to run the DELWP F
             best used with the associated scripts and shiny app that can be cloned or 
             downloaded from https://github.com/nevilamos/FAMEshiny. The functions used 
             in the Growth Stage Optimisation are modified from code written by Paul
-            Moloney (Arthur Rylah institute) and Holly Sitters (Melbourne University)
+            Moloney (Arthur Rylah institute) and Holly Sitters (Melbourne University).
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
