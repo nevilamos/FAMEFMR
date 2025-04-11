@@ -2,25 +2,28 @@
 % Please edit documentation in R/fhProcess.R
 \name{fhProcess}
 \alias{fhProcess}
-\title{Main Fire History Fire Sequence analysis function}
+\title{Wrapper for main fhProcessing}
 \usage{
 fhProcess(
-  rawFH = "path of the rawFH file geopackage or gdb to use",
-  rawFHLayer = NULL,
-  start.SEASON = NULL,
-  end.SEASON = NULL,
+  inFH,
+  inFHLayer,
+  secondFH,
+  secondFHLayer,
+  start.SEASON,
+  end.SEASON,
   OtherAndUnknown,
-  validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
-  max_interval = 0
+  validFIRETYPE,
+  max_interval,
+  baseFire
 )
 }
 \arguments{
-\item{rawFH}{path to the input fire history geodatabase (".gdb" or ".gpkg")
-or shapefile (".shp") usually  provided in settings}
+\item{inFHLayer}{Layer name if inFH has more than one layer
+( for instance in a .gpkg) this allows selection of a particular layer,
+otherwise fist layer is used (Default = NULL)}
 
-\item{rawFHLayer}{if rawFH is a geodatabase the name of the layer containing
-the Fire History if this is not provided and the raw FH is a geodatabase or
-geopackage then the first layer in the file is returned.}
+\item{secondFH}{Second fire history to be combined with FH1 to make a fire
+scenario same formats as for inFH}
 
 \item{start.SEASON}{integer First SEASON for which output is wanted (four
 digit year as integer), if NUll then second season in in history is used
@@ -39,7 +42,15 @@ the input file , provided in settings file.}
 
 \item{max_interval}{= NULL #integer number of years  maximum inter fire interval after a HIGH fir for
 which subsequent fire is reassigned to HIGH default is NULL in which case there
-is no reassignement}
+is no reassignement
+@param baseFire Default NULL otherwise four digit integer SEASON for fire applied across the whole bounding box}
+
+\item{rawFH}{path to the input fire history geodatabase (".gdb" or ".gpkg")
+or shapefile (".shp") usually  provided in settings}
+
+\item{rawFHLayer}{if rawFH is a geodatabase the name of the layer containing
+the Fire History if this is not provided and the raw FH is a geodatabase or
+geopackage then the first layer in the file is returned.}
 }
 \value{
 A list containing: \itemize{
@@ -50,7 +61,7 @@ A list containing: \itemize{
 \item LFTNames names of LBY years in output, needed by downstream functions }
 }
 \description{
-Main Fire History Fire Sequence analysis function
+Wrapper for main fhProcessing
 }
 \details{
 The function takes a shapefile or  geopackage layer of Fire history
