@@ -9,7 +9,9 @@
 #' Eastern Victoria and epsg:3111 /VicGrid94 crs
 #' @param maxPoints the maximum number of points used to define each polygon ( min value 11).
 #' @param seasonRange vector of integer season values selected at random for polygon attribute SEASON
-#' @param validFIRETYPE character vector of valid FIRETYPE values
+#' @param validFIRETYPE vector of valid names in the input FIRETYPE column in
+#'   the input fire history dataset(s), if the column contains NA or values not
+#'   on this list an error will occur
 #' @param crs coordinate reference system  for the output set using sf_crs(),
 #' default epsg:3111
 #'

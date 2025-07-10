@@ -31,19 +31,19 @@ otherwise fist layer is used (Default = NULL)}
 NA = Fire excluded from analysis.
 (usually set in settings file)}
 
-\item{validFIRETYPE}{vector of valid firetype names in the input FIRETYPE
-column, if the column contains NA or values not on this list an error will
-occur}
+\item{validFIRETYPE}{vector of valid names in the input FIRETYPE column in
+the input fire history dataset(s), if the column contains NA or values not
+on this list an error will occur}
 
 \item{secondFH}{Second fire history to be combined with FH1 to make a fire
 scenario same formats as for inFH}
 
-\item{baseFire}{Default NULL otherwise four digit integer SEASON  for fire
-applied #' across the whole bounding box}
-
-\item{secondFHlayer}{Layer name if secondFH  has more than one layer
+\item{secondFHLayer}{Layer name if secondFH  has more than one layer
 ( for instance in a .gpkg) this allows selection of a particular layer,
 otherwise fist layer is used (Default = NULL)}
+
+\item{baseFire}{Default NULL otherwise four digit integer SEASON  for fire
+applied #' across the whole bounding box}
 }
 \value{
 inFH1 an sf geometry collection of processed fire history for input
@@ -53,11 +53,11 @@ into fhProcess2()
 FIRE History Processing for FAME stage1
 }
 \details{
-Takes a spatial polygon data file or r sf polygon collection
+Takes a spatial polygon data file or r sf polygon dataset
 checks that it contains the correct fields, and projection for FAME analysis
-( using helper function checkFH) including fields FIRETYPE and SEASON
+( using helper function fhCheck) including fields FIRETYPE and SEASON
 Where polygons of different FIRETYPE or SEASON overlap the mainFHProcess()
-fucntion  called in this function constructs unique
+function  called in this function constructs unique
 non-overlapping polygon of their intersections ( and non intersecting areas
 ) and attributes each polygon with sequential fire SEASON (SEAS01, SEAS02
 ...) and corresponding FIRETYPE (TYPE01,TYPE02 ...)
@@ -75,7 +75,7 @@ non-overlapping polygon of their intersections ( and non intersecting areas
 
 }
 \seealso{
-\code{\link[=checkFH]{checkFH()}} for checking function run from within fhprocess1()
+\code{\link[=fhCheck]{fhCheck()}} for checking function run from within fhprocess1()
 \link{mainFHProcess}  main processing function to derive Fire history analysis for
 FAME
 \link{prepFH} helper function that splits larger inFH files into gridded subunits

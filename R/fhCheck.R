@@ -11,8 +11,9 @@
 #' @param inFHLayer Layer name if inFH has more than one layer
 #' ( for instance in a .gpkg) this allows selection of a particular layer,
 #' otherwise first layer is used (Default = NULL)
-#' #' @param validFIRETYPE vector of valid firetype names in the input FIRETYPE
-#' column
+#' @param validFIRETYPE vector of valid names in the input FIRETYPE column in
+#'   the input fire history dataset(s), if the column contains NA or values not
+#'   on this list an error will occur
 #' @return correctly formatted Fire History Polygon dataset as sf for use in
 #' fhProcess1()
 #' @export

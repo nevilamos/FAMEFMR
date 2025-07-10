@@ -27,7 +27,9 @@ Eastern Victoria and epsg:3111 /VicGrid94 crs}
 \item{crs}{coordinate reference system  for the output set using sf_crs(),
 default epsg:3111}
 
-\item{validFIRETYPE}{character vector of valid FIRETYPE values}
+\item{validFIRETYPE}{vector of valid names in the input FIRETYPE column in
+the input fire history dataset(s), if the column contains NA or values not
+on this list an error will occur}
 }
 \value{
 sf polygon

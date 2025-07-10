@@ -7,7 +7,7 @@
 #' splitting the input fire history into separate sf datasets on a grid with
 #' areas of approximately 100 square km
 #'
-#' @param inFH
+#' @param inFH input fire history
 #'
 #' @return A list containing: \itemize{
 #' \item hasData list of one or more sf Fire History sub units of the input Fire

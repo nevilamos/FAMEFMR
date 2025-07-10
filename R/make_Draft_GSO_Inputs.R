@@ -63,7 +63,7 @@ make_Draft_GSO_inputs <- function(REG_NO,
   myDf <- myDf[myDf$CellCount > 0,]
   myDf$TAXON_ID <- as.integer(myDf$TAXON_ID)
   myDf$EFG_NO <- as.integer(myDf$EFG)
-  myDf$ha <- myDf$CellCount * FAMEFMR::cellsToHectares(RasterMetres = RasterRes)
+  myDf$ha <- myDf$CellCount * cellsToHectares(RasterMetres = RasterRes)
 
   myDf <- dplyr::left_join(myDf, TFI_LUT[,c("EFG_NO","EFG_NAME")], by = "EFG_NO")
   myDf <- dplyr::left_join(myDf, mySpList)%>%
@@ -72,7 +72,7 @@ make_Draft_GSO_inputs <- function(REG_NO,
 
   # write EFG areas csv
   EFG_AREAS <- as.data.frame(table(EFG))
-  EFG_AREAS$ha <- EFG_AREAS$Freq* FAMEFMR::cellsToHectares(RasterMetres = RasterRes)
+  EFG_AREAS$ha <- EFG_AREAS$Freq* cellsToHectares(RasterMetres = RasterRes)
   EFG_AREAS$EFG_NO <- as.numeric(levels(EFG_AREAS$EFG))
   EFG_AREAS <- dplyr::right_join(TFI_LUT[,c("EFG_NO", "EFG_NAME")], EFG_AREAS)%>%
     tidyr::drop_na()

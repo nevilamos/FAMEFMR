@@ -1,4 +1,4 @@
-#' Wrapper for main fhProcessing
+#' Wrapper for to complete fhProcess1 and fhProcess2
 #'
 #' @details The function takes a shapefile or  geopackage layer of Fire history
 #'   containing polygons with two fields: FIRETYPE and SEASON Where polygons of
@@ -10,9 +10,14 @@
 #'   Time Since fire (TSF) and Last Fire Type (LFT) and Last burnt year (LBY)
 #'   for each SEASON as defined in the input arguments, these values are append
 #'   to the output sf polygon dataframe.
-#' @param rawFH path to the input fire history geodatabase (".gdb" or ".gpkg")
+#' @param firstFH path to the input fire history geodatabase (".gdb" or ".gpkg")
 #'   or shapefile (".shp") usually  provided in settings
-#' @param rawFHLayer if rawFH is a geodatabase the name of the layer containing
+#' @param firstFHLayer if rawFH is a geodatabase the name of the layer containing
+#'   the Fire History if this is not provided and the raw FH is a geodatabase or
+#'   geopackage then the first layer in the file is returned.
+#' @param secondFH Second fire history to be combined with FH1 to make a fire
+#'  scenario same formats as for firstFH or NULL if there is only a single FH used.
+#' @param secondFHLayer if secondFH is a geodatabase the name of the layer containing
 #'   the Fire History if this is not provided and the raw FH is a geodatabase or
 #'   geopackage then the first layer in the file is returned.
 #' @param start.SEASON integer First SEASON for which output is wanted (four
@@ -27,17 +32,14 @@
 #'   "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded
 #'   from analysis. usually set in settings file
 #'
-#' @param validFIRETYPE character vector of valid FIRETYPE values for checking
-#'   the input file , provided in settings file.
-#' @param inFHLayer Layer name if inFH has more than one layer
-#' ( for instance in a .gpkg) this allows selection of a particular layer,
-#' otherwise fist layer is used (Default = NULL)
-#' @param secondFH Second fire history to be combined with FH1 to make a fire
-#'  scenario same formats as for inFH
-#' @param max_interval = NULL #integer number of years  maximum inter fire interval after a HIGH fir for
-#'  which subsequent fire is reassigned to HIGH default is NULL in which case there
-#'  is no reassignement
-#'  @param baseFire Default NULL otherwise four digit integer SEASON for fire applied across the whole bounding box
+#' @param validFIRETYPE vector of valid names in the input FIRETYPE column in
+#'   the input fire history dataset(s), if the column contains NA or values not
+#'   on this list an error will occur
+#' @param max_interval = NULL #integer number of years  maximum inter fire
+#'   interval after a HIGH fire for which subsequent fire is reassigned to HIGH
+#'   default is NULL in which case there is no reassignment
+#' @param baseFire Default NULL otherwise four digit integer SEASON for fire
+#'   applied across the whole bounding box
 #'
 #' @return A list containing: \itemize{
 #' \item OutDF sf polygons dataframe containing all the fire history attributes
@@ -48,24 +50,27 @@
 #'
 #' @export
 #'
-fhProcess<-function(inFH,
-                    inFHLayer,
-                    secondFH,
-                    secondFHLayer,
-                    start.SEASON,    # first season for which output is wanted (four digit year as integer), if NUll then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
-                    end.SEASON,      # last season required, if NULL then largest value in fire history scenario used
-                    OtherAndUnknown, #  Default is 2 ("BUSHFIRE").  (2,1,NA) value to use for cases where fire type is: "OTHER" or "UNKNOWN", "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded from analysis.
-                    validFIRETYPE,
-                    max_interval,
-                    baseFire){
+
+fhProcess<-function(firstFH,
+                    firstFHLayer=NULL,
+                    secondFH=NULL,
+                    secondFHLayer=NULL,
+                    OtherAndUnknown=2,
+                    baseFire=baseFire,
+                    max_interval = 0,
+                    start.SEASON = NULL,
+                    end.SEASON = NULL,
+                    validFIRETYPE = c("BURN","BUSHFIRE","OTHER","UNKNOWN")
+){
 
 
-  outFH1<-FAMEFMR::fhProcess1(inFH = inFH,inFHLayer,secondFH,secondFHLayer,OtherAndUnknown,baseFire)
-  outFH2<-FAMEFMR::fhProcess2(inFH1 = outFH1,
-                              #start.SEASON=start.SEASON,
-                              #end.SEASON=end.SEASON,
-                              #max_interval =max_interval
+  outFH1<-fhProcess1(inFH = firstFH,inFHLayer=firstFHLayer,secondFH=secondFH,secondFHLayer=secondFHLayer,OtherAndUnknown=OtherAndUnknown,baseFire=baseFire,validFIRETYPE = validFIRETYPE)
+  outFH2<-fhProcess2(inFH1 = outFH1,
+                              start.SEASON=start.SEASON,
+                              end.SEASON=end.SEASON,
+                              max_interval =max_interval
   )
   return(outFH2)
 }
+
 

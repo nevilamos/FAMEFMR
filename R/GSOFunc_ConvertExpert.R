@@ -2,17 +2,17 @@
 #'
 #' @details Non-internal GSO function.
 #' Used to convert from old to new expert opinions.
-#' @details ExpertScore is from ./ExpertEstimate.csv
+#'
 #'
 #' @param Code TaxonID for spp. to update
 #' @param x value input determining how to select updates
-#' @param Update data.frame of expert scores
+#' @param Update data.frame of expert scores from ./ExpertEstimate.csv
 #'
 #' @return returns a converted value
 #' @export
 #'
 
-ConvertExpert <- function(Code, x, Update = ExpertScore) {
+ConvertExpert <- function(Code, x, Update) {
   New <- Update[which(Update$TAXON_ID == Code), ]
   if (is.na(x) == TRUE) {
     y <- NA

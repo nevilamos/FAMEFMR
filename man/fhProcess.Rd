@@ -2,28 +2,46 @@
 % Please edit documentation in R/fhProcess.R
 \name{fhProcess}
 \alias{fhProcess}
-\title{Wrapper for main fhProcessing}
+\title{Wrapper for to complete fhProcess1 and fhProcess2}
 \usage{
 fhProcess(
-  inFH,
-  inFHLayer,
-  secondFH,
-  secondFHLayer,
-  start.SEASON,
-  end.SEASON,
-  OtherAndUnknown,
-  validFIRETYPE,
-  max_interval,
-  baseFire
+  firstFH,
+  firstFHLayer = NULL,
+  secondFH = NULL,
+  secondFHLayer = NULL,
+  OtherAndUnknown = 2,
+  baseFire = baseFire,
+  max_interval = 0,
+  start.SEASON = NULL,
+  end.SEASON = NULL,
+  validFIRETYPE = c("BURN", "BUSHFIRE", "OTHER", "UNKNOWN")
 )
 }
 \arguments{
-\item{inFHLayer}{Layer name if inFH has more than one layer
-( for instance in a .gpkg) this allows selection of a particular layer,
-otherwise fist layer is used (Default = NULL)}
+\item{firstFH}{path to the input fire history geodatabase (".gdb" or ".gpkg")
+or shapefile (".shp") usually  provided in settings}
+
+\item{firstFHLayer}{if rawFH is a geodatabase the name of the layer containing
+the Fire History if this is not provided and the raw FH is a geodatabase or
+geopackage then the first layer in the file is returned.}
 
 \item{secondFH}{Second fire history to be combined with FH1 to make a fire
-scenario same formats as for inFH}
+scenario same formats as for firstFH or NULL if there is only a single FH used.}
+
+\item{secondFHLayer}{if secondFH is a geodatabase the name of the layer containing
+the Fire History if this is not provided and the raw FH is a geodatabase or
+geopackage then the first layer in the file is returned.}
+
+\item{OtherAndUnknown}{integer Value to use for cases where fire type is:
+"OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded
+from analysis. usually set in settings file}
+
+\item{baseFire}{Default NULL otherwise four digit integer SEASON for fire
+applied across the whole bounding box}
+
+\item{max_interval}{= NULL #integer number of years  maximum inter fire
+interval after a HIGH fire for which subsequent fire is reassigned to HIGH
+default is NULL in which case there is no reassignment}
 
 \item{start.SEASON}{integer First SEASON for which output is wanted (four
 digit year as integer), if NUll then second season in in history is used
@@ -33,24 +51,9 @@ there is no overlap)}
 \item{end.SEASON}{integer Last SEASON required, if NULL then largest value
 in fire history scenario used}
 
-\item{OtherAndUnknown}{integer Value to use for cases where fire type is:
-"OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded
-from analysis. usually set in settings file}
-
-\item{validFIRETYPE}{character vector of valid FIRETYPE values for checking
-the input file , provided in settings file.}
-
-\item{max_interval}{= NULL #integer number of years  maximum inter fire interval after a HIGH fir for
-which subsequent fire is reassigned to HIGH default is NULL in which case there
-is no reassignement
-@param baseFire Default NULL otherwise four digit integer SEASON for fire applied across the whole bounding box}
-
-\item{rawFH}{path to the input fire history geodatabase (".gdb" or ".gpkg")
-or shapefile (".shp") usually  provided in settings}
-
-\item{rawFHLayer}{if rawFH is a geodatabase the name of the layer containing
-the Fire History if this is not provided and the raw FH is a geodatabase or
-geopackage then the first layer in the file is returned.}
+\item{validFIRETYPE}{vector of valid names in the input FIRETYPE column in
+the input fire history dataset(s), if the column contains NA or values not
+on this list an error will occur}
 }
 \value{
 A list containing: \itemize{
@@ -61,7 +64,7 @@ A list containing: \itemize{
 \item LFTNames names of LBY years in output, needed by downstream functions }
 }
 \description{
-Wrapper for main fhProcessing
+Wrapper for to complete fhProcess1 and fhProcess2
 }
 \details{
 The function takes a shapefile or  geopackage layer of Fire history

@@ -7,7 +7,7 @@
 prepFH(inFH = myFH)
 }
 \arguments{
-\item{inFH}{}
+\item{inFH}{input fire history}
 }
 \value{
 A list containing: \itemize{
