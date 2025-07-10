@@ -21,16 +21,21 @@ fhProcess(
 \item{firstFH}{path to the input fire history geodatabase (".gdb" or ".gpkg")
 or shapefile (".shp") usually  provided in settings}
 
-\item{firstFHLayer}{if rawFH is a geodatabase the name of the layer containing
-the Fire History if this is not provided and the raw FH is a geodatabase or
-geopackage then the first layer in the file is returned.}
+\item{firstFHLayer}{if rawFH is a geodatabase the name of the layer
+containing the Fire History if this is not provided and the raw FH is a
+geodatabase or geopackage then the first layer in the file is returned.This
+argument is available only in the r script version - it is not exposed in
+the shinyApp where it is set to NULL}
 
 \item{secondFH}{Second fire history to be combined with FH1 to make a fire
-scenario same formats as for firstFH or NULL if there is only a single FH used.}
+scenario same formats as for firstFH or NULL if there is only a single FH
+used.}
 
-\item{secondFHLayer}{if secondFH is a geodatabase the name of the layer containing
-the Fire History if this is not provided and the raw FH is a geodatabase or
-geopackage then the first layer in the file is returned.}
+\item{secondFHLayer}{if secondFH is a geodatabase the name of the layer
+containing the Fire History if this is not provided and the raw FH is a
+geodatabase or geopackage then the first layer in the file is returned.This
+argument is available only in the r script version - it is not exposed in
+the shinyApp where it is set to NULL}
 
 \item{OtherAndUnknown}{integer Value to use for cases where fire type is:
 "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded
@@ -76,6 +81,6 @@ non-overlapping polygon of their intersections ( and non intersecting areas
 
 It then calculates all the intervals between sequential fires, and
 Time Since fire (TSF) and Last Fire Type (LFT) and Last burnt year (LBY)
-for each SEASON as defined in the input arguments, these values are append
-to the output sf polygon dataframe.
+for each SEASON as defined in the input arguments, these values are append to
+the output sf polygon dataframe.
 }

@@ -4,14 +4,14 @@
 \alias{ConvertExpert}
 \title{Convert from old to new expert opinions}
 \usage{
-ConvertExpert(Code, x, Update = ExpertScore)
+ConvertExpert(Code, x, Update)
 }
 \arguments{
 \item{Code}{TaxonID for spp. to update}
 
 \item{x}{value input determining how to select updates}
 
-\item{Update}{data.frame of expert scores}
+\item{Update}{data.frame of expert scores from ./ExpertEstimate.csv}
 }
 \value{
 returns a converted value
@@ -22,6 +22,4 @@ Convert from old to new expert opinions
 \details{
 Non-internal GSO function.
 Used to convert from old to new expert opinions.
-
-ExpertScore is from ./ExpertEstimate.csv
 }
