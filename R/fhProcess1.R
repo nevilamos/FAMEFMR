@@ -43,9 +43,7 @@ fhProcess1<-function (inFH, inFHLayer = NULL, OtherAndUnknown = 2, validFIRETYPE
   n_WithoutIntersects = sum(!myPreppedFH$hasIntersects)
   print(paste("there are", n_WithIntersects, "gridcells with intersecting fires"))
   if (n_WithIntersects > 3) {
-
-    cores<-parallel::detectCores()
-
+    cores<-detectCores()
     print(paste(cores, "cpu cores will be used in parallel"))
     cl <- parallel::makeCluster(cores)
     doParallel::registerDoParallel(cl)
