@@ -1,3 +1,50 @@
+#' FIRE History Processing for FAME stage1
+#'
+#' @details Takes a spatial polygon data file or r sf polygon dataset
+#' checks that it contains the correct fields, and projection for FAME analysis
+#' ( using helper function fhCheck) including fields FIRETYPE and SEASON
+#'  Where polygons of different FIRETYPE or SEASON overlap the mainFHProcess()
+#'  function  called in this function constructs unique
+#'   non-overlapping polygon of their intersections ( and non intersecting areas
+#'   ) and attributes each polygon with sequential fire SEASON (SEAS01, SEAS02
+#'   ...) and corresponding FIRETYPE (TYPE01,TYPE02 ...)
+#' @seealso [fhCheck()] for checking function run from within fhprocess1()
+#'  [mainFHProcess]  main processing function to derive Fire history analysis for
+#'  FAME
+#'  [prepFH] helper function that splits larger inFH files into gridded subunits
+#'   for parallel processing.
+#'
+#'
+#' @param inFH Input fire history polygon/mutipolygon data set with columns
+#'  SEASON and FIRETYPE  provided as shapefile, geopackage or ESRI geodatabase
+#'  file, or the name of an sf  object. if the geometries contain other than
+#'  polygon/mutipolygon an error will result.
+#' @param inFHLayer Layer name if inFH has more than one layer
+#' ( for instance in a .gpkg) this allows selection of a particular layer,
+#' otherwise fist layer is used (Default = NULL)
+#' @param OtherAndUnknown integer Value to use for cases where fire type is:
+#'    "OTHER" or "UNKNOWN" = NA,
+#'    "BURN" = 1,
+#'    "BUSHFIRE" = 2.
+#'    NA = Fire excluded from analysis.
+#'  (usually set in settings file)
+#' @param validFIRETYPE vector of valid names in the input FIRETYPE column in
+#'   the input fire history dataset(s), if the column contains NA or values not
+#'   on this list an error will occur
+#' @param secondFH Second fire history to be combined with FH1 to make a fire
+#'  scenario same formats as for inFH
+#' @param secondFHLayer  Layer name if secondFH  has more than one layer
+#' ( for instance in a .gpkg) this allows selection of a particular layer,
+#' otherwise fist layer is used (Default = NULL)
+#' @param baseFire Default NULL otherwise four digit integer SEASON  for fire
+#' applied #' across the whole bounding box
+#'
+#' @return inFH1 an sf geometry collection of processed fire history for input
+#' into fhProcess2()
+#' @importFrom foreach %dopar%
+#' @importFrom foreach %do%
+#' @export
+#'
 #' @examples
 #' # randomFH<-generate_random_fire_history(20)
 #' # plot(randomFH)
