@@ -12,7 +12,7 @@
 #'  [mainFHProcess]  main processing function to derive Fire history analysis for
 #'  FAME
 #'  [prepFH] helper function that splits larger inFH files into gridded subunits
-#'   for parallel processing.
+#'   for parallel processing prior to passing to [mainFHProcess]
 #'
 #'
 #' @param inFH Input fire history polygon/mutipolygon data set with columns
@@ -29,20 +29,24 @@
 #'    NA = Fire excluded from analysis.
 #'  (usually set in settings file)
 #' @param validFIRETYPE vector of valid names in the input FIRETYPE column in
-#'   the input fire history dataset(s), if the column contains NA or values not
-#'   on this list an error will occur
+#' the input fire history dataset(s), if the column contains NA or values not on
+#' this list an error will occur
 #' @param secondFH Second fire history to be combined with FH1 to make a fire
-#'  scenario same formats as for inFH
-#' @param secondFHLayer  Layer name if secondFH  has more than one layer
-#' ( for instance in a .gpkg) this allows selection of a particular layer,
-#' otherwise fist layer is used (Default = NULL)
+#'   scenario same formats as for inFH
+#' @param secondFHLayer  Layer name if secondFH  has more than one layer ( for
+#'   instance in a .gpkg) this allows selection of a particular layer, otherwise
+#'   fist layer is used (Default = NULL)
 #' @param baseFire Default NULL otherwise four digit integer SEASON  for fire
-#' applied #' across the whole bounding box
+#'   applied #' across the whole bounding box
+#' @param precision default 10000, precision value fed through to GEOS see
+#'   [sf::st_set_precision], precision in metres = 1/precision 0 used precision
+#'   of exiting files
 #'
 #' @return inFH1 an sf geometry collection of processed fire history for input
-#' into fhProcess2()
+#'   into fhProcess2()
 #' @importFrom foreach %dopar%
 #' @importFrom foreach %do%
+#' @importFrom doSNOW registerDoSNOW
 #' @export
 #'
 #' @examples
@@ -56,9 +60,17 @@
 #' # plot(outFH2$OutDF,max.plot = 20)
 #'
 #'
-fhProcess1<-function (inFH, inFHLayer = NULL, OtherAndUnknown = 2, validFIRETYPE = c("BURN",
-                                                                                     "BUSHFIRE", "UNKNOWN", "OTHER"), secondFH = NULL, secondFHLayer = NULL,
-                      baseFire = NULL)
+fhProcess1<-function (inFH,
+                      inFHLayer = NULL,
+                      OtherAndUnknown = 2,
+                      validFIRETYPE = c("BURN",
+                                        "BUSHFIRE",
+                                        "UNKNOWN",
+                                        "OTHER"),
+                      secondFH = NULL,
+                      secondFHLayer = NULL,
+                      baseFire = NULL,
+                      precision =1)
 {
   mySF <- fhCheck(inFH, inFHLayer, validFIRETYPE)
   if (!(is.null(secondFH) |length(secondFH)==0)) {
@@ -85,7 +97,9 @@ fhProcess1<-function (inFH, inFHLayer = NULL, OtherAndUnknown = 2, validFIRETYPE
   mySF$FIRETYPE_NO[mySF$FIRETYPE == "OTHER"] <- OtherAndUnknown
   mySF$FIRETYPE_NO[mySF$FIRETYPE == "UNKNOWN"] <- OtherAndUnknown
 
-  myPreppedFH <- prepFH(inFH = mySF)
+  st_precision(mySF)<- precision
+
+  myPreppedFH <- prepFH(inFH =mySF)
   n_WithIntersects = sum(myPreppedFH$hasIntersects)
   n_WithoutIntersects = sum(!myPreppedFH$hasIntersects)
   print(paste("there are", n_WithIntersects, "gridcells with intersecting fires"))
@@ -93,13 +107,20 @@ fhProcess1<-function (inFH, inFHLayer = NULL, OtherAndUnknown = 2, validFIRETYPE
     cores<-parallel::detectCores()
     print(paste(cores, "cpu cores will be used in parallel"))
     cl <- parallel::makeCluster(cores)
-    doParallel::registerDoParallel(cl)
-    try(on.exit(parallel::stopCluster(cl)))
+    registerDoSNOW(cl)
+
+    iterations<-n_WithIntersects
+    pb <- txtProgressBar(max = iterations, style = 3)
+    progress <- function(n) setTxtProgressBar(pb, n)
+    opts <- list(progress = progress)
+
     inFH1 <- foreach::foreach(i = myPreppedFH$hasData[myPreppedFH$hasIntersects],
                               .packages = c("sf", "dplyr", "tidyr", "magrittr",
-                                            "FAMEFMR"), .combine = dplyr::bind_rows) %dopar%
+                                            "FAMEFMR"),
+                              .combine = dplyr::bind_rows,
+                              .options.snow = opts) %dopar%
       {
-        print(i)
+
         inFH1 <- mainFHProcess(x = i)
       }
   }

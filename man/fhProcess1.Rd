@@ -11,7 +11,8 @@ fhProcess1(
   validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
   secondFH = NULL,
   secondFHLayer = NULL,
-  baseFire = NULL
+  baseFire = NULL,
+  precision = 1
 )
 }
 \arguments{
@@ -32,18 +33,22 @@ NA = Fire excluded from analysis.
 (usually set in settings file)}
 
 \item{validFIRETYPE}{vector of valid names in the input FIRETYPE column in
-the input fire history dataset(s), if the column contains NA or values not
-on this list an error will occur}
+the input fire history dataset(s), if the column contains NA or values not on
+this list an error will occur}
 
 \item{secondFH}{Second fire history to be combined with FH1 to make a fire
 scenario same formats as for inFH}
 
-\item{secondFHLayer}{Layer name if secondFH  has more than one layer
-( for instance in a .gpkg) this allows selection of a particular layer,
-otherwise fist layer is used (Default = NULL)}
+\item{secondFHLayer}{Layer name if secondFH  has more than one layer ( for
+instance in a .gpkg) this allows selection of a particular layer, otherwise
+fist layer is used (Default = NULL)}
 
 \item{baseFire}{Default NULL otherwise four digit integer SEASON  for fire
 applied #' across the whole bounding box}
+
+\item{precision}{default 10000, precision value fed through to GEOS see
+\link[sf:st_precision]{sf::st_set_precision}, precision in metres = 1/precision 0 used precision
+of exiting files}
 }
 \value{
 inFH1 an sf geometry collection of processed fire history for input
@@ -79,5 +84,5 @@ non-overlapping polygon of their intersections ( and non intersecting areas
 \link{mainFHProcess}  main processing function to derive Fire history analysis for
 FAME
 \link{prepFH} helper function that splits larger inFH files into gridded subunits
-for parallel processing.
+for parallel processing prior to passing to \link{mainFHProcess}
 }
