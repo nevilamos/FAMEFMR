@@ -16,7 +16,7 @@
 #' \item hasIntersects a logical vector indicating which elements of "hasData"
 #' have intersecting Fire boundaries within them
 #' \item squareSide integer number of units of one side of the grid used to divide
-#' the inFH to produce "hasData" for parrallel compute.
+#' the inFH to produce "hasData" for parallel compute.
 #' Calculated as the floor() of area of inFH bounding box/10^8
 #'  (ie a 10km square expressed in square metres)}
 #' @export

@@ -49,6 +49,9 @@ Imports:
     tibble,
     tidyr,
     tidyselect,
-    utils
+    utils,
+    Rcpp
 Depends: 
     data.table
+LinkingTo: 
+    Rcpp
