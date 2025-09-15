@@ -33,7 +33,7 @@ prepFH<-function(inFH = myFH){
     grid<-sf::st_as_sf(grid)
     grid_ID<-1:nrow(grid)
     grid$grid_ID<-grid_ID
-    gridded<-sf::st_intersection(inFH,grid) %>% sf::st_make_valid()
+    gridded<-sf::st_intersection(inFH%>% sf::st_make_valid(),grid)
     griddedList<-list()
     for(i in grid_ID){griddedList[[i]]<-gridded%>%
       dplyr::filter(grid_ID == i)}
