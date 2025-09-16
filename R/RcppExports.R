@@ -5,8 +5,8 @@ extract_season_firetypes <- function(v, colnames) {
     .Call('_FAMEFMR_extract_season_firetypes', PACKAGE = 'FAMEFMR', v, colnames)
 }
 
-extract_season_firetypes_with_group_id <- function(v, colnames) {
-    .Call('_FAMEFMR_extract_season_firetypes_with_group_id', PACKAGE = 'FAMEFMR', v, colnames)
+extract_combined_season_firetype_with_group_id <- function(v, colnames) {
+    .Call('_FAMEFMR_extract_combined_season_firetype_with_group_id', PACKAGE = 'FAMEFMR', v, colnames)
 }
 
 leftPackMissingOMP_trim <- function(mat) {
