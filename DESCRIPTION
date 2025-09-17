@@ -16,11 +16,7 @@ Description: The package contains all the functions necessary to run the DEECA F
             The FAME analysis can be run using standard R scripts, or alternatively via a
             shiny web GUI. The package does not contain the required input files (lookup
             tables, rasters of species HDMs etc) as these are too large to be loaded to 
-            github and are available separately from an AWS repository.  The package is
-            best used with the associated scripts and shiny app that can be cloned or 
-            downloaded from https://github.com/nevilamos/FAMEshiny. The functions used 
-            in the Growth Stage Optimisation are modified from code written by Paul
-            Moloney (Arthur Rylah institute) and Holly Sitters (Melbourne University).
+            github and are available separately from an AWS repository.  
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
