@@ -2,7 +2,7 @@
 # CITATION file created with {cffr} R package, v0.4.1
 # See also: https://docs.ropensci.org/cffr/
 # -----------------------------------------------------------
- 
+
 cff-version: 1.2.0
 message: 'To cite package "FAMEFMR" in publications use:'
 type: software
@@ -18,10 +18,6 @@ abstract: The package contains all the functions necessary to run the DELWP FAME
   R scripts, or alternatively via a shiny web GUI. The package does not contain the
   required input files (lookup tables, rasters of species HDMs etc) as these are too
   large to be loaded to github and are available separately from an aws repository.
-  The package is best used with the associated scripts and shiny app that can be cloned
-  or downloaded from https://github.com/nevilamos/FAMEshiny. The functions used in
-  the Growth Stage Optimisation are modified from code written by Paul Moloney (Arthur
-  Rylah institute) and Holly Sitters (Melbourne University)
 authors:
 - family-names: Amos
   given-names: Nevil
