@@ -42,8 +42,8 @@
 #'
 
 fhProcess2<-function(inFH1,
-                     start.SEASON = NULL,# first season for which output is wanted (four digit year as integer), if NULL then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
-                     end.SEASON = NULL,# last season required, if NULL then largest value in fire history scenario used
+                     start.SEASON = NA,# first season for which output is wanted (four digit year as integer), if NA then second season in in history is used (cannot use first season because it has no interval, this may still fail if there is no overlap)
+                     end.SEASON = NA,# last season required, if NA then largest value in fire history scenario used
                      max_interval = 0 ){# maximum inter fire interval after a HIGH fire for which subsequent fire is reassigned to HIGH, if 0 then no reassignment)
   mySF<-inFH1
 
@@ -97,7 +97,7 @@ fhProcess2<-function(inFH1,
   # season setting less than this value, which would cause an error.
   uniqueSEASONS<-sort(unique(as.vector(SEAS_Matrix)))
   min.SEASON<-uniqueSEASONS[2] # second season in fire history
-  if(is.null(start.SEASON)){
+  if(is.na(start.SEASON)){
     start.SEASON = min.SEASON
   } else {
     if(start.SEASON < min.SEASON){
@@ -107,7 +107,7 @@ fhProcess2<-function(inFH1,
     }
   }
 
-  if(is.null(end.SEASON)){
+  if(is.na(end.SEASON)){
     max.SEASON <- max(uniqueSEASONS)
   } else {
     max.SEASON = end.SEASON

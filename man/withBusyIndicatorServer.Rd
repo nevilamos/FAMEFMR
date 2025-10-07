@@ -2,9 +2,11 @@
 % Please edit documentation in R/ButtonDisableHelpers.r
 \name{withBusyIndicatorServer}
 \alias{withBusyIndicatorServer}
-\title{withBusyIndicatorServe
+\title{withBusyIndicatorServer
 Call this function from the server with the button id that is clicked and the
-expression to run when the button is clicked}
+expression to run when the button is clicked
+sourced from:
+https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R}
 \usage{
 withBusyIndicatorServer(buttonId, expr)
 }
@@ -15,7 +17,9 @@ withBusyIndicatorUI}
 \item{expr}{dont know wnat this does}
 }
 \description{
-withBusyIndicatorServe
+withBusyIndicatorServer
 Call this function from the server with the button id that is clicked and the
 expression to run when the button is clicked
+sourced from:
+https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R
 }

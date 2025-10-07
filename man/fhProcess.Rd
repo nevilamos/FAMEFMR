@@ -12,8 +12,8 @@ fhProcess(
   OtherAndUnknown = 2,
   baseFire = baseFire,
   max_interval = 0,
-  start.SEASON = NULL,
-  end.SEASON = NULL,
+  start.SEASON = NA,
+  end.SEASON = NA,
   validFIRETYPE = c("BURN", "BUSHFIRE", "OTHER", "UNKNOWN")
 )
 }
@@ -49,11 +49,11 @@ interval after a HIGH fire for which subsequent fire is reassigned to HIGH
 default is NULL in which case there is no reassignment}
 
 \item{start.SEASON}{integer First SEASON for which output is wanted (four
-digit year as integer), if NUll then second season in in history is used
+digit year as integer), if NA then second season in in history is used
 (cannot use first season because it has no interval, this may still fail if
 there is no overlap)}
 
-\item{end.SEASON}{integer Last SEASON required, if NULL then largest value
+\item{end.SEASON}{integer Last SEASON required, if NA then largest value
 in fire history scenario used}
 
 \item{validFIRETYPE}{vector of valid names in the input FIRETYPE column in

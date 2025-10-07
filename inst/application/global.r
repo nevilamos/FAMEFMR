@@ -4,6 +4,7 @@ rm(list = ls(all = TRUE))
 options(stringsAsFactors = F)
 source("installationCheck.R")
 # get version of FAMEFMR in use and set app version
+shiny::addResourcePath("rawFH", "C:/Data/FAMEshiny/rawFH")
 
 FAMEGUIVersion<-FAMEFMRVersion <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 
@@ -71,7 +72,7 @@ writeSpRasters <- FALSE # TRUE if rasters are to be output ( large number of fil
 # names(TFI_LUT)[1] <- "EFG"
 #
 #
-# EFG_TSF_4GS <-
-#   read_csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[, c("EFG_NO", "GS4_NO", "YSF")]
+ EFG_TSF_4GS <-
+   read_csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv")[, c("EFG_NO", "GS4_NO", "YSF")]
 #
-# outputNames<-read.csv("./ReferenceTables/outputNames.csv",row.names =1)
+ outputNames<-read.csv("./ReferenceTables/outputNames.csv",row.names =1)

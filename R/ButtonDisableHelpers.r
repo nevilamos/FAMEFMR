@@ -1,15 +1,16 @@
 # All the code in this file needs to be copied to your Shiny app, and you need
 # to call `withBusyIndicatorUI()` and `withBusyIndicatorServer()` in your app.
 # You can also include the `appCSS` in your UI, as the example app shows.
-##sourced from: https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R
+##
 # =============================================
 
 # Set up a button to have an animated loading indicator and a checkmark
 # for better user experience
 # Need to use with the corresponding `withBusyIndicator` server function
-#' Title withBusyIndicatorUI
-#' ui part of withBusyIndicator module
-#'
+#'Title withBusyIndicatorUI
+#'ui part of withBusyIndicator module
+#'sourced from:
+#'https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R
 #'
 #' @param button a shinyFilesButton object with an id
 #' @export
@@ -38,10 +39,11 @@ withBusyIndicatorUI <- function(button) {
 }
 
 
-#' withBusyIndicatorServe
+#' withBusyIndicatorServer
 #' Call this function from the server with the button id that is clicked and the
 #'expression to run when the button is clicked
-#
+#'sourced from:
+#'https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R
 #' @param buttonId the id of the shinyFilesButton identified in
 #' withBusyIndicatorUI
 #' @param expr dont know wnat this does

@@ -1,5 +1,6 @@
-ui <- shinydashboard::dashboardPage(  title = "FAME 4",
-                                      shinydashboard::dashboardHeader(
+ui <- dashboardPage(  title = "FAME 4",
+                      
+  dashboardHeader(
     #formatting individual letters to different size and colour ----
     title = span(
       "F",
@@ -22,21 +23,21 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
     titleWidth = "100vw"
   ),
   #sidebar----
-  shinydashboard::dashboardSidebar(
+  dashboardSidebar(
     width = 300,
     sidebarMenu(
       sidebarMenuOutput("tabsmenu"),
       # Button to open fame manual from pdf in www directory
-
-      actionButton(inputId='ab1', label="Open manual in new tab",
-                   icon = icon("th"),
+      
+      actionButton(inputId='ab1', label="Open manual in new tab", 
+                   icon = icon("th"), 
                    onclick ="window.open('FAME_User_Manual.pdf', '_blank')"),
-
-
-
-
+      
+     
+      
+      
       # save and reload analysis  buttons ----
-
+      
       box(
         width = 12,
         title = "Save or Load Analyses",
@@ -79,7 +80,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
         useShinyjs(),
         extendShinyjs(text = jscode, functions = c("closeWindow")),
         h5("Make sure you have downloaded all your data first"),
-        actionButton(inputId="close",
+        actionButton(inputId="close", 
                      label =tags$div(HTML(
                        '<i class="fa-sharp fa-solid fa-circle-exclamation fa-2xl" style="color: #ff0000;"></i>  Shut Down Server')
                        )
@@ -90,12 +91,12 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
         h4("FAME version info:"),
         textOutput("FAMEGUIVersion"),
         textOutput("FAMEFMRVersion")
-
+        
       )
-
-
+      
+      
     ),
-
+    
     absolutePanel(
       conditionalPanel(
         # style = "background-color:#FFFFFF",
@@ -113,14 +114,14 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
     )
   ),
   #dashboard body ----
-  shinydashboard::dashboardBody(
+  dashboardBody(
     # this tags$head section changes the shinydashboard to DEECA corporate colours ----
     # DEECA Navy 100% =  hex #201547
     # DEECA Teal 100% =  hex #00B2A9
     # Vic Gov Blue = hex #004C97
     # Corporate Sky Blue = #88DBDF
     # ECA Lime = #CDDC29
-
+    
     tags$head(tags$style(
       HTML(
         '
@@ -203,7 +204,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
         border-left-color:#201547;
         border-right-color:#201547;
         border-top-color:#201547;
-        background:#201547;
+        background:#201547; 
         border-radius: 10px;
       }
       .skin-blue .sidebar-menu  {
@@ -212,10 +213,9 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
       '
       )
     )),
-
-    shinyWidgets::setBackgroundImage	(src = "08732250_before_after_2014_fire.jpg", shinydashboard = TRUE),
-
-    shinydashboard::tabItems	(
+    setBackgroundImage(src = "08732250_before_after_2014_fire.jpg", shinydashboard = TRUE),
+    
+    tabItems(
       # Upload and other utilities tab----
       tabItem(
         tabName = "util",
@@ -224,11 +224,11 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
           box(
             width = 12,
             title = "Select and upload files",
-
+            
             uploadFileUI(id="rawFH",label = "Select rawFH for upload geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
             uploadFileUI(id="adHocPoly",label = "Select Area of Interest geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
             uploadFileUI(id="puPoly",label = "Select PU/BU geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
-
+            
             uploadFileUI(id= "addCustomCSV",
               label = "Add Custom input CSV"),
             uploadFileUI(id=  "addCustomHDM225",
@@ -243,11 +243,11 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
                          #accept = c(".tif"),
                          #multiple = T
             ),
-
+            
             fileInput("addCustomUnformattedHDM", NULL,accept=".tif", buttonLabel = "Load custom HDM .tif file for reformatting", multiple = FALSE),
             radioButtons("outRes",label = "Custom HDM output resolution",choices = list("225m"=225,"75m"=75),inline =TRUE ),
             textOutput(outputId = "formattedHDMPath"),
-
+            
             uploadFileUI(id = "addSavedAnalysis",
                          label = "Upload saved analysis '.qs' file",
                          multiple = T)
@@ -271,8 +271,8 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
               )
             ),
             radioButtons("sppublic", "Restrict to Public Land", c("Yes" = TRUE, "No" = FALSE)),
-
-
+            
+            
             # runscript button
             withBusyIndicatorUI(actionButton("runDSpList",
                                              label = "Run draft species list")),
@@ -309,14 +309,14 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
             downloadButton("downloadTool", "Download FAME ArcGIS preproccessing tool")
             #downloadButton("downloadManual", "Download FAME manual"),
             # tags$h1("Revised, alternate 2"),
-
+            
           )
         ),
         column(8,),)
       ),
-
-
-
+      
+      
+      
       # fhAnalysis tab content----
       tabItem(
         tabName = "AnalysisSettings",
@@ -331,7 +331,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
                 selectFileUI(id = "rawFHPath",
                              label = "Select rawFH path"),
                 textOutput("rawFHPath"),
-
+                
                 selectFileUI(id = "secondFH",
                              label = "Select secondFH path"),
                 textOutput("secondFH")
@@ -339,7 +339,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
               numericInput("baseFire",
                            "Include Base fire in FH analysis",
                            value =NA,width = "15%"),
-
+              
               selectInput(
                 "REGION_NO",
                 "Choose a Region",
@@ -351,7 +351,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
                                  selectFileUI(id = "AdHocPath",
                                               label = "Select AdHoc path"),
                                  textOutput("AdHocPath")
-
+                                 
                                ),),
               fluidRow(
                 column(
@@ -366,7 +366,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
                        radioButtons(
                          "max_interval", "Correct for Burn after Bushfire", c("Yes" = 5, "No" = 0)
                          )),
-
+                
                 column(
                   3,
                   radioButtons(
@@ -382,11 +382,15 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
               ),
               numericInput(
                 "startTimespan",
-                "First season for analysis output",
-                1980,
-                1980,
-                width = "40%"
+                label = "First season for analysis output.<br />Value must be <= Last season for analysis output. ",
+                value = 1980
               ),
+              numericInput(
+                "endTimespan",
+                label = HTML("Last season for analysis output.<br />Value must be >= highest SEASON value in input fire mapping<br />or Run FH Analysis button  will return a 'subscript out of bounds' error"),
+                value = get_fire_season(Sys.Date())
+              ),
+              
             ),
             box(
               title = "JFMP Settings",
@@ -397,7 +401,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
                 label = "Include burn unit/planning unit shapefile for JFMP analysis",
                 value = FALSE
               ),
-
+              
               # select planning unit shapefile----
               conditionalPanel(
                 condition = "input.usePUpolys",
@@ -413,8 +417,8 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
               )
             )
           ),
-
-
+          
+          
           # Fauna abundance headings conditional on whether JFMP or "standard" analysis is been run ----
           column(
             6,
@@ -441,10 +445,10 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
                   width = "40%"
                 )
               ),
-
-
+              
+              
               # use standard or choose custom species responses----
-
+              
               fluidRow(
                 column(
                   2,
@@ -460,7 +464,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
                   selectFileUI(id = "customSpList",
                                label = "select custom species list"),
                   textOutput("customSpList")
-
+                  
                 ),
               ),
               splitLayout(
@@ -485,7 +489,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
                                  selectFileUI(id = "customResponseFile",
                                               label = "Select user defined species response file"),
                                  textOutput("customResponseFile")
-
+                                 
                                ),),
               # inputs conditional on whether JFMP or "standard" analysis is been run ----
               conditionalPanel(
@@ -553,7 +557,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
                                label = "select draft JFMP input"),
                   textOutput("draftJFMPFile")
                 ),
-
+                
                 withBusyIndicatorUI(
                   actionButton(
                     "runCompareJFMP",
@@ -621,7 +625,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
         ),
       ),
       # Tab  TFI charts ----
-
+      
       tabItem(tabName = "TFIplots",
               fluidPage(
                 wellPanel(h4("TFI Plots"),
@@ -820,5 +824,5 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4",
                 )))
     ),
   )
-
+  
 )

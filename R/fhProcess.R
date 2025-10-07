@@ -26,11 +26,11 @@
 #'   argument is available only in the r script version - it is not exposed in
 #'   the shinyApp where it is set to NULL
 #' @param start.SEASON integer First SEASON for which output is wanted (four
-#'   digit year as integer), if NUll then second season in in history is used
+#'   digit year as integer), if NA then second season in in history is used
 #'   (cannot use first season because it has no interval, this may still fail if
 #'   there is no overlap)
 #'
-#' @param end.SEASON  integer Last SEASON required, if NULL then largest value
+#' @param end.SEASON  integer Last SEASON required, if NA then largest value
 #'   in fire history scenario used
 #'
 #' @param OtherAndUnknown integer Value to use for cases where fire type is:
@@ -63,8 +63,8 @@ fhProcess<-function(firstFH,
                     OtherAndUnknown=2,
                     baseFire=baseFire,
                     max_interval = 0,
-                    start.SEASON = NULL,
-                    end.SEASON = NULL,
+                    start.SEASON = NA,
+                    end.SEASON = NA,
                     validFIRETYPE = c("BURN","BUSHFIRE","OTHER","UNKNOWN")
 ){
 

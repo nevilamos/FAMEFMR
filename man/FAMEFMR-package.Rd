@@ -6,7 +6,7 @@
 \alias{FAMEFMR-package}
 \title{FAMEFMR: Functions For DELWP FAME Fire Analysis}
 \description{
-The package contains all the functions necessary to run the DEECA FAME process of analysis of effects of a given fire history on environmental resilience metrics. These include Tolerable fire Inteval (TFI) status, area burned below TFI (BBTFI) and changes in relative abundance (RA) of fauna species.It allows calcuation of all inter fire intervals and numbers of times an area has been burned by a given sequence of fires supplied as a shapefile. The FAME analysis can be run using standard R scripts, or alternatively via a shiny web GUI. The package does not contain the required input files (lookup tables, rasters of species HDMs etc) as these are too large to be loaded to github and are available separately from an AWS repository.
+"FameFMR version under development incuding shinyapp"
 }
 \author{
 \strong{Maintainer}: Nevil Amos \email{nevil.amos@gmail.com} (\href{https://orcid.org/0000-0003-1271-4767}{ORCID})

@@ -5,9 +5,9 @@ server <- function(session, input, output) {
                        baseFire = NULL,
                        OtherAndUnknown = NULL,
                        validFIRETYPE = NULL,
-                       start.SEASON = NULL,
-                       end.SEASON = NULL,
-                       max_interval = NULL)
+                       start.SEASON = NA,
+                       max_interval = NULL,
+                       precision = 1)
   rv$FAMEFMRVersion<-FAMEFMRVersion
   rv$FAMEGUIVersion<-FAMEGUIVersion
   rv$max_interval = 5
@@ -318,6 +318,19 @@ server <- function(session, input, output) {
     )
   })
   
+  # Observer for Last season for analysis output (endTimespan)----
+  observeEvent(input$endTimespan, {
+    rv$endTimespan <- input$endTimespan
+  })
+  
+  observeEvent(rv$endTimespan, {
+    updateNumericInput(
+      session = session,
+      inputId = "endTimespan",
+      value = rv$endTimespan
+    )
+  })
+  
   # Observer for start baseline----
   observeEvent(input$startBaseline, {
     rv$startBaseline <- input$startBaseline
@@ -487,16 +500,29 @@ server <- function(session, input, output) {
       rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
       #  fhProcessing steps ----
       
-      rv$FHAnalysis<-fhProcess(firstFH = rv$rawFHPath,
-                               firstFHLayer =  NULL,
-                               secondFH = rv$secondFH,
-                               secondFHLayer = NULL,
-                               OtherAndUnknown =2,
-                               validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
-                               baseFire = rv$baseFire,
-                               start.SEASON = rv$startTimespan,
-                               end.SEASON = rv$endSEASON,
-                               max_interval = rv$max_interval )
+      # rv$FHAnalysis<-fhProcess(firstFH = rv$rawFHPath,
+      #                          firstFHLayer =  NULL,
+      #                          secondFH = rv$secondFH,
+      #                          secondFHLayer = NULL,
+      #                          OtherAndUnknown =2,
+      #                          validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+      #                          baseFire = rv$baseFire,
+      #                          start.SEASON = rv$startTimespan,
+      #                          end.SEASON = rv$endTimespan,
+      #                          max_interval = rv$max_interval )
+      rv$FHAnalysis<- fhProcess2(
+        fhProcess1(inFH = rv$rawFHPath,
+                   inFHLayer =  NULL,
+                   secondFH = rv$secondFH,
+                   secondFHLayer = NULL,
+                   OtherAndUnknown =2,
+                   validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
+                   baseFire = rv$baseFire,
+        ),
+      start.SEASON = rv$startTimespan,
+      end.SEASON = rv$endTimespan,
+      max_interval = rv$max_interval
+      )
     
       
 

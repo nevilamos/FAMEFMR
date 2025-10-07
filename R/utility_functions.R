@@ -384,5 +384,32 @@ alginCustomRaster<- function(inputPath ="./MEWCustom/MEW_new.tif", RES =  75, CR
   return(outputRaster)
 }
 
+#' Get Fire Season of Given Date
+#'
+#' Returns the integer year of the fire season in which a date falls.
+#' The fire season is assumed to run from **1 July to 30 June**.
+#'
+#' For example:
+#' - "2024-05-15" → 2024 (Fire Season 2023–24)
+#' - "2024-09-01" → 2025 (Fire Season 2024–25)
+#'
+#' @param date A vector of dates, coercible to class \code{Date}.
+#'
+#' @return An integer vector giving the ending year of the fire season.
+#'
+#' @examples
+#' get_fire_season("2024-05-15")   # returns 2024
+#' get_fire_season("2024-09-01")   # returns 2025
+#' get_fire_season(Sys.Date())     # today's fire season year
+#'
+#' @export
+get_fire_season <- function(date) {
+  date <- as.Date(date)  # ensure input is Date
+  year <- as.integer(format(date, "%Y"))
+  month <- as.integer(format(date, "%m"))
+
+  # If month is July (7) or later, fire season ends in next calendar year
+  ifelse(month >= 7, year + 1L, year)
+}
 
 

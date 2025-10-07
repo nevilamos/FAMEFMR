@@ -3,7 +3,9 @@
 \name{withBusyIndicatorUI}
 \alias{withBusyIndicatorUI}
 \title{Title withBusyIndicatorUI
-ui part of withBusyIndicator module}
+ui part of withBusyIndicator module
+sourced from:
+https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R}
 \usage{
 withBusyIndicatorUI(button)
 }
@@ -13,4 +15,6 @@ withBusyIndicatorUI(button)
 \description{
 Title withBusyIndicatorUI
 ui part of withBusyIndicator module
+sourced from:
+https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R
 }

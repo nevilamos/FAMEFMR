@@ -107,7 +107,7 @@ fhProcess1<-function (inFH,
     cores<-parallel::detectCores()
     print(paste(cores, "cpu cores will be used in parallel"))
     cl <- parallel::makeCluster(cores)
-    registerDoSNOW(cl)
+    doSNOW::registerDoSNOW(cl)
 
     iterations<-n_WithIntersects
     pb <- txtProgressBar(max = iterations, style = 3)

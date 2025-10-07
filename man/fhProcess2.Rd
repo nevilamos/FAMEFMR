@@ -4,7 +4,7 @@
 \alias{fhProcess2}
 \title{Second stage of Fire history processing for FAME}
 \usage{
-fhProcess2(inFH1, start.SEASON = NULL, end.SEASON = NULL, max_interval = 0)
+fhProcess2(inFH1, start.SEASON = NA, end.SEASON = NA, max_interval = 0)
 }
 \arguments{
 \item{inFH1}{input partially processed Fire History from}
