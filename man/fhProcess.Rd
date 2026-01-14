@@ -2,19 +2,21 @@
 % Please edit documentation in R/fhProcess.R
 \name{fhProcess}
 \alias{fhProcess}
-\title{Wrapper for to complete fhProcess1 and fhProcess2}
+\title{complete Fire Hisotry Processing using QGIS_process}
 \usage{
 fhProcess(
   firstFH,
   firstFHLayer = NULL,
   secondFH = NULL,
   secondFHLayer = NULL,
+  clipShape = NULL,
+  start.SEASON = NULL,
+  end.SEASON = NULL,
   OtherAndUnknown = 2,
-  baseFire = baseFire,
   max_interval = 0,
-  start.SEASON = NA,
-  end.SEASON = NA,
-  validFIRETYPE = c("BURN", "BUSHFIRE", "OTHER", "UNKNOWN")
+  validFIRETYPE = c("BURN", "BUSHFIRE", "OTHER", "UNKNOWN"),
+  baseFire = baseFire,
+  precsision = 1
 )
 }
 \arguments{
@@ -37,28 +39,32 @@ geodatabase or geopackage then the first layer in the file is returned.This
 argument is available only in the r script version - it is not exposed in
 the shinyApp where it is set to NULL}
 
+\item{clipShape}{vector polygon(s)as file path or name of sf vector object in
+layer providing the boundary of the area of interest for the analysis. The
+fire history inputs and output will be clipped to this polygon layer.}
+
+\item{start.SEASON}{integer First SEASON for which output is wanted (four
+digit year as integer), if NUll then second season in in history is used
+(cannot use first season because it has no interval, this may still fail if
+there is no overlap)}
+
+\item{end.SEASON}{integer Last SEASON required, if NULL then largest value
+in fire history scenario used}
+
 \item{OtherAndUnknown}{integer Value to use for cases where fire type is:
 "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded
 from analysis. usually set in settings file}
-
-\item{baseFire}{Default NULL otherwise four digit integer SEASON for fire
-applied across the whole bounding box}
 
 \item{max_interval}{= NULL #integer number of years  maximum inter fire
 interval after a HIGH fire for which subsequent fire is reassigned to HIGH
 default is NULL in which case there is no reassignment}
 
-\item{start.SEASON}{integer First SEASON for which output is wanted (four
-digit year as integer), if NA then second season in in history is used
-(cannot use first season because it has no interval, this may still fail if
-there is no overlap)}
-
-\item{end.SEASON}{integer Last SEASON required, if NA then largest value
-in fire history scenario used}
-
 \item{validFIRETYPE}{vector of valid names in the input FIRETYPE column in
 the input fire history dataset(s), if the column contains NA or values not
 on this list an error will occur}
+
+\item{baseFire}{Default NULL otherwise four digit integer SEASON for fire
+applied across the whole bounding box}
 }
 \value{
 A list containing: \itemize{
@@ -69,7 +75,7 @@ A list containing: \itemize{
 \item LFTNames names of LBY years in output, needed by downstream functions }
 }
 \description{
-Wrapper for to complete fhProcess1 and fhProcess2
+complete Fire Hisotry Processing using QGIS_process
 }
 \details{
 The function takes a shapefile or  geopackage layer of Fire history
