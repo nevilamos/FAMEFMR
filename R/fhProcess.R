@@ -34,8 +34,8 @@
 #'   (cannot use first season because it has no interval, this may still fail if
 #'   there is no overlap)
 #'
-#' @param end.SEASON  integer Last SEASON required, if NULL then largest value
-#'   in fire history scenario used
+#' @param end.SEASON  integer Last SEASON required, if NA or less than max value
+#'   in fire historythen largest value in fire history scenario used.
 #'
 #' @param OtherAndUnknown integer Value to use for cases where fire type is:
 #'   "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded
@@ -49,6 +49,10 @@
 #'   default is NULL in which case there is no reassignment
 #' @param baseFire Default NULL otherwise four digit integer SEASON for fire
 #'   applied across the whole bounding box
+#' @param JFMPSeason0 The fire season  year 0 of the JFMP when a specific JFMP
+#'   analysis is being carried out, otherwise NA, default NA
+#' @param addJFMPplus2 whether to add a fire everywhere in JFMPSeason0 + 2 as
+#'   required for JFMP analysis, default FALSE
 #'
 #' @return A list containing: \itemize{
 #' \item OutDF sf polygons dataframe containing all the fire history attributes
@@ -71,7 +75,10 @@ fhProcess <- function(firstFH,
                       max_interval = 0,
                       validFIRETYPE = c("BURN", "BUSHFIRE", "OTHER", "UNKNOWN"),
                       baseFire = baseFire,
-                      precsision =1) {
+                      precsision =0,
+                      JFMPSeason0 = NA,
+                      addJFMPplus2 =FALSE
+                      ) {
   print("performing FH processing using qgis native union")
   #check FH inputs and initial combination and cropping of FH files----
 
@@ -83,35 +90,57 @@ fhProcess <- function(firstFH,
     mySF2 <-
       FAMEFMR::fhCheck(inFH = secondFH, inFHLayer = secondFHLayer, validFIRETYPE)
     mySF <- dplyr::bind_rows(mySF, mySF2)
+    rm(mySF2)
+    gc()
   }
 
 
 
-  #calculate bounding box for FH and add base fire for bounding box if required
-  BBOX <-
-    sf::st_cast(sf::st_as_sf(sf::st_as_sfc(sf::st_bbox(mySF))),
-                "POLYGON")
-  names(BBOX)[1] <- "geometry"
-  if (is.null(baseFire)) {
+  mySF<-mySF %>% select(SEASON,FIRETYPE)
+  #simple check on clipshape could be improved like fhCheck function
 
+  if ("character"%in% class(clipShape)){
+    clipShape<-st_read(clipShape)
   }
-  else if (nchar(baseFire == 4)) {
-    BBOX <-
-      sf::st_as_sf(dplyr::bind_cols(BBOX, data.frame(
-        SEASON = baseFire,
-        FIRETYPE = "BUSHFIRE"
-      )))
-
-    mySF <- rbind(BBOX, mySF[, c("SEASON", "FIRETYPE")])
-
+  if (!("sf" %in% class(clipShape))){
+    stop("clipShape is not a spatial dataset")
   }
-  else {
+
+  # make sure clipShape and FH inputs have same name for geometry column because
+  #may require binding later and does not work without
+  st_geometry(clipShape)<-attr(mySF, "sf_column")
+
+  #make blank sf from clipshape for appending fires to mySF
+  blank<-clipShape %>% mutate(SEASON =NA,FIRETYPE =NA) %>% select(SEASON,FIRETYPE)
+
+
+  #Add basefire everywhere if required
+  if (is.null(baseFire)) {}else if (nchar(baseFire == 4)) {
+    mySF <- rbind(blank %>% mutate(SEASON = baseFire,FIRETYPE = "BUSHFIRE"),
+                  mySF[, c("SEASON", "FIRETYPE")])
+    print(paste("added fire everywhere",baseFire))
+
+  }else {
     stop("baseFire argument is invalid")
   }
 
+  #add fire for year JFMP+2 everywhere if JFMP analysis
 
+  if(addJFMPplus2 ==TRUE){
 
-  # #crop to area of interest using Terra since faster it also allows this clip to
+    if (nchar(JFMPSeason0 == 4)) {
+      mySF <- rbind(st_as_sf(blank) %>%
+                      mutate(SEASON = JFMPSeason0 +2 ,FIRETYPE = "BURN"),
+                    mySF[, c("SEASON", "FIRETYPE")])
+      print(paste("added fire everywhere JFMPSeason0 +2",JFMPSeason0 +2))
+    }
+    else {
+      stop("JFMPSeason0 argument is invalid")
+    }
+  }
+  rm(blank)
+  gc()
+  # #clip to area of interest
   # #handle a file path or an sf object name as input
   # if (!is.null(clipShape)) {
   #   mySF <- st_as_sf(terra::crop(vect(mySF), vect(clipShape)))
@@ -120,13 +149,17 @@ fhProcess <- function(firstFH,
     "native:clip",
     INPUT = mySF,
     OVERLAY = clipShape
-    ) %>% sf::st_as_sf()
+  ) %>% sf::st_as_sf()
 
+  #adding FIRETYPE_NO which depends on firetype
+  #mySF %>% mutate(FIRETYPE_NO = NA)
   mySF$FIRETYPE_NO[mySF$FIRETYPE == "BURN"] <- 1
   mySF$FIRETYPE_NO[mySF$FIRETYPE == "BUSHFIRE"] <- 2
   mySF$FIRETYPE_NO[mySF$FIRETYPE == "OTHER"] <- OtherAndUnknown
   mySF$FIRETYPE_NO[mySF$FIRETYPE == "UNKNOWN"] <- OtherAndUnknown
-
+  if (sum(is.na(mySF$FIRETYPE_NO)) >0){
+    stop("incorrect valus in fire history FIRETYPE")
+  }
 
 
   #perform dissolve and union using qgis_process algorithm ----
@@ -153,8 +186,7 @@ fhProcess <- function(firstFH,
   min.SEASON <- sort(unique(myDF$SEASON))[2]
   if (is.na(start.SEASON)) {
     start.SEASON = min.SEASON
-  }
-  else {
+  }else {
     if (start.SEASON < min.SEASON) {
       start.SEASON = min.SEASON
     }
@@ -164,9 +196,10 @@ fhProcess <- function(firstFH,
   }
   if (is.na(end.SEASON)) {
     max.SEASON <- max(myDF$SEASON)
-  }
-  else {
-    max.SEASON = end.SEASON
+  }else {
+    #max.season must be greater than or equal to maximum seaon in FH ( including
+    #JFMP0+2 case)
+    max.SEASON = max(end.SEASON,myDF$SEASON)
   }
   TimeSpan <- start.SEASON:max.SEASON
   myDF <- unique(myDF[, names(myDF)])
@@ -203,13 +236,10 @@ fhProcess <- function(firstFH,
         Firetype_Matrix = FT_matrix
       )
     OutDF[, FTNames] <- FT_matrix
-  }
-  else if (max_interval < 0) {
+  }else if (max_interval < 0) {
     stop("max interfal cannot be less than 0")
-  }
-  else {
+  }else {}
 
-  }
   OutDF <- sf::st_as_sf(OutDF)
   LTR <- length(TimeSpan)
   SEAS_Matrix[is.na(SEAS_Matrix)] <- 0
@@ -234,8 +264,11 @@ fhProcess <- function(firstFH,
     R <- i
     C <- as.numeric(stats::na.omit(SEAS_Matrix[i,]))
     V <- (FT_matrix[i, (1:length(C))])
+    print(R)
+    print(C)
     LUM[R, C] <- V
   }
+
   print("calculating last fire type")
   LFT <- matrix(NA, nrow(SEAS_Matrix), LTR)
   for (i in 1:nrow(SEAS_Matrix)) {
@@ -256,6 +289,7 @@ fhProcess <- function(firstFH,
       LBYNames = LBYNames,
       LFTNames = LFTNames
     )
+
   return(results)
 
 }
