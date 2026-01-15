@@ -2,7 +2,7 @@
 % Please edit documentation in R/fhProcess.R
 \name{fhProcess}
 \alias{fhProcess}
-\title{complete Fire Hisotry Processing using QGIS_process}
+\title{complete Fire History Processing using QGIS_process}
 \usage{
 fhProcess(
   firstFH,
@@ -16,7 +16,9 @@ fhProcess(
   max_interval = 0,
   validFIRETYPE = c("BURN", "BUSHFIRE", "OTHER", "UNKNOWN"),
   baseFire = baseFire,
-  precsision = 1
+  precsision = 0,
+  JFMPSeason0 = NA,
+  addJFMPplus2 = FALSE
 )
 }
 \arguments{
@@ -48,8 +50,8 @@ digit year as integer), if NUll then second season in in history is used
 (cannot use first season because it has no interval, this may still fail if
 there is no overlap)}
 
-\item{end.SEASON}{integer Last SEASON required, if NULL then largest value
-in fire history scenario used}
+\item{end.SEASON}{integer Last SEASON required, if NA or less than max value
+in fire historythen largest value in fire history scenario used.}
 
 \item{OtherAndUnknown}{integer Value to use for cases where fire type is:
 "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded
@@ -65,6 +67,12 @@ on this list an error will occur}
 
 \item{baseFire}{Default NULL otherwise four digit integer SEASON for fire
 applied across the whole bounding box}
+
+\item{JFMPSeason0}{The fire season  year 0 of the JFMP when a specific JFMP
+analysis is being carried out, otherwise NA, default NA}
+
+\item{addJFMPplus2}{whether to add a fire everywhere in JFMPSeason0 + 2 as
+required for JFMP analysis, default FALSE}
 }
 \value{
 A list containing: \itemize{
@@ -75,7 +83,7 @@ A list containing: \itemize{
 \item LFTNames names of LBY years in output, needed by downstream functions }
 }
 \description{
-complete Fire Hisotry Processing using QGIS_process
+complete Fire History Processing using QGIS_process
 }
 \details{
 The function takes a shapefile or  geopackage layer of Fire history

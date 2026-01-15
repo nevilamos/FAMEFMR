@@ -1,13 +1,13 @@
 Package: FAMEFMR
-Title: Functions For DELWP FAME Fire Analysis
-Version: 3.0.009
+Title: Functions For DEEECA FAME Fire Analysis
+Version: 3.0.1.1
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
            role = c("aut", "cre"),
            email = "nevil.amos@gmail.com",
            comment = c(ORCID = "0000-0003-1271-4767"))
-Description: "FameFMR version under development incuding shinyapp" 
+Description: "FameFMR version including qgisbased fhPorcess" 
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
