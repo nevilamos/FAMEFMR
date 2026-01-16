@@ -4,9 +4,9 @@
 \name{FAMEFMR-package}
 \alias{FAMEFMR}
 \alias{FAMEFMR-package}
-\title{FAMEFMR: Functions For DELWP FAME Fire Analysis}
+\title{FAMEFMR: Functions For DEECA FAME Fire Analysis}
 \description{
-"FameFMR version under development incuding shinyapp"
+"FameFMR version including qgisbased fhProcess"
 }
 \author{
 \strong{Maintainer}: Nevil Amos \email{nevil.amos@gmail.com} (\href{https://orcid.org/0000-0003-1271-4767}{ORCID})

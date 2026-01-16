@@ -264,8 +264,6 @@ fhProcess <- function(firstFH,
     R <- i
     C <- as.numeric(stats::na.omit(SEAS_Matrix[i,]))
     V <- (FT_matrix[i, (1:length(C))])
-    print(R)
-    print(C)
     LUM[R, C] <- V
   }
 
