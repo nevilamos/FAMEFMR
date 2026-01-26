@@ -85,10 +85,10 @@ fhProcess <- function(firstFH,
   #if more than one FH input combine them
 
   mySF <-
-    fhCheck(inFH = firstFH, inFHLayer = firstFHLayer, validFIRETYPE)
+    crsCheck(inFH = firstFH, inFHLayer = firstFHLayer, validFIRETYPE)
   if (!(is.null(secondFH) | length(secondFH) == 0)) {
     mySF2 <-
-      FAMEFMR::fhCheck(inFH = secondFH, inFHLayer = secondFHLayer, validFIRETYPE)
+      FAMEFMR::crsCheck(inFH = secondFH, inFHLayer = secondFHLayer, validFIRETYPE)
     mySF <- dplyr::bind_rows(mySF, mySF2)
     rm(mySF2)
     gc()
