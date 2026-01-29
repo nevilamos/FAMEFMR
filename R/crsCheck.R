@@ -19,7 +19,18 @@
 #' @export
 #'
 
-crsCheck<-function(inFH=inFH,inFHLayer =inFHLayer,validFIRETYPE =validFIRETYPE){
+crsCheck <- function(inFH=inFH, inFHLayer =inFHLayer, validFIRETYPE =validFIRETYPE, epsg = NULL){
+
+  # Check that the user has supplied an epsg code, if they haven't stop the function
+
+  if(is.null(epsg)) {
+    stop("Error: no epsg code (coordinate reference system) has been supplied by the user")
+  }
+
+  # If they have, convert the character string to just the numeric code so we have both
+  epsg_numeric <- suppressWarnings(
+    as.numeric(substr(epsg, nchar(epsg) - 3, nchar(epsg)))
+  )
 
   # Basic checks on input Fire History file----
   if("character" %in% (class(inFH))){
@@ -31,9 +42,10 @@ crsCheck<-function(inFH=inFH,inFHLayer =inFHLayer,validFIRETYPE =validFIRETYPE){
         mySF <- sf::st_read(dsn = inFH, layer = inFHLayer)
       }
     }
-  }   else if("sf" %in%  class(inFH)){
-    mySF<-inFH} else {
-      stop("inFH file is not a shapefile,geopackage or ESRI geodatabase nor is it a spatial features dataset")
+  } else if ("sf" %in%  class(inFH)){
+
+    mySF <- inFH} else {
+    stop("inFH file is not a shapefile,geopackage or ESRI geodatabase nor is it a spatial features dataset")
     }
 
   if (!"sf" %in% class(mySF)) {
@@ -53,10 +65,10 @@ crsCheck<-function(inFH=inFH,inFHLayer =inFHLayer,validFIRETYPE =validFIRETYPE){
   if (notAllIn(x = mySF$FIRETYPE, v = validFIRETYPE))  {stop("inFH shapefile has missing or invalid values in field 'FIRETYPE'")}
 
   inEPSG<-sf::st_crs(mySF)$epsg
-  if (inEPSG == 3111){
+  if (inEPSG == epsg_numeric){ #3111 numeric
 
   }else if(is.numeric(inEPSG)){
-    mySF<-sf::st_transform(mySF,crs = "epsg:3111")
+    mySF<-sf::st_transform(mySF,crs = epsg) #"epsg:3111" character
   } else{
     stop("input Fire History projection is not adequately defined. Ideally should be epsg:3111 (VicGrid94)")
   }
