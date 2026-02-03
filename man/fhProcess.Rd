@@ -18,7 +18,8 @@ fhProcess(
   baseFire = baseFire,
   precsision = 0,
   JFMPSeason0 = NA,
-  addJFMPplus2 = FALSE
+  addJFMPplus2 = FALSE,
+  epsg = NULL
 )
 }
 \arguments{
@@ -73,6 +74,9 @@ analysis is being carried out, otherwise NA, default NA}
 
 \item{addJFMPplus2}{whether to add a fire everywhere in JFMPSeason0 + 2 as
 required for JFMP analysis, default FALSE}
+
+\item{epsg}{a string denoting the user's preferred coordinate reference system.
+can be in the format "epsg:3111", 3111, or a crs object (eg st_crs(my_sf_object))}
 }
 \value{
 A list containing: \itemize{
