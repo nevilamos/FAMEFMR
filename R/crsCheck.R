@@ -15,7 +15,7 @@
 #'   the input fire history dataset(s), if the column contains NA or values not
 #'   on this list an error will occur
 #' @param epsg a string denoting the user's preferred coordinate reference system.
-#' Should be in the format "epsg:3111"
+#' can be in the format "epsg:3111", 3111, or a crs object (eg st_crs(my_sf_object))
 #' @return correctly formatted Fire History Polygon dataset as sf for use in
 #' fhProcess1()
 #' @export
