@@ -53,6 +53,8 @@
 #'   analysis is being carried out, otherwise NA, default NA
 #' @param addJFMPplus2 whether to add a fire everywhere in JFMPSeason0 + 2 as
 #'   required for JFMP analysis, default FALSE
+#' @param epsg a string denoting the user's preferred coordinate reference system.
+#' can be in the format "epsg:3111", 3111, or a crs object (eg st_crs(my_sf_object))
 #'
 #' @return A list containing: \itemize{
 #' \item OutDF sf polygons dataframe containing all the fire history attributes
@@ -77,18 +79,63 @@ fhProcess <- function(firstFH,
                       baseFire = baseFire,
                       precsision =0,
                       JFMPSeason0 = NA,
-                      addJFMPplus2 =FALSE
+                      addJFMPplus2 =FALSE,
+                      epsg = NULL
                       ) {
   print("performing FH processing using qgis native union")
+
+  # Check that the user has supplied an epsg code, if they haven't stop the function
+
+  if(is.null(epsg)) {
+    stop("Error: no epsg code (coordinate reference system) has been supplied by the user")
+  }
+
+  # Function to convert epsg numeric in case it is supplied in a different format
+  make_epsg_numeric <- function(epsg) {
+
+    if(is.numeric(epsg)) {
+
+      epsg_numeric <- epsg
+
+      return(epsg_numeric)
+
+    } else if (is.character(epsg)) {
+
+      # If they have, convert the character string to just the numeric code so we have both
+      epsg_numeric <- suppressWarnings(
+        as.numeric(substr(epsg, nchar(epsg) - 3, nchar(epsg)))
+      )
+
+      return(epsg_numeric)
+
+      # If they've provided a crs object (eg st_crs(myObject))
+
+    } else if(class(epsg) == "crs") {
+
+      epsg_numeric <- epsg$epsg
+
+      return(epsg_numeric)
+
+    } else {
+
+      stop("epsg must be numeric, character, or an sf::crs object")
+
+    }
+
+  }
+
+  # Apply the standardisation function
+  epsg_numeric <- make_epsg_numeric(epsg)
+
   #check FH inputs and initial combination and cropping of FH files----
 
   #if more than one FH input combine them
 
   mySF <-
-    crsCheck(inFH = firstFH, inFHLayer = firstFHLayer, validFIRETYPE)
+    crsCheck(inFH = firstFH, inFHLayer = firstFHLayer, validFIRETYPE, epsg = epsg)
   if (!(is.null(secondFH) | length(secondFH) == 0)) {
     mySF2 <-
-      FAMEFMR::crsCheck(inFH = secondFH, inFHLayer = secondFHLayer, validFIRETYPE)
+      FAMEFMR::crsCheck(inFH = secondFH, inFHLayer = secondFHLayer, validFIRETYPE, epsg = epsg)
     mySF <- dplyr::bind_rows(mySF, mySF2)
     rm(mySF2)
     gc()
