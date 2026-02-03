@@ -14,14 +14,14 @@
 #' @param validFIRETYPE vector of valid names in the input FIRETYPE column in
 #'   the input fire history dataset(s), if the column contains NA or values not
 #'   on this list an error will occur
-#' @param epsg a string denoting the user's preferred coordinate reference system.
-#' can be in the format "epsg:3111", 3111, or a crs object (eg st_crs(my_sf_object))
+#' @param epsg a number denoting the user's preferred coordinate reference system.
+#' expects numeric eg 3111.
 #' @return correctly formatted Fire History Polygon dataset as sf for use in
 #' fhProcess1()
 #' @export
 #'
 
-crsCheck <- function(inFH=inFH, inFHLayer =inFHLayer, validFIRETYPE = validFIRETYPE, epsg = NULL){
+crsCheck <- function(inFH=inFH, inFHLayer =inFHLayer, validFIRETYPE = validFIRETYPE, epsg_numeric = NULL){
 
   # Check that the user has supplied an epsg code, if they haven't stop the function
 
@@ -29,40 +29,12 @@ crsCheck <- function(inFH=inFH, inFHLayer =inFHLayer, validFIRETYPE = validFIRET
     stop("Error: no epsg code (coordinate reference system) has been supplied by the user")
   }
 
-  # Function to convert epsg numeric in case it is supplied in a different format
-  make_epsg_numeric <- function(epsg) {
+  # Just in case user is using this function outside of fhProcess (which should convert
+  # it to numeric)
 
-  if(is.numeric(epsg)) {
-
-    epsg_numeric <- epsg
-
-    return(epsg_numeric)
-
-  } else if (is.character(epsg)) {
-
-    # If they have, convert the character string to just the numeric code so we have both
-    epsg_numeric <- suppressWarnings(
-      as.numeric(substr(epsg, nchar(epsg) - 3, nchar(epsg)))
-    )
-
-    return(epsg_numeric)
-
-    } else if(class(epsg) == "crs") {
-
-    epsg_numeric <- epsg$epsg
-
-    return(epsg_numeric)
-
-    } else {
-
-      stop("epsg must be numeric, character, or an sf::crs object")
-
-    }
-
+  if (!is.numeric(epsg_numeric)) {
+    stop("`epsg_numeric` must be numeric (e.g. 3857)")
   }
-
-  # Apply the standardisation function
-  epsg_numeric <- make_epsg_numeric(epsg)
 
   # Basic checks on input Fire History file----
   if("character" %in% (class(inFH))){
