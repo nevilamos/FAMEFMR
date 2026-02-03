@@ -110,7 +110,7 @@ fhProcess <- function(firstFH,
 
       # If they've provided a crs object (eg st_crs(myObject))
 
-    } else if(class(epsg) == "crs") {
+    } else if(inherits(epsg, "crs")) {
 
       epsg_numeric <- epsg$epsg
 
@@ -132,10 +132,10 @@ fhProcess <- function(firstFH,
   #if more than one FH input combine them
 
   mySF <-
-    crsCheck(inFH = firstFH, inFHLayer = firstFHLayer, validFIRETYPE, epsg = epsg)
+    crsCheck(inFH = firstFH, inFHLayer = firstFHLayer, validFIRETYPE, epsg = epsg_numeric)
   if (!(is.null(secondFH) | length(secondFH) == 0)) {
     mySF2 <-
-      FAMEFMR::crsCheck(inFH = secondFH, inFHLayer = secondFHLayer, validFIRETYPE, epsg = epsg)
+      FAMEFMR::crsCheck(inFH = secondFH, inFHLayer = secondFHLayer, validFIRETYPE, epsg = epsg_numeric)
     mySF <- dplyr::bind_rows(mySF, mySF2)
     rm(mySF2)
     gc()
