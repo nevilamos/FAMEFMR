@@ -1,6 +1,6 @@
 Package: FAMEFMR
 Title: Functions For DEECA FAME Fire Analysis
-Version: 3.0.1.2
+Version: 3.0.2.0
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
@@ -25,6 +25,7 @@ Imports:
     purrr,
     qgisprocess,
     qs,
+    Rcpp,
     readr,
     Rfast,
     rlang,
@@ -37,7 +38,8 @@ Imports:
     tibble,
     tidyr,
     tidyselect,
-    utils,
+    utils
 Depends: 
     data.table
-
+LinkingTo: 
+    Rcpp
