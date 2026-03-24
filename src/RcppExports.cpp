@@ -42,11 +42,41 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// split_integer_first_last_cpp
+Rcpp::List split_integer_first_last_cpp(Rcpp::IntegerVector x, int n_digits, int k_first, int k_last);
+RcppExport SEXP _FAMEFMR_split_integer_first_last_cpp(SEXP xSEXP, SEXP n_digitsSEXP, SEXP k_firstSEXP, SEXP k_lastSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type n_digits(n_digitsSEXP);
+    Rcpp::traits::input_parameter< int >::type k_first(k_firstSEXP);
+    Rcpp::traits::input_parameter< int >::type k_last(k_lastSEXP);
+    rcpp_result_gen = Rcpp::wrap(split_integer_first_last_cpp(x, n_digits, k_first, k_last));
+    return rcpp_result_gen;
+END_RCPP
+}
+// split_integer_first_last_matrix_cpp
+List split_integer_first_last_matrix_cpp(IntegerMatrix x, int n_digits, int k_first, int k_last);
+RcppExport SEXP _FAMEFMR_split_integer_first_last_matrix_cpp(SEXP xSEXP, SEXP n_digitsSEXP, SEXP k_firstSEXP, SEXP k_lastSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type n_digits(n_digitsSEXP);
+    Rcpp::traits::input_parameter< int >::type k_first(k_firstSEXP);
+    Rcpp::traits::input_parameter< int >::type k_last(k_lastSEXP);
+    rcpp_result_gen = Rcpp::wrap(split_integer_first_last_matrix_cpp(x, n_digits, k_first, k_last));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_FAMEFMR_drop_zero_cols_cpp", (DL_FUNC) &_FAMEFMR_drop_zero_cols_cpp, 1},
     {"_FAMEFMR_shift_zero_in_place_cpp", (DL_FUNC) &_FAMEFMR_shift_zero_in_place_cpp, 1},
     {"_FAMEFMR_shift_zero_cpp", (DL_FUNC) &_FAMEFMR_shift_zero_cpp, 1},
+    {"_FAMEFMR_split_integer_first_last_cpp", (DL_FUNC) &_FAMEFMR_split_integer_first_last_cpp, 4},
+    {"_FAMEFMR_split_integer_first_last_matrix_cpp", (DL_FUNC) &_FAMEFMR_split_integer_first_last_matrix_cpp, 4},
     {NULL, NULL, 0}
 };
 

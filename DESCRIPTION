@@ -1,6 +1,6 @@
 Package: FAMEFMR
 Title: Functions For DEECA FAME Fire Analysis
-Version: 3.0.2.0
+Version: 3.0.3.2
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",

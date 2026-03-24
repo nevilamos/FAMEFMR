@@ -1,9 +1,12 @@
-
-#' Raster FireHisotry Process
+#' Raster Fire History Process
 #'
 #' @param fireHistory
-#' @param template_raster
-#' @param OtherAndUnknown
+#' @param template_raster raster providing the template extent, resolution etc
+#'   of output must be in same CRS and overlap the whole area of interest of the
+#'   input fire history polygon dataset
+#' @param OtherAndUnknown integer Value to use for cases where fire type is:
+#'   "OTHER" or "UNKNOWN" = NA, "BURN" = 1, "BUSHFIRE" = 2. NA = Fire excluded
+#'   from analysis. usually set in settings file
 #'
 #' @return
 #' @export

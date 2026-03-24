@@ -13,3 +13,11 @@ shift_zero_cpp <- function(x) {
     .Call(`_FAMEFMR_shift_zero_cpp`, x)
 }
 
+split_integer_first_last_cpp <- function(x, n_digits, k_first, k_last) {
+    .Call(`_FAMEFMR_split_integer_first_last_cpp`, x, n_digits, k_first, k_last)
+}
+
+split_integer_first_last_matrix_cpp <- function(x, n_digits, k_first, k_last) {
+    .Call(`_FAMEFMR_split_integer_first_last_matrix_cpp`, x, n_digits, k_first, k_last)
+}
+

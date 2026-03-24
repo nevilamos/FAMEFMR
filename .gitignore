@@ -45,3 +45,4 @@ TFI_STATUS.nmscol.txt
 relaunch.R
 myAllCombs.rds
 .RDataTmp
+temp/
