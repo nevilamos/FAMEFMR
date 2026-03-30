@@ -8,7 +8,6 @@ write_raster_from_bin(
   r_template,
   bin_file,
   index_file,
-  out_raster_file,
   max_ncol,
   datatype = "INT2U",
   NAflag = 0,
@@ -21,8 +20,6 @@ write_raster_from_bin(
 \item{bin_file}{Binary file from process_blocks_to_bin()}
 
 \item{index_file}{Index CSV}
-
-\item{out_raster_file}{Output GeoTIFF}
 
 \item{max_ncol}{Number of layers in output}
 

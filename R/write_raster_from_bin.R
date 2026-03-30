@@ -3,7 +3,6 @@
 #' @param r_template SpatRaster template
 #' @param bin_file Binary file from process_blocks_to_bin()
 #' @param index_file Index CSV
-#' @param out_raster_file Output GeoTIFF
 #' @param max_ncol Number of layers in output
 #' @param datatype Output GDAL datatype
 #' @param NAflag NoData value
@@ -14,7 +13,7 @@ write_raster_from_bin <- function(
     r_template,
     bin_file,
     index_file,
-    out_raster_file,
+    #out_raster_file,
     max_ncol,
     datatype = "INT2U",
     NAflag   = 0,
@@ -27,7 +26,7 @@ write_raster_from_bin <- function(
   idx <- read.csv(index_file)
   nc <- ncol(r_template)
 
-  dir.create(dirname(out_raster_file), recursive = TRUE, showWarnings = FALSE)
+  #dir.create(dirname(out_raster_file), recursive = TRUE, showWarnings = FALSE)
 
   out_written_ok <- FALSE
   on.exit({
@@ -39,11 +38,12 @@ write_raster_from_bin <- function(
 
   out <- terra::rast(r_template, nlyrs = as.integer(max_ncol))
   names(out) <- paste0("packed_", seq_len(max_ncol))
+  f<-tempfile(fileext = ".tif")
 
   terra::writeStart(
     out,
-    filename  = out_raster_file,
-    overwrite = TRUE,
+    filename  = f,
+    #overwrite = TRUE,
     wopt = list(
       datatype = as.character(datatype)[1],
       NAflag   = as.integer(NAflag)[1]
@@ -80,5 +80,5 @@ write_raster_from_bin <- function(
   terra::writeStop(out)
   out_written_ok <- TRUE
 
-  invisible(out_raster_file)
+  out
 }

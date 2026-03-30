@@ -17,8 +17,6 @@ process_blocks_to_bin(
 \arguments{
 \item{r}{SpatRaster}
 
-\item{out_prefix}{File prefix for output (.bin, .csv, .txt)}
-
 \item{max_gb_block}{Maximum RAM per block (GB)}
 
 \item{verbose}{Logical}

@@ -4,7 +4,6 @@
 #' drops trailing zero columns, and writes packed blocks to a binary file.
 #'
 #' @param r SpatRaster
-#' @param out_prefix File prefix for output (.bin, .csv, .txt)
 #' @param max_gb_block Maximum RAM per block (GB)
 #' @param verbose Logical
 #' @param progress Logical
@@ -32,9 +31,9 @@ process_blocks_to_bin <- function(
   nr <- nrow(r); nc <- ncol(r); nl <- nlyr(r)
   nrb <- choose_block_nrows(r, max_gb_block = max_gb_block, bytes_per_value = 12)
 
-  bin_file   <- paste0(out_prefix, "_values_i16.bin")
-  index_file <- paste0(out_prefix, "_index.csv")
-  meta_file  <- paste0(out_prefix, "_meta.txt")
+  bin_file   <- tempfile(pattern =  "values_i16",fileext = ".bin")
+  index_file <- tempfile(pattern = "index",fileext = ".csv")
+  meta_file  <- tempfile(pattern = "meta_",fileext =".txt")
 
   con <- file(bin_file, open = "wb")
   on.exit(close(con), add = TRUE)

@@ -31,7 +31,7 @@ generate_random_fire_history <- function(nPolygons =10,
                                            ymax = 2420000,
                                            ymin = 2400000
                                          )),
-                                         maxPoints = 11,
+                                         maxPoints = 51,
                                          seasonRange = 1980:2025,
                                          crs = sf::st_crs(3111),
                                          validFIRETYPE = c("BURN", "BUSHFIRE",
