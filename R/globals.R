@@ -17,7 +17,7 @@ utils::globalVariables(
     "PLM", "PU", "PuHectares", "RasterRes", "ResultsDir", "SCIENTIFIC_NAME",
     "SEAS", "SEASON", "SEQ", "Sequence", "SpYearSummWide", "sumRA",
     "targetHa", "TAXON_ID", "TaxonList", "TBTFI", "TFI_LUT", "TFI_STATUS_LUT",
-    "totalRA", "V", "VALUE", "VIC_ADVISORY_STATUS", "weightedRA",
+    "totalRA", "V", "VALUE", "FFG_ACT_STATUS", "weightedRA",
     "WeightedSumRA", "writeSp", "writeSpRasters", "WtSumRA_Burn",
     "WtSumRA_Diff", "WtSumRA_DiffStd", "WtSumRA_NoBurn", "XYString",
     "YSFNoBurn")

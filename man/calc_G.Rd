@@ -7,7 +7,7 @@
 calc_G(
   x = "raDeltaAbund",
   y = c("TAXON_ID", "COMMON_NAME", "SCIENTIFIC_NAME", "DIVNAME", "EPBC_ACT_STATUS",
-    "VIC_ADVISORY_STATUS", "CombThreshold", "Baseline", "NoLessthanThreshhold",
+    "FFG_ACT_STATUS", "CombThreshold", "Baseline", "NoLessthanThreshhold",
     "LastLessThanThreshold")
 )
 }
