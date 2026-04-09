@@ -2,7 +2,7 @@
 % Please edit documentation in R/cropToOutput.R
 \name{cropToOutput}
 \alias{cropToOutput}
-\title{Creates an output list containing vectors of input rasters, definintion ouf an empty
+\title{Creates an output list containing vectors of input rasters values, definintion of an empty
 output raster (by extent and resoloution) cropped to the clipPolygon provided
 also gets indices of cells in raster of same extent as crop to the shape provided
 from input and output}
@@ -29,7 +29,6 @@ cropToOutput(
 \value{
 A list containing:
 \itemize{
-\item Raster  raster cropped to extent of area of interest,
 \item inCells integer vector cell numbers of cells in the inputRaster(s)
 that correspond to myPoly
 \item outCells integer vector cell numbers of cells in the outputRaster(s)
@@ -43,7 +42,7 @@ for the outputRaster
 }
 }
 \description{
-Creates an output list containing vectors of input rasters, definintion ouf an empty
+Creates an output list containing vectors of input rasters values, definintion of an empty
 output raster (by extent and resoloution) cropped to the clipPolygon provided
 also gets indices of cells in raster of same extent as crop to the shape provided
 from input and output

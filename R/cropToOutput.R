@@ -1,5 +1,5 @@
 #'
-#' Creates an output list containing vectors of input rasters, definintion ouf an empty
+#' Creates an output list containing vectors of input rasters values, definintion of an empty
 #' output raster (by extent and resoloution) cropped to the clipPolygon provided
 #' also gets indices of cells in raster of same extent as crop to the shape provided
 #' from input and output
@@ -10,7 +10,6 @@
 #' @param generalRasterDir relative path to directory containing rasters of DELWP FIRE_REG, DELWP REGION, EFG, PUBLIC LAND (PLM_GEN)
 #' @return A list containing:
 #' \itemize{
-#' \item Raster  raster cropped to extent of area of interest,
 #' \item inCells integer vector cell numbers of cells in the inputRaster(s)
 #'  that correspond to myPoly
 #' \item outCells integer vector cell numbers of cells in the outputRaster(s)
@@ -32,6 +31,7 @@ cropToOutput  <- function(REG_NO = 7,
 ){
   inputR <- inputRasters(myRasterRes)
   inR <- terra::rast(file.path(generalRasterDir, inputR[[1]]))
+  inCRS<-terra::crs(inR)
   Template <- inR
   terra::values(Template) <- NA
 
@@ -85,7 +85,7 @@ cropToOutput  <- function(REG_NO = 7,
   #output$Raster<-rast(extent=Extent,res=225)
   output$inCells<-inCells
   output$outCells<-outCells
-  output$rasterDef<-parse(text =paste("terra::rast( extent = c(",Extent[1],",",Extent[2],",",Extent[3],",",Extent[4],")",",resolution =",myRasterRes,")"))
+  output$rasterDef<-parse(text =paste("terra::rast( extent = c(",Extent[1],",",Extent[2],",",Extent[3],",",Extent[4],")",",resolution =",myRasterRes,",crs =","'",inCRS,"'",")"))
  # end of raster crop function
   return(output)
 }
