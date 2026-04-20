@@ -1,6 +1,6 @@
 Package: FAMEFMR
 Title: Functions For DELWP FAME Fire Analysis
-Version: 1.0.6.4
+Version: 1.0.6.5
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
@@ -25,7 +25,7 @@ License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports: 
     dplyr,
     foreign,
@@ -34,6 +34,7 @@ Imports:
     nloptr,
     purrr,
     qs,
+    Rcpp,
     readr,
     Rfast,
     rlang,
@@ -49,3 +50,5 @@ Imports:
     utils
 Depends: 
     data.table
+LinkingTo:
+    Rcpp    
