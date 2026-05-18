@@ -18,7 +18,6 @@
 #' @export
 process_blocks_to_bin <- function(
     r,
-    out_prefix ="temp/packed_tmp",
     max_gb_block = 2,
     verbose = TRUE,
     progress = TRUE,
@@ -26,9 +25,11 @@ process_blocks_to_bin <- function(
     show_rate_every = 20L
 ) {
   stopifnot(inherits(r, "SpatRaster"))
-  dir.create(dirname(out_prefix), recursive = TRUE, showWarnings = FALSE)
 
-  nr <- nrow(r); nc <- ncol(r); nl <- nlyr(r)
+
+  nr <- nrow(r)
+  nc <- ncol(r)
+  nl <- nlyr(r)
   nrb <- choose_block_nrows(r, max_gb_block = max_gb_block, bytes_per_value = 12)
 
   bin_file   <- tempfile(pattern =  "values_i16",fileext = ".bin")
@@ -68,7 +69,7 @@ process_blocks_to_bin <- function(
     nrows_now <- min(nrb, nr - row + 1L)
 
     m <- terra::readValues(r, row = row, nrows = nrows_now, mat = TRUE)
-    if (!is.integer(m)) m <- as.integer(m)
+    if (!is.integer(m)) m[] <- as.integer(m)
     if (anyNA(m)) m[is.na(m)] <- 0L
 
     shift_zero_in_place(m)

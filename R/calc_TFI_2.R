@@ -33,9 +33,9 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
 
   # get the sf polygon data frame contain all the FHAnalysis  attributes created in fhProcess() function
   OutTab <- myFHAnalysis$OutDF
-  sf::st_geometry(OutTab) <- NULL
+  if (inherits(OutTab, "sf")){sf::st_geometry(OutTab) <- NULL}
   # get ID, seasons and season types information for matrix
-  ID <- OutTab$ID
+  ID <- OutTab$FH_ID
 
   SEASFields <- names(OutTab)[grep("^SEAS", names(OutTab))]
   TYPEFields <- names(OutTab)[grep("^FireType", names(OutTab))]
@@ -71,7 +71,7 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
 
       LBY_HI[,i] <- LBY_f(M = SEAS_HI, y)
       LBY_LO[,i] <- LBY_f(M = SEAS, y)
-      cat("\r", paste("calculating LBY for", y))
+      #cat("\r", paste("calculating LBY for", y))
 
     })
   }

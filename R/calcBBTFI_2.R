@@ -37,7 +37,7 @@ calcBBTFI_2 <- function(myFHAnalysis = FHAnalysis,
   #read the sf polygon data.frame all the fire history spatial attributes created by function fhProcess()
   #convert to a data.frame
   OutTab <- myFHAnalysis$OutDF
-  sf::st_geometry(OutTab) <- NULL
+  if (inherits(OutTab, "sf")){sf::st_geometry(OutTab) <- NULL}
 
   # make fire interval and type matrices
   INTFields <- names(OutTab)[grep("^INT", names(OutTab))]            # fields from FH analysis giving inter fire intervals of 1:nth fire

@@ -6,7 +6,6 @@
 \usage{
 process_blocks_to_bin(
   r,
-  out_prefix = "temp/packed_tmp",
   max_gb_block = 2,
   verbose = TRUE,
   progress = TRUE,

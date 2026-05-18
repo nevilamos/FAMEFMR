@@ -105,9 +105,10 @@ fhProcess_raster_first <- function(r_template = template_r,
 
   r2<-write_raster_from_bin(r_template = r_template,bin_file = p1$bin,index_file = p1$index,max_ncol = p1$max_ncol)
 
-  um<-as.matrix(terra::unique(r2))
+  um<-as.matrix(terra::unique(r2,na.rm = FALSE))
   FH_ID<-1:nrow(um)
   FH_IDr<-terra::subst(x = r2,um,FH_ID)
+  names(FH_IDr)<-"ID" #  need to rename this year so that fhAnalysis$FH_ID also has name ID
 
   ums<-split_integer_first_last(as.integer(um),5,4,1 )
 

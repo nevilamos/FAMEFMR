@@ -68,7 +68,8 @@ calc_SpeciesRA <- function(myFHAnalysis,
   # remove geometry myFHAnalysis DF to create a standard dataframe so columns
   # can be subset without sticky geometry of original spatial Features data
   # frame
-  sf::st_geometry(myDF) <- NULL
+  if (inherits(myDF, "sf")){sf::st_geometry(myDF) <- NULL}
+
 
   # create empty matrix with rownames containing HDM TAXON ID numbers and column
   # names of the years (SEASONS) used to house the Species abundance data for

@@ -5,6 +5,8 @@
 #'
 #' @param x A matrix coercible to integer. Zeros (\code{0L}) are treated as empty.
 #' @return An integer matrix with zeros shifted.
+#' @useDynLib FAMEFMR, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
 #' @export
 shift_zero <- function(x) {
   if (!is.matrix(x)) {
