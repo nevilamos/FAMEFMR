@@ -11,12 +11,13 @@ choose_block_nrows(r, max_gb_block = 2, bytes_per_value = 4)
 
 \item{max_gb_block}{Maximum RAM (GB) per block}
 
-\item{bytes_per_value}{Estimated bytes per value in memory}
+\item{bytes_per_value}{max bytes per value in memory}
 }
 \value{
 Integer number of rows per block
 }
 \description{
 Computes a block height that respects both R's 2^31-1 vector limit
-and a user-specified RAM budget.
+and a user-specified RAM budget. Used to set the number of rows of
+large raster stacks that can safely be processed given memory constraints.
 }

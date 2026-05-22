@@ -1,11 +1,12 @@
 #' Choose a safe number of raster rows per block
 #'
 #' Computes a block height that respects both R's 2^31-1 vector limit
-#' and a user-specified RAM budget.
+#' and a user-specified RAM budget. Used to set the number of rows of
+#' large raster stacks that can safely be processed given memory constraints.
 #'
 #' @param r SpatRaster
 #' @param max_gb_block Maximum RAM (GB) per block
-#' @param bytes_per_value Estimated bytes per value in memory
+#' @param bytes_per_value max bytes per value in memory
 #'
 #' @return Integer number of rows per block
 #' @export
