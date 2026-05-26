@@ -1,0 +1,489 @@
+---
+title: "Fire-history analysis with `fhProcess_raster_first()`"
+author: "Nevil Amos Generated with M365 Copilot"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    number_sections: FALSE
+vignette: >
+  %\VignetteIndexEntry{Fire-history analysis fhProcess_raster_first()}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  out.width = "100%",
+  fig.align = "center"
+)
+run_example <- identical(Sys.getenv("NOT_CRAN"), "true")
+library(FAMEFMR)
+```
+
+# Overview
+
+`fhProcess_raster_first()` implements a raster-first workflow for converting polygon fire-history data into a compact representation of sequential fire events per raster cell. The workflow is designed for cases where each polygon carries at least a season/year attribute and a fire-type attribute, and where downstream modelling requires both:
+
+1. a **spatial mapping** from raster cells to unique fire-history sequences, and
+2. a **tabular representation** of those unique histories for derived metrics such as last fire type, last burned year, and years since fire.
+
+Compared with previous workflows (fhProcess(), fhprocess_qgis()) built around polygon intersection/union, the raster-first approach shifts the hard part of the problem into raster and matrix operations. The main steps are:
+
+1. Rasterise fire-history polygons into a raster stack.
+2. Pack that stack block by block into a compact binary representation.
+3. Rebuild a reduced raster whose number of layers equals the maximum number of  fire events in any cell.
+4. Extract unique packed cell histories.
+5. Decode the packed integers into season and fire-type matrices.
+6. Build a fire-history table (`OutDF`) and derive downstream fire-history metrics.
+
+## In this vignette
+
+- [Why a raster-first workflow?](#why-a-raster-first-workflow)
+- [Algorithm summary](#algorithm-summary)
+- [Reproducible example](#reproducible-example)
+- [Workflow figure](#workflow-figure)
+- [Stage 1: Rasterising grouped fire-history polygons](#stage-1-rasterising-grouped-fire-history-polygons)
+- [Stage 2: Packing raster histories block by block](#stage-2-packing-raster-histories-block-by-block)
+- [Stage 3: Rebuilding a compact packed raster](#stage-3-rebuilding-a-compact-packed-raster)
+- [Stage 4: Extracting unique fire histories](#stage-4-extracting-unique-fire-histories)
+- [Stage 5: Assigning IDs and decoding integer histories](#stage-5-assigning-ids-and-decoding-integer-histories)
+- [Stage 6: Building the fire-history table](#stage-6-building-the-fire-history-table)
+- [Stage 7: Deriving downstream fire-history metrics](#stage-7-deriving-downstream-fire-history-metrics)
+- [Performance notes and memory considerations](#performance-notes-and-memory-considerations)
+- [Assumptions and current implementation notes](#assumptions-and-current-implementation-notes)
+- [Summary](#summary)
+
+# Why a raster-first workflow?
+
+The motivation for `fhProcess_raster_first()` is to avoid expensive vector topology workflows when the core analytical need is the **ordered sequence of fire events per cell**. Rasterisation provides a regular grid representation. Once the data are on a grid, repeated or overlapping fire events can be manipulated with relatively simple matrix operations.
+
+The workflow therefore separates the problem into two linked representations:
+
+- a **packed raster representation**, where each cell stores an ordered event sequence across layers; and
+- a **unique-history table**, where repeated sequences are stored once and referred to by an integer ID.
+
+This separation is especially useful when many cells share the same fire-history sequence, because it removes redundancy from downstream tabular analysis.
+
+# Algorithm summary
+
+At a high level, the current implementation follows this execution path:
+
+```{r top-level-pseudocode, eval=FALSE}
+fhProcess_raster_first()
+  -> make_fh_raster_stack()
+  -> process_blocks_to_bin()
+  -> write_raster_from_bin()
+  -> unique packed histories via terra::unique()
+  -> assign FH_ID and decode packed integers
+  -> build OutDF
+  -> add_fire_lft_lby_ysf()
+```
+
+Three aspects of the design are particularly important:
+
+1. **Event encoding**  
+   Each non-zero event value is assumed to encode season and fire type in a fixed-width integer.
+
+2. **Block processing**  
+   The raster stack is read in row blocks so that the full dense matrix need not be held in memory.
+
+3. **Compaction**  
+   Within each row, non-zero values are shifted left and zero-only columns are removed, reducing temporary storage.
+
+# Reproducible example
+
+The example below is deliberately small and synthetic so that it is lightweight enough for a vignette while still demonstrating the core algorithm.
+
+```{r setup-example, message=FALSE}
+library(terra)
+library(FAMEFMR)
+```
+
+## Build a small synthetic fire-history dataset
+
+```{r create-data}
+
+p1 <- terra::as.polygons(terra::ext(0, 10, 0, 10))
+p2 <- terra::as.polygons(terra::ext(5, 9,9, 13))
+p3 <- terra::as.polygons(terra::ext(11,13,11,13))
+p4<-  terra::buffer(vect(matrix(c(9,8.4), ncol = 2), type = "points"), width =2)
+
+v <- rbind(p1, p2, p3,p4)
+v$SEASON <- c(2002, 2000, 2003,1999)
+v$FIRETYPE_NO <- c(1L, 2L, 1L, 2L)
+
+#the raster template defines the spatRaster resolution for the analysis and
+#restricts its extent, it is generally provided in FAME from
+#cropToOuptut()$rasterDef a toy example is constructed here
+
+r_template <- rast(ext= ext(6,12,6,12),resolution=1,crs ="")
+```
+
+This toy dataset produces cells with:
+
+- no fire events,
+- one fire event, and
+- overlapping fire events.
+- raster extent ( analysis extent) smaller than Fire History extent
+
+
+That variation is enough to illustrate why compaction matters.
+
+## Figure: synthetic fire-history polygons and raster template
+
+```{r fig-input, fig.cap="Synthetic fire-history polygons over the raster template. Overlap creates cells with multi-event fire histories."}
+
+plot(v, col = c("tomato", "steelblue", "darkseagreen3","yellow"),alpha=.5)
+plot(vect(ext(r_template)),add=T,lwd=3,lty=2)
+
+# Compute centroids for label placement
+cent <- terra::centroids(v)
+
+# Build labels: "SEASON / FIRETYPE"
+labels <- paste0("SEASON=", v$SEASON, "\nFT_NO=", v$FIRETYPE_NO)
+
+# Add labels
+text(cent, labels = labels, cex = 0.8)
+
+```
+
+## Run the workflow
+
+The full workflow is shown below. The chunk is guarded so that package checks on CRAN do not depend on non-trivial internal helpers or extended runtime.
+
+```{r run-workflow, eval=run_example}
+res <- fhProcess_raster_first(
+  r_template = r_template,
+  v = v,
+  fields = c("SEASON", "FIRETYPE_NO"),
+  combField_multiplier = 10L,
+  background = 0,
+  overwrite = TRUE,
+  datatype = "INT2U",
+  compress = "LZW",
+  memfrac = 0.5,
+  progress = FALSE,
+  OtherAndUnknown = 2,
+  start.SEASON = 2000,
+  end.SEASON = NA,
+  max_interval = 10
+)
+```
+
+## Inspect outputs
+
+```{r inspect-output, eval=run_example}
+str(res, max.level = 1)
+```
+
+```{r inspect-outdf, eval=run_example}
+head(res$OutDF)
+```
+The output of ID of unique FH_ID to raster, detail of fire history captured 
+depends on r_template resolution at resolution of 1 in this case 8 unique sequences are captured
+
+
+```{r plot-fh-id, eval=run_example}
+# Convert FH_ID vector back to raster
+FH_ID_rast_res1 <- terra::setValues(
+  terra::rast(r_template),
+  res$FH_ID
+)
+
+```
+
+If a finer resolution raster is used smaller regions of unique fire history are captured
+
+make r_template resolution 10 times finer 
+
+```{r}
+terra::res(r_template)<-1/10
+```
+run the workflow using that finer resolution and view the output raster which now has all unique fire histories captured
+and the resulting raster regions more closely follow the input polygons
+```{r}
+res <- fhProcess_raster_first(
+  r_template = r_template,
+  v = v)
+
+```{r plot-fh-id-res-comparison, eval=run_example}
+# Convert FH_ID vector back to raster
+FH_ID_rast_res2 <- terra::setValues(
+  terra::rast(r_template),
+  res$FH_ID
+)
+terra::plot(FH_ID_rast_res1, main = "Fire History ID (FH_ID) resolution 1",sub="Fire History polygons overplot")
+plot(v,add=T)
+terra::plot(FH_ID_rast_res2, main = "Fire History ID (FH_ID) resolution 1/10",sub="Fire History polygons overplot")
+plot(v,add=T)
+```
+
+## Encoding demonstration
+
+The current implementation assumes a fixed-width integer split:
+
+```{r encoding-demo}
+vals <- c(20011L, 20052L)
+
+# Example only: requires split_integer_first_last() to be attached in the package namespace.
+# split_integer_first_last(vals, 5, 4, 1)
+vals
+```
+
+Interpreted under the current assumption:
+
+- `20011` means season `2001`, fire type `1`
+- `20052` means season `2005`, fire type `2`
+
+# Workflow figure
+
+```{r workflow-figure, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Conceptual workflow"}
+if (requireNamespace("DiagrammeR", quietly = TRUE)) {
+  DiagrammeR::grViz("digraph fh {
+    graph [layout = dot, rankdir = TB]
+    node [shape = box,style = 'rounded,filled',fillcolor = 'lightblue',fontname = Helvetica,fontsize = 16,width = 3.5,height = 1.0]
+    v [label = 'Fire-history polygons']
+    t [label = 'Raster template']
+    s1 [label = 'make_fh_raster_stack()']
+    s2 [label = 'process_blocks_to_bin()']
+    s3 [label = 'write_raster_from_bin()']
+    u [label = 'Unique history matrix (um)']
+    d [label = 'Decoded season / fire-type matrices']
+    o [label = 'OutDF']
+    a [label = 'add_fire_lft_lby_ysf()']
+    v -> s1
+    t -> s1
+    s1 -> s2
+    t -> s3
+    s2 -> s3
+    s3 -> u
+    u -> d
+    d -> o
+    o -> a
+  }")
+} else {
+  plot.new()
+  text(0.5, 0.5, "Install 'DiagrammeR' to render the workflow figure.")
+}
+```
+
+# Stage 1: Rasterising grouped fire-history polygons
+
+The first helper, `make_fh_raster_stack()`, groups features by a combined integer field and rasterises each group into a separate layer.
+
+## Algorithm
+
+1. Check that the template is a `SpatRaster`.
+2. Optionally recode text `FIRETYPE` values into an integer `FIRETYPE_NO` field.
+3. Build a combined field,
+
+```{r combfield-formula, eval=FALSE}
+combFields <- SEASON * combField_multiplier + FIRETYPE_NO
+```
+
+4. Split the vector into one subset per unique `combFields` value.
+5. Rasterise each subset onto the same template raster.
+6. Stack the resulting rasters.
+
+## Why this matters
+
+The combined integer field means each layer represents one unique event code. This simplifies the later packing step, because each row of the block matrix is then a sparse event history for a cell.
+
+# Stage 2: Packing raster histories block by block
+
+The second helper, `process_blocks_to_bin()`, is the core memory-management stage.
+
+## Algorithm
+
+For each row block of the raster stack:
+
+1. Read values into a matrix.
+2. Replace `NA` with zero.
+3. Shift non-zero values left within each row.
+4. Remove columns that are entirely zero for that block.
+5. Write the compact block matrix to a binary file.
+6. Record block metadata in an index table.
+
+The two key low-level operations are:
+
+- **shift left within each row**: preserve event order while removing internal zeros;
+- **drop zero-only columns**: reduce storage for blocks in which only a few  fire event positions are occupied.
+
+## Why left-shifting works
+
+Suppose a cell history is represented as:
+
+```{r shift-example, eval=FALSE}
+c(20011, 0, 20052, 0, 0)
+```
+
+After shifting non-zero values left, it becomes:
+
+```{r shift-example-out, eval=FALSE}
+c(20011, 20052, 0, 0, 0)
+```
+
+The ordering of  fire events is preserved, but empty slots no longer split the sequence. That makes the subsequent removal of zero-only columns possible.
+
+# Stage 3: Rebuilding a compact packed raster
+
+`write_raster_from_bin()` reconstructs a raster stack from the compact binary blocks.
+
+## Algorithm
+
+1. Read the block index.
+2. Create an output raster with `max_ncol` layers, where `max_ncol` is the maximum number of retained  fire event positions in any block.
+3. For each block:
+   - read the compact values from the binary file,
+   - reshape them to the block matrix,
+   - pad them back to width `max_ncol`,
+   - write them to the correct rows in the output raster.
+
+## Effect of this step
+
+The original dense stack may have one layer per unique  fire event code across the landscape, which can be much larger than the number of  fire events in any given cell. The reconstructed packed raster instead has one layer per **possible  fire event position in a cell history**.
+
+That distinction is central to the memory saving: layer count now tracks **maximum sequence length per cell**, not **number of unique  fire event groups in the whole input**.
+
+# Stage 4: Extracting unique fire histories
+
+Once the compact raster exists, the workflow extracts unique rows of cell histories:
+
+```{r unique-code, eval=FALSE}
+um <- as.matrix(terra::unique(r2, na.rm = FALSE))
+```
+
+Each row of `um` is a unique sequence of packed  fire event codes.
+
+## Why this is useful
+
+Many raster cells often share identical fire-history sequences. Storing each unique sequence once, and then mapping cells to sequence IDs, is far more efficient than re-analysing the same sequence repeatedly.
+
+# Stage 5: Assigning IDs and decoding integer histories
+
+The next inline stage performs two tasks:
+
+1. assign a unique ID to each row of `um`, and
+2. split packed integers into season and fire-type parts.
+
+```{r decode-code, eval=FALSE}
+FH_ID <- 1:nrow(um)
+FH_IDr <- terra::subst(x = r2, um, FH_ID)
+
+ums <- split_integer_first_last(as.integer(um), 5, 4, 1)
+```
+
+## Fixed-width integer assumption
+
+The current implementation assumes that each non-zero packed value has:
+
+- exactly **5 digits**,
+- the first **4 digits** for season,
+- the last **1 digit** for fire type.
+
+This assumption is a current implementation detail and should be kept aligned with the encoding scheme used in Stage 1.
+
+# Stage 6: Building the fire-history table
+
+After decoding, the workflow builds two matrices:
+
+- `SEASm` for season values,
+- `FTm` for fire-type values.
+
+These are then combined into `OutDF`.
+
+```{r outdf-code, eval=FALSE}
+SEASm[] <- ums$first
+colnames(SEASm) <- paste0("SEAS", sprintf("%02d", 1:ncol(um)))
+FTm[] <- ums$last
+colnames(FTm) <- paste0("FireType", sprintf("%02d", 1:ncol(um)))
+OutDF <- cbind(FH_ID, SEASm, FTm)
+```
+
+## Interpretation
+
+Each row of `OutDF` is one unique fire-history sequence. The `FH_ID` column is the key that links that row back to raster cells in the packed-raster representation.
+
+# Stage 7: Deriving downstream fire-history metrics
+
+The final stage passes `OutDF` into `add_fire_lft_lby_ysf()` and then attaches the raster-aligned ID mapping to the result.
+
+This is the step where sequence-level fire-history data are converted into domain-specific derived variables such as:
+
+- last fire type,
+- last burned year,
+- years since fire.
+
+At this point the workflow has fully separated:
+
+- **spatial indexing** (`FH_ID` per cell), and
+- **sequence-level attributes** (stored once per unique history).
+
+# Performance notes and memory considerations
+
+## Why block processing is necessary
+
+The dense raster stack created in Stage 1 can be very large when there are many unique season–fire-type combinations. Even if most cells only contain a few  fire events, the dense stack still allocates space across all layers.
+
+Block processing avoids reading the full stack into memory. Instead, only a subset of rows is loaded, compacted, and written out at a time.
+
+## Why compaction saves memory
+
+The packed representation reduces temporary and final storage because:
+
+1. zeros inside each row history are removed by left-shifting;
+2. zero-only columns within each block are discarded;
+3. the rebuilt raster uses `max_ncol`, the maximum number of  fire events in any cell, rather than the total number of unique  fire event groups everywhere.
+
+Conceptually, if the input stack has `L` layers, but the deepest fire-history sequence in any cell is only `K`  fire events, then the compact raster can be represented using `K` layers instead of `L`, with `K << L` in many realistic cases.
+
+## Integer storage choices
+
+The example code uses `datatype = "INT2U"` in raster writing. This is compact, but it also constrains the range of representable values. Whether that is sufficient depends on the encoded  fire event values and on the expected size of IDs and derived outputs.
+
+As a general rule:
+
+- smaller integer types reduce disk footprint and I/O load;
+- larger integer types provide more headroom but increase storage cost.
+
+The chosen storage type should therefore be consistent with the maximum encoded value and with any later substitutions or IDs written into rasters.
+
+## Practical memory considerations
+
+When tuning the workflow for larger problems, the main levers are:
+
+- `max_gb_block` in block processing,
+- raster datatype,
+- whether temporary rasters are compressed,
+- the number of unique  fire event groups generated in Stage 1.
+
+Because the workflow is deliberately structured around temporary on-disk artefacts, disk I/O becomes part of the performance profile. In exchange, peak RAM use is kept lower than it would be under a dense in-memory approach.
+
+# Assumptions and current implementation notes
+
+This vignette documents the workflow as represented in the supplied code stack and associated internal notes. A few current implementation details are important:
+
+1. The top-level wrapper in the supplied code currently shows placeholder or incomplete argument forwarding to helper functions.
+2. The packed integer split is hard-coded as `split_integer_first_last(as.integer(um), 5, 4, 1)`.
+3. The workflow assumes supporting helpers such as `choose_block_nrows()`, `shift_zero_in_place()`, `drop_zero_cols()`, `split_integer_first_last()`, and `add_fire_lft_lby_ysf()` are available in the package namespace.
+
+# Summary
+
+`fhProcess_raster_first()` is designed to turn polygon fire-history input into two linked outputs:
+
+- a compact raster mapping cells to unique fire-history IDs, and
+- a sequence table storing the  fire event histories and derived attributes only once per unique sequence.
+
+The workflow achieves this by moving from vector geometry into raster stacks, then from raster stacks into compact block-wise binary form, and finally from packed rasters into a unique-history table.
+
+For large fire-history datasets, the key benefits of this design are:
+
+- lower peak memory use through block processing,
+- reduced redundancy through grouping of identical histories,
+- clearer separation between spatial indexing and sequence-level analysis.
+
+These features make the raster-first approach a strong fit for downstream ecological modelling workflows in which fire-history sequence, rather than polygon geometry itself, is the central object of analysis.

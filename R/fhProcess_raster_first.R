@@ -135,8 +135,7 @@ fhProcess_raster_first <- function(r_template,
 
   OutDF<-cbind(FH_ID,SEASm,FTm)
   rm(FH_ID)
-  FH_IDr
-  fhAnalysis<-add_fire_lft_lby_ysf (OutDF = OutDF,max_interval = max_interval,start.SEASON = start.SEASON,end.SEASON = end.SEASON,v=vect(vector_file))
+  fhAnalysis<-add_fire_lft_lby_ysf (OutDF = OutDF,max_interval = max_interval,start.SEASON = start.SEASON,end.SEASON = end.SEASON,v=v)
   fhAnalysis$FH_ID<-values(FH_IDr)
 
   return(fhAnalysis)
