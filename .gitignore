@@ -47,3 +47,4 @@ myAllCombs.rds
 .RDataTmp
 MakeSimpleStatewideFH.R
 .positai
+inst/doc
