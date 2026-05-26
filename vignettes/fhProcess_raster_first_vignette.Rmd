@@ -1,5 +1,5 @@
 ---
-title: "Fire-history analysis with `fhProcess_raster_first()`"
+title: "Fire-history analysis with `fhProcess_raster_first()"
 author: "Nevil Amos Generated with M365 Copilot"
 output:
   rmarkdown::html_vignette:
