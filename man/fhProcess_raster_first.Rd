@@ -5,8 +5,8 @@
 \title{Fire history raster workflow (wrapper): rasterize -> pack -> rebuild -> analyse}
 \usage{
 fhProcess_raster_first(
-  r_template = template_r,
-  vector_file = infile,
+  r_template,
+  v,
   fields = c("SEASON", "FIRETYPE_NO"),
   combField_multiplier = 10L,
   background = 0,
@@ -24,10 +24,6 @@ fhProcess_raster_first(
 \arguments{
 \item{r_template}{A \code{SpatRaster} template defining target extent/resolution/CRS.
 Defaults to \code{template_r}.}
-
-\item{vector_file}{Path to a vector file readable by \code{\link[terra:vect]{terra::vect()}} (e.g.
-shapefile, geopackage), or an object accepted by \code{\link[terra:vect]{terra::vect()}}.
-Defaults to \code{rawFH}.}
 
 \item{fields}{Character vector of attribute names in \code{vector_file} used to
 derive the fire-history coding (e.g. \code{c("SEASON", "FIRETYPE_NO")}).}
@@ -61,6 +57,10 @@ downstream logic.}
 
 \item{max_interval}{Integer; maximum interval argument forwarded to
 \code{add_fire_lft_lby_ysf()}.}
+
+\item{vector_file}{Path to a vector file readable by \code{\link[terra:vect]{terra::vect()}} (e.g.
+shapefile, geopackage), or an object accepted by \code{\link[terra:vect]{terra::vect()}}.
+Defaults to \code{rawFH}.}
 }
 \value{
 A list containing: \itemize{

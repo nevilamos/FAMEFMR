@@ -13,7 +13,7 @@
 #' - LBY_f(M, y) returns NA when no previous fire exists for year y (as in your implementation)
 #'
 #' @param OutDF data.frame containing SEAS* and FireType* columns
-#' @param v terra vector fire history containing SEASON field (calendar years)
+#' @param v terra spatVector fire history containing SEASON field (calendar years)
 #' @param max_interval integer; if > 0 calls fireTypeLowToHigh(); if 0 skips; if < 0 errors
 #' @param start.SEASON optional integer start year; if NA uses 2nd smallest unique v$SEASON (or smallest if only one)
 #' @param end.SEASON optional integer end year; if NA uses max(v$SEASON); otherwise max(end.SEASON, max(v$SEASON))

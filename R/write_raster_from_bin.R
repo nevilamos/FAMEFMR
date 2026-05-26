@@ -13,7 +13,6 @@ write_raster_from_bin <- function(
     r_template,
     bin_file,
     index_file,
-    #out_raster_file,
     max_ncol,
     datatype = "INT2U",
     NAflag   = 0,
@@ -25,16 +24,6 @@ write_raster_from_bin <- function(
 
   idx <- read.csv(index_file)
   nc <- ncol(r_template)
-
-  #dir.create(dirname(out_raster_file), recursive = TRUE, showWarnings = FALSE)
-
-  out_written_ok <- FALSE
-  on.exit({
-    if (!out_written_ok && file.exists(out_raster_file)) {
-      unlink(out_raster_file, force = TRUE)
-      unlink(paste0(out_raster_file, ".aux.xml"), force = TRUE)
-    }
-  }, add = TRUE)
 
   out <- terra::rast(r_template, nlyrs = as.integer(max_ncol))
   names(out) <- paste0("packed_", seq_len(max_ncol))

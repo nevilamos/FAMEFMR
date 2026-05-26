@@ -18,7 +18,7 @@ add_fire_lft_lby_ysf(
 \arguments{
 \item{OutDF}{data.frame containing SEAS* and FireType* columns}
 
-\item{v}{terra vector fire history containing SEASON field (calendar years)}
+\item{v}{terra spatVector fire history containing SEASON field (calendar years)}
 
 \item{max_interval}{integer; if > 0 calls fireTypeLowToHigh(); if 0 skips; if < 0 errors}
 

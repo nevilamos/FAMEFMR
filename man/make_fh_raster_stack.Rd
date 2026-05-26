@@ -6,7 +6,7 @@
 \usage{
 make_fh_raster_stack(
   r_template = template_r,
-  vector_file = infile,
+  v,
   fields = c("SEASON", "FIRETYPE_NO"),
   combField_multiplier = 10L,
   background = 0,
@@ -22,8 +22,7 @@ make_fh_raster_stack(
 \item{r_template}{A \code{\link[terra:SpatRaster-class]{terra::SpatRaster}} template defining
 output extent, resolution and CRS.}
 
-\item{vector_file}{Character. Path to the input vector dataset (e.g., \code{.shp}, \code{.gpkg})
-readable by \code{\link[terra:vect]{terra::vect}}.}
+\item{v}{terra spatVector object.}
 
 \item{fields}{Character vector of length 2 giving the names of the fields used to form the
 combined code. Defaults to \code{c("SEASON","FIRETYPE_NO")}.}
@@ -95,7 +94,7 @@ r <- rast(ext = ext(v), res = 75, crs = crs(v))
 
 make_fh_raster_stack(
   r_template = r,
-  vector_file = "FH_State.shp",
+  v,
   fields = c("SEASON", "FIRETYPE_NO"),
   combField_multiplier = 100L,
   datatype = "INT2U"
