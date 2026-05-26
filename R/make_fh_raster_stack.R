@@ -16,8 +16,7 @@
 #'
 #' @param r_template A \code{\link[terra:SpatRaster-class]{terra::SpatRaster}} template defining
 #'   output extent, resolution and CRS.
-#' @param vector_file Character. Path to the input vector dataset (e.g., \code{.shp}, \code{.gpkg})
-#'   readable by \code{\link[terra:vect]{terra::vect}}.
+#' @param v terra spatVector object.
 #' @param fields Character vector of length 2 giving the names of the fields used to form the
 #'   combined code. Defaults to \code{c("SEASON","FIRETYPE_NO")}.
 #' @param combField_multiplier Integer scalar. Multiplier used when combining the two fields:
@@ -65,7 +64,7 @@
 #'
 #' make_fh_raster_stack(
 #'   r_template = r,
-#'   vector_file = "FH_State.shp",
+#'   v,
 #'   fields = c("SEASON", "FIRETYPE_NO"),
 #'   combField_multiplier = 100L,
 #'   datatype = "INT2U"
@@ -76,7 +75,7 @@
 #' @export
 make_fh_raster_stack <- function(
     r_template = template_r,
-    vector_file = infile,
+    v,
     fields = c("SEASON", "FIRETYPE_NO"),
     combField_multiplier = 10L,
 
@@ -104,7 +103,7 @@ make_fh_raster_stack <- function(
   }
 
   # --- read vector
-  v <- terra::vect(vector_file)
+
   nms <- names(v)
 
   # --- field checks / optional recode

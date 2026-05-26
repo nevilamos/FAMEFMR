@@ -84,8 +84,8 @@
 #'   start.SEASON = 1980
 #' )
 #' }
-fhProcess_raster_first <- function(r_template = template_r,
-                                   vector_file = infile,
+fhProcess_raster_first <- function(r_template,
+                                   v,
                                    fields = c("SEASON", "FIRETYPE_NO"),
                                    combField_multiplier = 10L,
                                    background = 0,
@@ -98,7 +98,21 @@ fhProcess_raster_first <- function(r_template = template_r,
                                    start.SEASON = 1980,
                                    end.SEASON = NA,
                                    max_interval = 0) {
-  s<-make_fh_raster_stack()
+
+  s <- make_fh_raster_stack(
+    r_template = r_template,
+    v = v,
+    fields = fields,
+    combField_multiplier = combField_multiplier,
+    background = background,
+    overwrite = overwrite,
+    datatype = datatype,
+    compress = compress,
+    memfrac = memfrac,
+    progress = progress,
+    OtherAndUnknown = OtherAndUnknown
+  )
+
 
 
   p1<-process_blocks_to_bin(s)
