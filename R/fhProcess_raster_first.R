@@ -31,7 +31,7 @@
 #'
 #' @param r_template A `SpatRaster` template defining target extent/resolution/CRS.
 #'   Defaults to `template_r`.
-#' @param vector_file Path to a vector file readable by [terra::vect()] (e.g.
+#' @param input_fire_history Path to a vector file readable by [terra::vect()] (e.g.
 #'   shapefile, geopackage), or an object accepted by [terra::vect()].
 #'   Defaults to `rawFH`.
 #' @param fields Character vector of attribute names in `vector_file` used to
@@ -85,7 +85,7 @@
 #' )
 #' }
 fhProcess_raster_first <- function(r_template,
-                                   v,
+                                   input_fire_history,
                                    fields = c("SEASON", "FIRETYPE_NO"),
                                    combField_multiplier = 10L,
                                    background = 0,
@@ -98,6 +98,7 @@ fhProcess_raster_first <- function(r_template,
                                    start.SEASON = 1980,
                                    end.SEASON = NA,
                                    max_interval = 0) {
+  v<-vect(input_fire_history)
 
   s <- make_fh_raster_stack(
     r_template = r_template,

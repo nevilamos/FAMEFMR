@@ -102,10 +102,8 @@ make_fh_raster_stack <- function(
     terra::terraOptions(memfrac = memfrac)
   }
 
-  # --- read vector
 
   nms <- names(v)
-
   # --- field checks / optional recode
   if ("FIRETYPE" %in% nms) {
     # Recode FIRETYPE -> FIRETYPE_NO
@@ -114,7 +112,14 @@ make_fh_raster_stack <- function(
     v$FIRETYPE_NO[v$FIRETYPE %in% c("OTHER", "UNKNOWN")] <- OtherAndUnknown
     nms <- names(v)
   }
+  # --- read vector
+  print (v)
 
+  nms <- names(v)
+  print("nms")
+  print(nms)
+  print("fields")
+  print(fields)
   if (!all(fields %in% nms)) {
     missing <- fields[!fields %in% nms]
     stop(sprintf("Missing field(s) in vector attributes: %s", paste(missing, collapse = ", ")))
