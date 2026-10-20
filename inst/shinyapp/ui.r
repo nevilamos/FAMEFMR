@@ -225,7 +225,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
             width = 12,
             title = "Select and upload files",
             
-            uploadFileUI(id="rawFH",label = "Select rawFH for upload geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
+            uploadFileUI(id=fame_data_path("rawFH"),label = "Select rawFH for upload geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
             uploadFileUI(id="adHocPoly",label = "Select Area of Interest geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
             uploadFileUI(id="puPoly",label = "Select PU/BU geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
             
@@ -265,7 +265,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
               selectInput(
                 "spAdHocShape",
                 "Select AdHoc Area shapefile",
-                choice = c("", list.files("./AdHocPolygons/",
+                choice = c("", list.files(fame_data_path("AdHocPolygons"),
                                           pattern =
                                             ".shp$"))
               )

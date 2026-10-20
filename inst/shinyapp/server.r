@@ -59,7 +59,7 @@ server <- function(session, input, output) {
   
   rawFHpath<-selectFileServer(
     id = "rawFHPath",
-    root_dirs = c(rawFH ="./rawFH"),
+    root_dirs = c(rawFH =fame_data_path("rawFH")),
     filetypes = c("gpkg","shp")
   )
   observe(rv$rawFHPath<-rawFHpath$datapath)
@@ -70,7 +70,7 @@ server <- function(session, input, output) {
   # Observer to get AdHoc shapefile file to be run ----
   AdHocPath<-selectFileServer(
     id = "AdHocPath",
-    root_dirs = c(AdHocPolygons ="./AdHocPolygons"),
+    root_dirs = c(AdHocPolygons =fame_data_path("AdHocPolygons")),
                   filetypes = c("gpkg","shp")
   )
   observe(rv$AdHocPath<-AdHocPath$datapath)
@@ -89,7 +89,7 @@ server <- function(session, input, output) {
   # Observer to get customSpList be run ----
   customSpList<-selectFileServer(
     id = "customSpList",
-    root_dirs = c(CustomCSV = "./CustomCSV"),
+    root_dirs = c(CustomCSV = fame_data_path("CustomCSV")),
                   filetypes = c("csv")
   )
   observe(rv$customSpList<-customSpList$datapath)
@@ -102,7 +102,7 @@ server <- function(session, input, output) {
   # Observer to get customResponseFile be run ----
   customResponseFile<-selectFileServer(
     id = "customResponseFile",
-    root_dirs = c(CustomCSV = "./CustomCSV"),
+    root_dirs = c(CustomCSV = fame_data_path("CustomCSV")),
                   filetypes = c("csv")
   )
   observe(rv$customResponseFile<-customResponseFile$datapath)
@@ -114,7 +114,7 @@ server <- function(session, input, output) {
   
   zoneWtFile<-selectFileServer(
     id = "zoneWtFile",
-    root_dirs = c(CustomCSV = "./CustomCSV"),filetypes = c("csv")
+    root_dirs = c(CustomCSV = fame_data_path("CustomCSV")),filetypes = c("csv")
   )
   observe(rv$zoneWtFile<-zoneWtFile$datapath)
   observe(output$zoneWtFile<-renderText(rv$zoneWtFile))
@@ -124,7 +124,7 @@ server <- function(session, input, output) {
   
   jfmpMetricWtFilePath<-selectFileServer(
     id = "jfmpMetricWtFilePath",
-    root_dirs = c(CustomCSV = "./CustomCSV",filetypes = c("csv"))
+    root_dirs = c(CustomCSV = fame_data_path("CustomCSV"),filetypes = c("csv"))
   )
   observe(rv$jfmpMetricWtFilePath<-jfmpMetricWtFilePath$datapath)
   observe(output$jfmpMetricWtFilePath<-renderText(rv$jfmpMetricWtFilePath))
@@ -134,7 +134,7 @@ server <- function(session, input, output) {
   
   draftJFMPFile<-selectFileServer(
     id = "draftJFMPFile",
-    root_dirs = c(CustomCSV = "./CustomCSV"),filetypes = c("csv")
+    root_dirs = c(CustomCSV = fame_data_path("CustomCSV")),filetypes = c("csv")
   )
   observe(rv$draftJFMPFile<-draftJFMPFile$datapath)
   observe(output$draftJFMPFile<-renderText(rv$draftJFMPFile))
@@ -169,7 +169,7 @@ server <- function(session, input, output) {
   # Observer of JFMP Area Target  ----
   targetHaFilepath <- selectFileServer(
     id = "targetHaFilepath",
-    root_dirs = c(CustomCSV = "./CustomCSV"),filetypes = c("csv")
+    root_dirs = c(CustomCSV = fame_data_path("CustomCSV")),filetypes = c("csv")
   )
   observe(rv$targetHaFilepath<-targetHaFilepath$datapath)
   observe(output$targetHaFilepath<-renderText(rv$targetHaFilepath))
@@ -451,12 +451,12 @@ server <- function(session, input, output) {
       
       print(paste("RasterRes =", rv$RasterRes))
       HDM_RASTER_PATH <-
-        paste0("./HDMS/", rv$RasterRes, "m/BinaryThresholded")
+        paste0(fame_data_path("HDMS"), rv$RasterRes, "m/BinaryThresholded")
       
       if (rv$REGION_NO == 7) {
         rv$clipShape <- rv$AdHocPath
       } else {
-        rv$clipShape <- "./ReferenceShapefiles/LF_DISTRICT.shp"
+        rv$clipShape <- fame_data_path(fame_data_path("ReferenceShapefiles"), "LF_DISTRICT.shp")
       }
       
       
@@ -473,7 +473,7 @@ server <- function(session, input, output) {
         myRasterRes = rv$RasterRes,
         PUBLIC_LAND_ONLY = rv$public,
         myPoly = rv$clipShape,
-        generalRasterDir = "./InputGeneralRasters"
+        generalRasterDir = fame_data_path("InputGeneralRasters")
       )
       
       rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
@@ -592,7 +592,7 @@ server <- function(session, input, output) {
           
           Baseline <- startBaseline:endBaseline
           if (rv$spListChoice == FALSE) {
-            rv$TaxonListPath <-"./ReferenceTables/FAME_TAXON_LIST.csv"
+            rv$TaxonListPath <-fame_data_path(fame_data_path("ReferenceTables"), "FAME_TAXON_LIST.csv")
           } else {
             rv$TaxonListPath <- rv$customSpList
           }
@@ -625,7 +625,7 @@ server <- function(session, input, output) {
           
           
           if (rv$spResponseChoice == FALSE) {
-            rv$SpGSResponses <- "./ReferenceTables/OrdinalExpertLong.csv"
+            rv$SpGSResponses <- fame_data_path(fame_data_path("ReferenceTables"), "OrdinalExpertLong.csv")
           } else {
             rv$SpGSResponses <-
               file.path(rv$customResponseFile)
@@ -777,7 +777,7 @@ server <- function(session, input, output) {
       })
       #save analysis to qs so that it can be retrieved if UI greys out
       myRvList <- reactiveValuesToList(rv)
-      autoSavePath<-"./FH_Outputs/autoSavedAnalysis.qs"
+      autoSavePath<-fame_data_path(fame_data_path("FH_Outputs"), "autoSavedAnalysis.qs")
       qsave(myRvList,autoSavePath)
       #save name of autosavepath after species calculations
       rv$outputSettings$analysisSavedPath[1] = autoSavePath
@@ -1404,9 +1404,9 @@ server <- function(session, input, output) {
     withBusyIndicatorServer("runDSpList", {
       req(input$spREGION_NO)
       if (input$spREGION_NO == 7) {
-        myPoly <- file.path("./AdHocPolygons", input$spAdHocShape)
+        myPoly <- fame_data_path("AdHocPolygons", input$spAdHocShape)
       } else {
-        myPoly <- "./ReferenceShapefiles/LF_DISTRICT.shp"
+        myPoly <- fame_data_path(fame_data_path("ReferenceShapefiles"), "LF_DISTRICT.shp")
       }
       print("calcuating draft species List")
       myDraftSpList <- calc_DraftSpList(
@@ -1414,7 +1414,7 @@ server <- function(session, input, output) {
         RasterRes = 225,
         myPoly = myPoly,
         PUBLIC_LAND_ONLY = input$sppublic,
-        TaxonList = "./ReferenceTables/FAME_TAXON_LIST.csv"
+        TaxonList = fame_data_path(fame_data_path("ReferenceTables"), "FAME_TAXON_LIST.csv")
       )
       print(head(myDraftSpList))
       readr::write_csv(
@@ -1429,9 +1429,9 @@ server <- function(session, input, output) {
     withBusyIndicatorServer("runspEFGpList", {
       req(input$spREGION_NO)
       if (input$spREGION_NO == 7) {
-        myPoly <- file.path("./AdHocPolygons", input$spAdHocShape)
+        myPoly <- fame_data_path("AdHocPolygons", input$spAdHocShape)
       } else {
-        myPoly <- "./ReferenceShapefiles/LF_DISTRICT.shp"
+        myPoly <- fame_data_path(fame_data_path("ReferenceShapefiles"), "LF_DISTRICT.shp")
       }
       
       
@@ -1440,8 +1440,8 @@ server <- function(session, input, output) {
         RasterRes = 225,
         PUBLIC_LAND_ONLY = input$sppublic,
         myPoly = myPoly,
-        generalRasterDir = "./InputGeneralRasters",
-        TaxonList = "./ReferenceTables/FAME_TAXON_LIST.csv",
+        generalRasterDir = fame_data_path("InputGeneralRasters"),
+        TaxonList = fame_data_path(fame_data_path("ReferenceTables"), "FAME_TAXON_LIST.csv"),
         TFI_LUT = TFI_LUT
         
         
@@ -1566,7 +1566,7 @@ server <- function(session, input, output) {
   
   # Observer to save current analysis reactive values to file as list----
   observeEvent(input$saveAnalysis, {
-    roots <- c("UserFolder" = "./FH_Outputs")
+    roots <- c("UserFolder" = fame_data_path("FH_Outputs"))
     myRvList <- reactiveValuesToList(rv)
     shinyFileSave(input, "saveAnalysis", roots = roots)
     fileinfo <- parseSavePath(roots, input$saveAnalysis)
@@ -1582,7 +1582,7 @@ server <- function(session, input, output) {
   # UTILITIES - LOADING PREVIOUS ANALYSIS AND SERVER SHUTDOWN
   # Observer to load analysis from list as qs file----
   observe({
-    roots <- c(FH_Outputs = "./FH_Outputs")
+    roots <- c(FH_Outputs = fame_data_path("FH_Outputs"))
     shinyFileChoose(input,
                     id = "loadAnalysis",
                     roots = roots,
@@ -1634,9 +1634,9 @@ server <- function(session, input, output) {
 
   # Observer for loading fire scenario shapefiles ----
   observe({
-    uploadFileServer(id = "rawFH",
+    uploadFileServer(id = fame_data_path("rawFH"),
                      filetype = "geog",
-                     saveToPath = "./rawFH")
+                     saveToPath = fame_data_path("rawFH"))
     
   })
 
@@ -1646,7 +1646,7 @@ server <- function(session, input, output) {
   observe({
     uploadFileServer(id = "adHocPoly",
                      filetype = "geog",
-                     saveToPath = "./AdHocPolygons")
+                     saveToPath = fame_data_path("AdHocPolygons"))
   })
 
   
@@ -1662,7 +1662,7 @@ server <- function(session, input, output) {
   observe({
     uploadFileServer(id = "addCustomCSV",
                      filetype = "csv",
-                     saveToPath = "./CustomCSV")
+                     saveToPath = fame_data_path("CustomCSV"))
   })  
   
 
@@ -1670,12 +1670,12 @@ server <- function(session, input, output) {
   observe({
     uploadFileServer(id = "addCustomHDM225",
                      filetype = "tif",
-                     saveToPath = "./HDMS/225m/CustomHDM")
+                     saveToPath = fame_data_path(fame_data_path("HDMS"), "225m/CustomHDM"))
   })  
   observe({
     uploadFileServer(id = "addCustomHDM75",
                      filetype = "tif",
-                     saveToPath = "./HDMS/75m/CustomHDM")
+                     saveToPath = fame_data_path(fame_data_path("HDMS"), "75m/CustomHDM"))
   })
   
   addCustomUnformattedHDMListen <- reactive({
@@ -1686,7 +1686,7 @@ server <- function(session, input, output) {
   observeEvent(addCustomUnformattedHDMListen(),ignoreInit = T,{
     if (input$addCustomUnformattedHDM$type[1] == "image/tiff"){
       
-      outDir<-paste0("./HDMS/",input$outRes,"m/CustomHDM")
+      outDir<-paste0(fame_data_path("HDMS"),input$outRes,"m/CustomHDM")
       formattedHDMPath<-file.path(outDir,paste0(basename(tools::file_path_sans_ext(input$addCustomUnformattedHDM$name)),"_",input$outRes,"_custom.tif"))
       alginCustomRaster(inputPath =input$addCustomUnformattedHDM$datapath, RES =  as.integer(input$outRes), CRS="epsg:3111",EXTENT = ext(2126550, 2941050, 2258825, 2828075 ),outPath = formattedHDMPath)
       output$formattedHDMPath<-renderText(paste ( "Saved formatted HDM to:", formattedHDMPath))
@@ -1702,7 +1702,7 @@ server <- function(session, input, output) {
   observe({
     uploadFileServer(id = "addSavedAnalysis",
                      filetype = "qs",
-                     saveToPath = "./FH_Outputs")
+                     saveToPath = fame_data_path("FH_Outputs"))
   })  
  
   # Download handlers for utilities page----

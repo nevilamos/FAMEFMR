@@ -89,6 +89,6 @@ GS_LUT <- data.frame(
 # EFG to TFI attributes look up table
 # read csv version of CGDL lookup table
 TFI_LUT <-
-  read_csv("./ReferenceTables/EFG_EVD_TFI.csv")[, c("EFG_NUM", "MIN_LO_TFI",
+  read_csv(fame_data_path(fame_data_path("ReferenceTables"), "EFG_EVD_TFI.csv"))[, c("EFG_NUM", "MIN_LO_TFI",
                                                     "MIN_HI_TFI", "MAX_TFI", "EFG_NAME")]
 names(TFI_LUT)[1] <- "EFG"

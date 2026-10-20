@@ -144,12 +144,12 @@ rv<-list()
   RasterRes <- as.integer(rv$RasterRes)
   print(paste("RasterRes =", RasterRes))
   HDM_RASTER_PATH <-
-    paste0("./HDMS/", rv$RasterRes, "m/BinaryThresholded")
+    paste0(fame_data_path("HDMS"), rv$RasterRes, "m/BinaryThresholded")
   
   if (rv$REGION_NO == 7) {
     rv$clipShape <- rv$AdHocPath
   } else {
-    rv$clipShape <- "./ReferenceShapefiles/LF_DISTRICT.shp"
+    rv$clipShape <- fame_data_path(fame_data_path("ReferenceShapefiles"), "LF_DISTRICT.shp")
   }
   
   
@@ -166,7 +166,7 @@ rv<-list()
     myRasterRes = RasterRes,
     PUBLIC_LAND_ONLY = rv$public,
     myPoly = rv$clipShape,
-    generalRasterDir = "./InputGeneralRasters"
+    generalRasterDir = fame_data_path("InputGeneralRasters")
   )
   
   rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
@@ -398,7 +398,7 @@ r<-eval(rv$cropRasters$rasterDef)
       Baseline <- startBaseline:endBaseline
       if (rv$spListChoice == FALSE) {
         rv$TaxonList <-
-          read_csv("./ReferenceTables/FAME_TAXON_LIST.csv")
+          read_csv(fame_data_path(fame_data_path("ReferenceTables"), "FAME_TAXON_LIST.csv"))
       } else {
         rv$TaxonList <- read_csv(rv$customSpList)
       }
@@ -430,7 +430,7 @@ r<-eval(rv$cropRasters$rasterDef)
       
       
       if (rv$spResponseChoice == FALSE) {
-        rv$SpGSResponses <- "./ReferenceTables/OrdinalExpertLong.csv"
+        rv$SpGSResponses <- fame_data_path(fame_data_path("ReferenceTables"), "OrdinalExpertLong.csv")
       } else {
         rv$SpGSResponses <-
           file.path(rv$customResponseFile)

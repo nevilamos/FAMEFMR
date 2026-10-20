@@ -2,19 +2,19 @@ rm(list = ls(all = TRUE))
 
 
 options(stringsAsFactors = F)
-source("installationCheck.R")
+#source("installationCheck.R")
 # get version of FAMEFMR in use and set app version
 
-FAMEGUIVersion <- "Version 4.6 April 30 2026 VicGrid2020"
+#FAMEGUIVersion <- "Version 4.6 April 30 2026 VicGrid2020"
 
 FAMEFMRVersion <- paste("  R", getRversion(), "FAMEFMR", packageVersion("FAMEFMR"))
 
-#set option so that readr does not print column types 
+#set option so that readr does not print column types
 options(readr.show_col_types = FALSE)
 
 # file that disables buttons while processes are running to prevent multi-clicks
 # and lengthy operations running multiple times
-source("ButtonDisableHelpers.r")
+#source("ButtonDisableHelpers.r")
 
 
 
@@ -43,7 +43,7 @@ if(.Platform$OS.type == "unix") {
   if (!dir.exists("./results")){
     dir.create("results")
   }
-  
+
 } else {
   #not currently working for windows
 }
@@ -64,18 +64,18 @@ dir.create(file.path(resultsDir, "TFI_Rasters"))
 source("makeLUTS.R")
 
 cellSizes <- c("225" = 225, "75" = 75)
-HDMVals225 <- "./HDMS/HDMVals225.rdata"
+HDMVals225 <- fame_data_path(fame_data_path("HDMS"), "HDMVals225.rdata")
 writeSpRasters <- FALSE # TRUE if rasters are to be output ( large number of files and considerable disk space)
 
 # Lookup table from EFG to TFI attributes ( csv version of CGDL lookup table)
 TFI_LUT <-
-  read_csv("./ReferenceTables/EFG_EVD_TFI.csv")[, c("EFG_NUM", "MIN_LO_TFI", "MIN_HI_TFI", "MAX_TFI", "EFG_NAME")]
+  read_csv(fame_data_path(fame_data_path("ReferenceTables"), "EFG_EVD_TFI.csv"))[, c("EFG_NUM", "MIN_LO_TFI", "MIN_HI_TFI", "MAX_TFI", "EFG_NAME")]
 names(TFI_LUT)[1] <- "EFG"
 
 
 EFG_TSF_4GS <-
-  read_csv("./ReferenceTables/EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv",
+  read_csv(fame_data_path(fame_data_path("ReferenceTables"), "EFG_TSF_4GScorrectedAllEFGto400yrsV2.csv"),
            col_types = cols(.default = col_integer()) # forces numeric columns to be read as integers, needed to ensure that output raster attribute table for growth stages is also as integer.
   )[, c("EFG_NO", "GS4_NO", "YSF")]
 
-outputNames<-read.csv("./ReferenceTables/outputNames.csv",row.names =1)
+outputNames<-read.csv(fame_data_path(fame_data_path("ReferenceTables"), "outputNames.csv"),row.names =1)

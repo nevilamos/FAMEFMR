@@ -1,14 +1,14 @@
 
 # library(aws.s3)
-newDirPaths<-c("AdHocPolygons",
-               "CustomCSV",
-               "FH_Outputs",
-               "HDMS",
-               "InputGeneralRasters",
+newDirPaths<-c(fame_data_path("AdHocPolygons"),
+               fame_data_path("CustomCSV"),
+               fame_data_path("FH_Outputs"),
+               fame_data_path("HDMS"),
+               fame_data_path("InputGeneralRasters"),
                "PUPolygons",
-               "rawFH",
-               "ReferenceShapefiles",
-               "ReferenceTables",
+               fame_data_path("rawFH"),
+               fame_data_path("ReferenceShapefiles"),
+               fame_data_path("ReferenceTables"),
                "results"
 )
 
