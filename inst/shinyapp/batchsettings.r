@@ -9,20 +9,20 @@
 #path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each
 #given as a separate string of the full path or ./path relative to the working
 #directory.
-rawFHPaths = c(fame_data_path(fame_data_path("rawFH"), "rawFH_demoFH2025_vg94_DemoAdHocPolygon_1755.gpkg"))
+rawFHPaths = c(fame_data_path("rawFH", "rawFH_demoFH2025_vg94_DemoAdHocPolygon_1755.gpkg"))
 #the root directory in which results directories should be created and outputs saved
 resultsDir = "./results"
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide
 REGION_NO = "7"  #"99"
 
 #path to the ad Hoc polygon if REGION_NO 			== 7 otherwise NULL
-AdHocPath = fame_data_path(fame_data_path("AdHocPolygons"), "DemoIrregularPolygon.gpkg")
+AdHocPath = fame_data_path("AdHocPolygons", "DemoIrregularPolygon.gpkg")
 
 doSpeciesCalculations = TRUE
 
 # whether or not custom species list is used ( TRUE for custom species list) otherwise FALSE
 spListChoice = TRUE
-customSpList = fame_data_path(fame_data_path("CustomCSV"), "Demo5SpeciesList.csv")
+customSpList = fame_data_path("CustomCSV", "Demo5SpeciesList.csv")
 
 #whether the species response file contains abundance data by 4 growth stages ( TRUE) or YSF (FALSE) 0-400
 abundByGS = TRUE
@@ -30,7 +30,7 @@ abundByGS = TRUE
 spResponseChoice = FALSE
 #path of custom response abundance file if spResponseChoice==TRUE
 customResponseFile = #"C:/Data/FAMEshiny/jennyOtawysSbbdebug/sbb_gam1_fame_test.csv"
-  
+
   #value to use for cases where fire type is "OTHER" or "UNKNOWN",1 ="BURN",2="BUSHFIRE",NA = Fire excluded from analysis default is 2 ("BUSHFIRE")
   otherUnknown = 2
 #whether analysis should be undertaken only on public land ( public land only if TRUE)
@@ -63,7 +63,7 @@ yearsForRasters = NULL#  c(2020)vector of SEASONS within limit of , or NULL for 
 
 #whether a PUpolys file is to be used - this is required for autoJFMP analysis, and can also be used as a work around to allow grouping of outputs e.g. by fire district for the FAME dashboard ( by providing a PUPolys file where the PU correspond to fire districts rather than  burn units "LF_DISTRICT_with_PU_field".)
 usePUpolys = FALSE
-puPath = fame_data_path(fame_data_path("ReferenceShapefiles"), "LF_DISTRICT_with_PU_field.shp")
+puPath = fame_data_path("ReferenceShapefiles", "LF_DISTRICT_with_PU_field.shp")
 #Settings if JFMP analysis is also to be run this is not working yet so  keep runJFMP = FALSE and JFMPSeason0 = endTimespan
 runJFMP = FALSE
 
