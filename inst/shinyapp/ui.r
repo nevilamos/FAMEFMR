@@ -1,5 +1,5 @@
-ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
-                      
+ui <- shinydashboard::dashboardPage(  title = "FAME 4 VicGrid_2020",
+
   dashboardHeader(
     #formatting individual letters to different size and colour ----
     title = span(
@@ -28,16 +28,16 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
     sidebarMenu(
       sidebarMenuOutput("tabsmenu"),
       # Button to open fame manual from pdf in www directory
-      
-      actionButton(inputId='ab1', label="Open manual in new tab", 
-                   icon = icon("th"), 
+
+      actionButton(inputId='ab1', label="Open manual in new tab",
+                   icon = icon("th"),
                    onclick ="window.open('FAME_User_Manual.pdf', '_blank')"),
-      
-     
-      
-      
+
+
+
+
       # save and reload analysis  buttons ----
-      
+
       box(
         width = 12,
         title = "Save or Load Analyses",
@@ -80,7 +80,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
         useShinyjs(),
         extendShinyjs(text = jscode, functions = c("closeWindow")),
         h5("Make sure you have downloaded all your data first"),
-        actionButton(inputId="close", 
+        actionButton(inputId="close",
                      label =tags$div(HTML(
                        '<i class="fa-sharp fa-solid fa-circle-exclamation fa-2xl" style="color: #ff0000;"></i>  Shut Down Server')
                        )
@@ -89,14 +89,14 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
       box(
         width = 12,
         h4("FAME version info:"),
-        textOutput("FAMEGUIVersion"),
+        #textOutput("FAMEGUIVersion"),
         textOutput("FAMEFMRVersion")
-        
+
       )
-      
-      
+
+
     ),
-    
+
     absolutePanel(
       conditionalPanel(
         # style = "background-color:#FFFFFF",
@@ -121,7 +121,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
     # Vic Gov Blue = hex #004C97
     # Corporate Sky Blue = #88DBDF
     # ECA Lime = #CDDC29
-    
+
     tags$head(tags$style(
       HTML(
         '
@@ -204,7 +204,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
         border-left-color:#201547;
         border-right-color:#201547;
         border-top-color:#201547;
-        background:#201547; 
+        background:#201547;
         border-radius: 10px;
       }
       .skin-blue .sidebar-menu  {
@@ -214,7 +214,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
       )
     )),
     setBackgroundImage(src = "08732250_before_after_2014_fire.jpg", shinydashboard = TRUE),
-    
+
     tabItems(
       # Upload and other utilities tab----
       tabItem(
@@ -224,11 +224,11 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
           box(
             width = 12,
             title = "Select and upload files",
-            
-            uploadFileUI(id=fame_data_path("rawFH"),label = "Select rawFH for upload geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
+
+            uploadFileUI(id="rawFH",label = "Select rawFH for upload geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
             uploadFileUI(id="adHocPoly",label = "Select Area of Interest geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
             uploadFileUI(id="puPoly",label = "Select PU/BU geopackage (.gpkg) or shapefile (.dbf, .prj,.shp, and .shx)"),
-            
+
             uploadFileUI(id= "addCustomCSV",
               label = "Add Custom input CSV"),
             uploadFileUI(id=  "addCustomHDM225",
@@ -243,11 +243,11 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                          #accept = c(".tif"),
                          #multiple = T
             ),
-            
+
             fileInput("addCustomUnformattedHDM", NULL,accept=".tif", buttonLabel = "Load custom HDM .tif file for reformatting", multiple = FALSE),
             radioButtons("outRes",label = "Custom HDM output resolution",choices = list("225m"=225,"75m"=75),inline =TRUE ),
             textOutput(outputId = "formattedHDMPath"),
-            
+
             uploadFileUI(id = "addSavedAnalysis",
                          label = "Upload saved analysis '.qs' file",
                          multiple = T)
@@ -271,8 +271,8 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
               )
             ),
             radioButtons("sppublic", "Restrict to Public Land", c("Yes" = TRUE, "No" = FALSE)),
-            
-            
+
+
             # runscript button
             withBusyIndicatorUI(actionButton("runDSpList",
                                              label = "Run draft species list")),
@@ -309,14 +309,14 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
             downloadButton("downloadTool", "Download FAME ArcGIS preproccessing tool")
             #downloadButton("downloadManual", "Download FAME manual"),
             # tags$h1("Revised, alternate 2"),
-            
+
           )
         ),
         column(8,),)
       ),
-      
-      
-      
+
+
+
       # fhAnalysis tab content----
       tabItem(
         tabName = "AnalysisSettings",
@@ -331,9 +331,9 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                 selectFileUI(id = "rawFHPath",
                              label = "Select rawFH path"),
                 textOutput("rawFHPath")
-                
+
               ),
-              
+
 
               selectInput(
                 "REGION_NO",
@@ -346,7 +346,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                                  selectFileUI(id = "AdHocPath",
                                               label = "Select AdHoc path"),
                                  textOutput("AdHocPath")
-                                 
+
                                ),),
               fluidRow(
                 column(
@@ -361,7 +361,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                        radioButtons(
                          "max_interval", "Correct for Burn after Bushfire", c("Yes" = 5, "No" = 0)
                          )),
-                
+
                 column(
                   3,
                   radioButtons(
@@ -395,7 +395,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                 label = "Include burn unit/planning unit shapefile for JFMP analysis",
                 value = FALSE
               ),
-              
+
               # select planning unit shapefile----
               conditionalPanel(
                 condition = "input.usePUpolys",
@@ -411,8 +411,8 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
               )
             )
           ),
-          
-          
+
+
           # Fauna abundance headings conditional on whether JFMP or "standard" analysis is been run ----
           column(
             6,
@@ -439,10 +439,10 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                   width = "40%"
                 )
               ),
-              
-              
+
+
               # use standard or choose custom species responses----
-              
+
               fluidRow(
                 column(
                   2,
@@ -458,7 +458,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                   selectFileUI(id = "customSpList",
                                label = "select custom species list"),
                   textOutput("customSpList")
-                  
+
                 ),
               ),
               splitLayout(
@@ -483,7 +483,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                                  selectFileUI(id = "customResponseFile",
                                               label = "Select user defined species response file"),
                                  textOutput("customResponseFile")
-                                 
+
                                ),),
               # inputs conditional on whether JFMP or "standard" analysis is been run ----
               conditionalPanel(
@@ -551,7 +551,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                                label = "select draft JFMP input"),
                   textOutput("draftJFMPFile")
                 ),
-                
+
                 withBusyIndicatorUI(
                   actionButton(
                     "runCompareJFMP",
@@ -580,10 +580,10 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                   ),
                   withBusyIndicatorUI(actionButton("runTFI",
                                                    label = "Run TFI calculations"))
-                  
+
                 ),
                 column(6,
-                
+
                   checkboxInput(
                     inputId = "makeGSrasters",
                     label = "Make growth stage  maps for each year",
@@ -627,7 +627,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
         ),
       ),
       # Tab  TFI charts ----
-      
+
       tabItem(tabName = "TFIplots",
               fluidPage(
                 wellPanel(h4("TFI Plots"),
@@ -795,7 +795,7 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                       label = "Which fauna classes to use",
                       choices = c("All", "Birds", "Mammals", "Reptiles", "Frogs"),
                       selected = "All",
-                      # "Insects", "Fishes", "Crustaceans", "Annelids",Molluscs", "Nemerteans", "Flatworms", "Cnidarians","Echinoderms", "Zooplankton"
+                      # "Insects", "Fishes", "Crustaceans", "Annelids", Molluscs", "Nemerteans", "Flatworms", "Cnidarians","Echinoderms", "Zooplankton"
                       multiple = T
                     ),
                     selectInput(
@@ -826,5 +826,5 @@ ui <- dashboardPage(  title = "FAME 4 VicGrid_2020",
                 )))
     ),
   )
-  
+
 )
