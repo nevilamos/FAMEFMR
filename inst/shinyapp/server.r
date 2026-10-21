@@ -12,7 +12,6 @@ server <- function(session, input, output) {
   observe({
     rv$resultsDir <- resultsDir
     output$resultsDir <- renderText(rv$resultsDir)
-
   })
 
 
@@ -559,6 +558,7 @@ server <- function(session, input, output) {
             rv$TaxonListPath <- rv$customSpList
           }
           rv$TaxonList<-read_csv(rv$TaxonListPath)
+
           #construct the full path to HDMs incuding the FAME data Directory
           rv$TaxonList$HDMPath<-fame_data_path(rv$TaxonList$HDMPath)
 
@@ -1633,8 +1633,9 @@ server <- function(session, input, output) {
   #observer for HDM uploads ----
   observe({
     uploadFileServer(id = "addCustomHDM225",
-                     filetype = "tif",
-                     saveToPath = fame_data_path("HDMS", "225m/CustomHDM"))
+                    filetype = "tif",
+                    saveToPath = fame_data_path("HDMS", "225m/CustomHDM"))
+
   })
   observe({
     uploadFileServer(id = "addCustomHDM75",

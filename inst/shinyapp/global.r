@@ -132,7 +132,6 @@ rm(d)
 dir.create(file.path(resultsDir, "RA_Rasters"))
 dir.create(file.path(resultsDir, "TFI_Rasters"))
 
-
 ## MAKE LOOK UP TABLES --------------
 
 # list of options for choice of region/ state or adhoc polygon for analysis
