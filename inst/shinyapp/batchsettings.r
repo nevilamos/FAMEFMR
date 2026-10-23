@@ -9,7 +9,7 @@
 #path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each
 #given as a separate string of the full path or ./path relative to the working
 #directory.
-rawFHPaths = c(fame_data_path("rawFH", "rawFH_demoFH2025_vg94_DemoAdHocPolygon_1755.gpkg"))
+rawFHPaths = c(fame_data_path("rawFH", "FIRE_HISTORY20210310_DemoAdHocPolygon.gpkg"))
 #the root directory in which results directories should be created and outputs saved
 resultsDir = "./results"
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide

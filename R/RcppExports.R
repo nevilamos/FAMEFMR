@@ -2,22 +2,22 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 drop_zero_cols_cpp <- function(mat) {
-    .Call('_FAMEFMR_drop_zero_cols_cpp', PACKAGE = 'FAMEFMR', mat)
+    .Call(`_FAMEFMR_drop_zero_cols_cpp`, mat)
 }
 
 shift_zero_in_place_cpp <- function(x) {
-    invisible(.Call('_FAMEFMR_shift_zero_in_place_cpp', PACKAGE = 'FAMEFMR', x))
+    invisible(.Call(`_FAMEFMR_shift_zero_in_place_cpp`, x))
 }
 
 shift_zero_cpp <- function(x) {
-    .Call('_FAMEFMR_shift_zero_cpp', PACKAGE = 'FAMEFMR', x)
+    .Call(`_FAMEFMR_shift_zero_cpp`, x)
 }
 
 split_integer_first_last_cpp <- function(x, n_digits, k_first, k_last) {
-    .Call('_FAMEFMR_split_integer_first_last_cpp', PACKAGE = 'FAMEFMR', x, n_digits, k_first, k_last)
+    .Call(`_FAMEFMR_split_integer_first_last_cpp`, x, n_digits, k_first, k_last)
 }
 
 split_integer_first_last_matrix_cpp <- function(x, n_digits, k_first, k_last) {
-    .Call('_FAMEFMR_split_integer_first_last_matrix_cpp', PACKAGE = 'FAMEFMR', x, n_digits, k_first, k_last)
+    .Call(`_FAMEFMR_split_integer_first_last_matrix_cpp`, x, n_digits, k_first, k_last)
 }
 

@@ -9,20 +9,20 @@
 #path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each
 #given as a separate string of the full path or ./path relative to the working
 #directory.
-rawFHPaths = c("rawFH/FH.gpkg")
+rawFHPaths = c(fame_data_path("rawFH","FH.gpkg"))
 #the root directory in which results directories should be created and outputs saved
 resultsDir = "./results"
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide
 REGION_NO = "7"  #"99"
 
 #path to the ad Hoc polygon if REGION_NO 			== 7 otherwise NULL
-AdHocPath = "AdHocPolygons/AA.gpkg"
+AdHocPath = fame_data_path("AdHocPolygons","AA.gpkg")
 
 doSpeciesCalculations = TRUE
 
 # whether or not custom species list is used ( TRUE for custom species list) otherwise FALSE
 spListChoice = TRUE
-customSpList = "CustomCSV/5spWithAreas.csv"
+customSpList = fame_data_path("CustomCSV", "Demo5SpeciesList.csv")
 
 #whether the species response file contains abundance data by 4 growth stages ( TRUE) or YSF (FALSE) 0-400
 abundByGS = TRUE

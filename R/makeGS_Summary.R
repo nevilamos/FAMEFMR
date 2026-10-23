@@ -28,7 +28,7 @@ makeGS_Summary <- function(myFHAnalysis,
   # get the FHAnalysis sf polygon data frame ( containing all the fire history attributes) created by function fhProcess
   # and convert to a data.frame
   OutTab <- myFHAnalysis$OutDF
-  sf::st_geometry(OutTab) <- NULL
+  if(inherits(OutTab, "sfc")) {sf::st_geometry(OutTab) <- NULL}
 
 
   YSF_Fields <- names(OutTab)[grep("^YSF", names(OutTab))]

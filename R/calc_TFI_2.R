@@ -33,7 +33,9 @@ calc_TFI_2 <- function(myFHAnalysis = FHAnalysis,
 
   # get the sf polygon data frame contain all the FHAnalysis  attributes created in fhProcess() function
   OutTab <- myFHAnalysis$OutDF
-  sf::st_geometry(OutTab) <- NULL
+  if(inherits(OutTab, "sfc")) {sf::st_geometry(OutTab) <- NULL}
+
+
   # get ID, seasons and season types information for matrix
   ID <- OutTab$ID
 
