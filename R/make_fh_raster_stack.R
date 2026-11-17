@@ -113,13 +113,9 @@ make_fh_raster_stack <- function(
     nms <- names(v)
   }
   # --- read vector
-  print (v)
+
 
   nms <- names(v)
-  print("nms")
-  print(nms)
-  print("fields")
-  print(fields)
   if (!all(fields %in% nms)) {
     missing <- fields[!fields %in% nms]
     stop(sprintf("Missing field(s) in vector attributes: %s", paste(missing, collapse = ", ")))
@@ -129,9 +125,10 @@ make_fh_raster_stack <- function(
   mult <- as.integer(combField_multiplier)
   if (is.na(mult) || mult <= 0L) stop("combField_multiplier must be a positive integer.")
 
-  v$combFields <- as.integer(v$SEASON * mult + v$FIRETYPE_NO)
+ # next line as.numeric() to force numeric added in next line because when v$FIRETYPE_NO was read in the shiny app ( rather than script only) it was returning a string.
+  v$combFields <- as.integer(v$SEASON * mult + as.numeric(v$FIRETYPE_NO))
 
-  # --- split once (fast)
+  # --- split once
   vlist <- split(v[, "combFields"], v$combFields)
   group_names <- names(vlist)
 

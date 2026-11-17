@@ -416,14 +416,14 @@ server <- function(session, input, output) {
       if (rv$REGION_NO == 7) {
         rv$clipShape <- rv$AdHocPath
       } else {
-        rv$clipShape <- fame_data_path("ReferenceShapefiles", "LF_DISTRICT.shp")
+        rv$clipShape <- fame_data_path("ReferenceShapefiles", "LF_REGION.shp")
       }
 
 
       if (input$usePUpolys == TRUE) {
-        rv$endSEASON <- rv$JFMPSeason0 + 4
+        rv$end.SEASON <- rv$JFMPSeason0 + 4
       } else {
-        rv$endSEASON <- NULL
+        rv$end.SEASON <- rv$endTimespan
       }
 
 
@@ -437,17 +437,15 @@ server <- function(session, input, output) {
       )
 
       rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
+      template_r<-eval(rv$cropRasters$rasterDef)
 
-
-      rv$FHAnalysis <- fhProcess(
-        rawFH = rv$rawFHPath,
+rv$FHAnalysis <- fhProcess_raster_first(
+        r_template = template_r,
+        input_fire_history = rv$rawFHPath,
         start.SEASON = rv$startTimespan,
-        end.SEASON = rv$endTimespan,
-        OtherAndUnknown = rv$otherUnknown,
-        validFIRETYPE = c("BURN", "BUSHFIRE", "UNKNOWN", "OTHER"),
-        max_interval = rv$max_interval
+        end.SEASON = rv$end.SEASON,
+        OtherAndUnknown = rv$otherUnknown
       )
-
 
       # Save input settings into FH analysis object
       rv$FHAnalysis$FireScenario <- rv$rawFHName
@@ -474,17 +472,18 @@ server <- function(session, input, output) {
       saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
 
 
-      rv$FHAnalysis$FH_IDr <-
-        terra::rasterize(
-          x = terra::vect(rv$FHAnalysis$OutDF),
-          y = eval(rv$cropRasters$rasterDef),
-          field = "ID"
-        )
+      # rv$FHAnalysis$FH_IDr <-
+      #   terra::rasterize(
+      #     x = terra::vect(rv$FHAnalysis$OutDF),
+      #     y = eval(rv$cropRasters$rasterDef),
+      #     field = "ID"
+      #   )
 
-      rv$cropRasters$FH_ID<-values(rv$FHAnalysis$FH_IDr)
+      rv$cropRasters$FH_ID<-rv$FHAnalysis$FH_ID
+      #rv$cropRasters$FH_ID<-values(rv$FHAnalysis$FH_IDr)
       rv$cropRasters$FH_ID[is.na(rv$cropRasters$RGN)]<-NA
       #mask b region values ( which is masked by plm where public land only)
-      print("made FHAnalysis$FH_IDr")
+      #print("made FHAnalysis$FH_IDr")
 
 
 
@@ -1370,7 +1369,7 @@ server <- function(session, input, output) {
       if (input$spREGION_NO == 7) {
         myPoly <- fame_data_path("AdHocPolygons", input$spAdHocShape)
       } else {
-        myPoly <- fame_data_path("ReferenceShapefiles", "LF_DISTRICT.shp")
+        myPoly <- fame_data_path("ReferenceShapefiles", "LF_REGION.shp")
       }
       print("calcuating draft species List")
       myDraftSpList <- calc_DraftSpList(
@@ -1395,7 +1394,7 @@ server <- function(session, input, output) {
       if (input$spREGION_NO == 7) {
         myPoly <- fame_data_path("AdHocPolygons", input$spAdHocShape)
       } else {
-        myPoly <- fame_data_path("ReferenceShapefiles", "LF_DISTRICT.shp")
+        myPoly <- fame_data_path("ReferenceShapefiles", "LF_REGION.shp")
       }
 
 

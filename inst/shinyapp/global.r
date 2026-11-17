@@ -3,7 +3,7 @@
 ##basic option settings ------------
 options(stringsAsFactors = F)
 #set option so that readr does not print column types
-options(readr.show_col_types = FALSE)
+options(readr.show_col_types = TRUE)
 
 # Set the maximum size of files for upload/ download
 options(shiny.maxRequestSize = 20 * 1024^3)
@@ -70,7 +70,7 @@ options(
 )
 
 # Initialise FAME data
-fame_data_status <- FAMEFMR::initialise_fame_data(
+fame_data_status <- initialise_fame_data(
   app_dir = getwd(),
   download_missing = TRUE,
   force_sync = FALSE
@@ -84,12 +84,12 @@ message(
 
 message(
   "FAME data root: ",
-  FAMEFMR::fame_data_dir()
+  fame_data_dir()
 )
 
 message(
   "rawFH path: ",
-  FAMEFMR::fame_data_path("rawFH")
+  fame_data_path("rawFH")
 )
 
 
@@ -243,4 +243,4 @@ EFG_TSF_4GS <-
            col_types = cols(.default = col_integer()) # forces numeric columns to be read as integers, needed to ensure that output raster attribute table for growth stages is also as integer.
   )[, c("EFG_NO", "GS4_NO", "YSF")]
 
-outputNames<-read.csv(fame_data_path("ReferenceTables", "outputNames.csv"),row.names =1)
+outputNames<-read.csv(fame_data_path("ReferenceTables/outputNames.csv"),row.names =1)

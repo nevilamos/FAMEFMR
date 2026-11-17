@@ -149,7 +149,7 @@ rv<-list()
   if (rv$REGION_NO == 7) {
     rv$clipShape <- rv$AdHocPath
   } else {
-    rv$clipShape <- fame_data_path(fame_data_path("ReferenceShapefiles"), "LF_DISTRICT.shp")
+    rv$clipShape <- fame_data_path(fame_data_path("ReferenceShapefiles"), "LF_REGION.shp")
   }
 
 
@@ -162,8 +162,8 @@ rv<-list()
 
 #make cropRAsters list of extent and values for rasters cropped to extent of area of interest. -----
   rv$cropRasters <- cropToOutput(
-    REG_NO = myREG_NO,
-    myRasterRes = RasterRes,
+    REG_NO = rv$REGION_NO,
+    myRasterRes = rv$RasterRes,
     PUBLIC_LAND_ONLY = rv$public,
     myPoly = rv$clipShape,
     generalRasterDir = fame_data_path("InputGeneralRasters")
@@ -171,10 +171,10 @@ rv<-list()
 
   rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
   template_r<-eval(rv$cropRasters$rasterDef)
-  infile=rv$rawFHPath
+# main Fire history process ------
   rv$FHAnalysis <- fhProcess_raster_first(
     r_template = template_r,
-    input_fire_history = infile,
+    input_fire_history = rv$rawFHPath,
     start.SEASON = rv$startTimespan,
     end.SEASON = rv$end.SEASON,
     OtherAndUnknown = rv$otherUnknown

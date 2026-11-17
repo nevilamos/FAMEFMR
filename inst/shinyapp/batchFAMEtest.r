@@ -149,7 +149,7 @@ rv<-list()
   if (rv$REGION_NO == 7) {
     rv$clipShape <- rv$AdHocPath
   } else {
-    rv$clipShape <- fame_data_path(fame_data_path("ReferenceShapefiles"), "LF_DISTRICT.shp")
+    rv$clipShape <- fame_data_path(fame_data_path("ReferenceShapefiles"), "LF_REGION.shp")
   }
 
 

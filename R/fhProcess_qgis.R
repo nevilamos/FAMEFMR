@@ -88,7 +88,7 @@ fhProcess_qgis <- function(firstFH,
     fhCheck(inFH = firstFH, inFHLayer = firstFHLayer, validFIRETYPE)
   if (!(is.null(secondFH) | length(secondFH) == 0)) {
     mySF2 <-
-      FAMEFMR::fhCheck(inFH = secondFH, inFHLayer = secondFHLayer, validFIRETYPE)
+      fhCheck(inFH = secondFH, inFHLayer = secondFHLayer, validFIRETYPE)
     mySF <- dplyr::bind_rows(mySF, mySF2)
     rm(mySF2)
     gc()

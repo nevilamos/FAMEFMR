@@ -9,14 +9,14 @@
 #path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each
 #given as a separate string of the full path or ./path relative to the working
 #directory.
-rawFHPaths = c(fame_data_path("rawFH","FH.gpkg"))
+rawFHPaths = c(fame_data_path("rawFH","demoFH2025_vg2020.gpkg"))
 #the root directory in which results directories should be created and outputs saved
 resultsDir = "./results"
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide
 REGION_NO = "7"  #"99"
 
 #path to the ad Hoc polygon if REGION_NO 			== 7 otherwise NULL
-AdHocPath = fame_data_path("AdHocPolygons","AA.gpkg")
+AdHocPath = fame_data_path("AdHocPolygons","DemoAdHocPolygon.shp")
 
 doSpeciesCalculations = TRUE
 
@@ -30,7 +30,7 @@ abundByGS = TRUE
 spResponseChoice = FALSE
 #path of custom response abundance file if spResponseChoice==TRUE
 customResponseFile = #"C:/Data/FAMEshiny/jennyOtawysSbbdebug/sbb_gam1_fame_test.csv"
-  
+
   #value to use for cases where fire type is "OTHER" or "UNKNOWN",1 ="BURN",2="BUSHFIRE",NA = Fire excluded from analysis default is 2 ("BUSHFIRE")
   otherUnknown = 2
 #whether analysis should be undertaken only on public land ( public land only if TRUE)
