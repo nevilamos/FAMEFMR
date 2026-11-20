@@ -241,8 +241,7 @@ saveSettingsTable<-function(outputSettings,resultsDir,outputNames){
   # convert list to dataframe with each item as row
   outTab<-as.data.frame(t(as.data.frame((outputSettings))))
   names(outTab)<-names(outputNames)
-  write.csv(outTab,file.path(resultsDir,"outputSettings.csv"),row.names = TRUE,
-            col.names = TRUE)
+  readr::write_csv(outTab,file.path(resultsDir,"outputSettings.csv"))
 
 }
 

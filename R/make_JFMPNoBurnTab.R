@@ -11,7 +11,7 @@
 make_JFMPNoBurnTab <- function(myFHAnalysis = FHAnalysis,
                                JFMPSeason0
                                ) {
-  JFMPNoBurnTab<-sf::st_set_geometry(myFHAnalysis$OutDF,value = NULL)[,paste0(c("YSF","LBY","LFT"),JFMPSeason0)]
+  JFMPNoBurnTab<-myFHAnalysis$OutDF[,paste0(c("YSF","LBY","LFT"),JFMPSeason0)]
   names(JFMPNoBurnTab)<-c("YSFNoBurn","LBYNoBurn","LFTNoBurn")
   JFMPNoBurnTab<-JFMPNoBurnTab%>%dplyr::mutate(YSFNoBurn = YSFNoBurn + 4 )
 }
