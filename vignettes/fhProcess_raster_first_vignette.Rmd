@@ -26,19 +26,19 @@ library(FAMEFMR)
 
 # Overview
 
-`fhProcess_raster_first()` implements a raster-first workflow for converting polygon fire-history data into a compact representation of sequential fire events per raster cell. The workflow is designed for cases where each polygon carries at least a season/year attribute and a fire-type attribute, and where downstream modelling requires both:
+`fhProcess_raster_first()` implements aworkflow for converting polygon fire-history data into a compact representation of sequential fire events per raster cell. The workflow is designed for cases where each polygon carries at least a season/year attribute and a fire-type attribute, and where downstream modelling requires both:
 
 1. a **spatial mapping** from raster cells to unique fire-history sequences, and
 2. a **tabular representation** of those unique histories for derived metrics such as last fire type, last burned year, and years since fire.
 
-Compared with previous workflows (fhProcess(), fhprocess_qgis()) built around polygon intersection/union, the raster-first approach shifts the hard part of the problem into raster and matrix operations. The main steps are:
+The main steps are:
 
 1. Rasterise fire-history polygons into a raster stack.
 2. Pack that stack block by block into a compact binary representation.
 3. Rebuild a reduced raster whose number of layers equals the maximum number of  fire events in any cell.
 4. Extract unique packed cell histories.
 5. Decode the packed integers into season and fire-type matrices.
-6. Build a fire-history table (`OutDF`) and derive downstream fire-history metrics.
+6. Build a fire-history table (`OutDF`) and derive last firetype ,and years since fire for each fire season of interest.
 
 ## In this vignette
 
@@ -52,14 +52,13 @@ Compared with previous workflows (fhProcess(), fhprocess_qgis()) built around po
 - [Stage 4: Extracting unique fire histories](#stage-4-extracting-unique-fire-histories)
 - [Stage 5: Assigning IDs and decoding integer histories](#stage-5-assigning-ids-and-decoding-integer-histories)
 - [Stage 6: Building the fire-history table](#stage-6-building-the-fire-history-table)
-- [Stage 7: Deriving downstream fire-history metrics](#stage-7-deriving-downstream-fire-history-metrics)
+- [Stage 7: Calculate annual fire history value ]
 - [Performance notes and memory considerations](#performance-notes-and-memory-considerations)
 - [Assumptions and current implementation notes](#assumptions-and-current-implementation-notes)
 - [Summary](#summary)
 
-# Why a raster-first workflow?
-
-The motivation for `fhProcess_raster_first()` is to avoid expensive vector topology workflows when the core analytical need is the **ordered sequence of fire events per cell**. Rasterisation provides a regular grid representation. Once the data are on a grid, repeated or overlapping fire events can be manipulated with relatively simple matrix operations.
+# Why rasterize the process.
+Rasterisation provides a regular grid representation of unique fire histories. Once the data are on a grid, repeated or overlapping fire events can be manipulated with relatively simple matrix operations.
 
 The workflow therefore separates the problem into two linked representations:
 
@@ -96,7 +95,7 @@ Three aspects of the design are particularly important:
 
 # Reproducible example
 
-The example below is deliberately small and synthetic so that it is lightweight enough for a vignette while still demonstrating the core algorithm.
+The example below is deliberately small and synthetic so that it is lightweight enough for a vignette while still demonstrating the core algorithm. The process accepts the input fir history form a suitable spatial file, an R sf or R terra spatVector dataset.
 
 ```{r setup-example, message=FALSE}
 library(terra)
@@ -106,19 +105,20 @@ library(FAMEFMR)
 ## Build a small synthetic fire-history dataset
 
 ```{r create-data}
+v<-rbind(
+  terra::as.polygons(terra::ext(0, 9.3, 0, 9.3)),
+  terra::as.polygons(terra::ext(5, 9,9, 13)),
+  terra::as.polygons(terra::ext(11.3,13,11.3,13)),
+  terra::buffer(terra::vect(matrix(c(9,8.4), ncol = 2), type = "points"), width =2)
+)
 
-p1 <- terra::as.polygons(terra::ext(0, 10, 0, 10))
-p2 <- terra::as.polygons(terra::ext(5, 9,9, 13))
-p3 <- terra::as.polygons(terra::ext(11,13,11,13))
-p4<-  terra::buffer(vect(matrix(c(9,8.4), ncol = 2), type = "points"), width =2)
-
-v <- rbind(p1, p2, p3,p4)
 v$SEASON <- c(2002, 2000, 2003,1999)
 v$FIRETYPE_NO <- c(1L, 2L, 1L, 2L)
-
-#the raster template defines the spatRaster resolution for the analysis and
-#restricts its extent, it is generally provided in FAME from
-#cropToOuptut()$rasterDef a toy example is constructed here
+```
+The raster template defines the spatRaster resolution for the analysis and
+restricts its extent, it is generally provided in FAME from
+cropToOuptut()$rasterDef a toy example is constructed here
+```{r}
 
 r_template <- rast(ext= ext(6,12,6,12),resolution=1,crs ="")
 ```
@@ -158,7 +158,7 @@ The full workflow is shown below. The chunk is guarded so that package checks on
 ```{r run-workflow, eval=run_example}
 res <- fhProcess_raster_first(
   r_template = r_template,
-  v = v,
+  input_fire_history = v,
   fields = c("SEASON", "FIRETYPE_NO"),
   combField_multiplier = 10L,
   background = 0,
@@ -184,7 +184,7 @@ str(res, max.level = 1)
 head(res$OutDF)
 ```
 The output of ID of unique FH_ID to raster, detail of fire history captured 
-depends on r_template resolution at resolution of 1 in this case 8 unique sequences are captured
+depends on r_template resolution at resolution of 1 in this case 7 unique sequences are captured
 
 
 ```{r plot-fh-id, eval=run_example}
@@ -208,17 +208,31 @@ and the resulting raster regions more closely follow the input polygons
 ```{r}
 res <- fhProcess_raster_first(
   r_template = r_template,
-  v = v)
+  input_fire_history = v,
+  fields = c("SEASON", "FIRETYPE_NO"),
+  combField_multiplier = 10L,
+  background = 0,
+  overwrite = TRUE,
+  datatype = "INT2U",
+  compress = "LZW",
+  memfrac = 0.5,
+  progress = FALSE,
+  OtherAndUnknown = 2,
+  start.SEASON = 2000,
+  end.SEASON = NA,
+  max_interval = 10
+)
 
-```{r plot-fh-id-res-comparison, eval=run_example}
+```{r plot-fh-id-res-comparison, eval=run_example,fig.cap="Raster regions in output shown in colours, vector input bodaries as lines. Template raster resolution 1 and 0.1. Correspondance between vector and raster boundaries, and capture of restrcited overlaps of fire history polygons may be poor at low resolution  Note: this is a toy example in FAME resolutions of 225m and 75m are the built in options."}
 # Convert FH_ID vector back to raster
 FH_ID_rast_res2 <- terra::setValues(
   terra::rast(r_template),
   res$FH_ID
 )
+par(mfrow=c(2,1))
 terra::plot(FH_ID_rast_res1, main = "Fire History ID (FH_ID) resolution 1",sub="Fire History polygons overplot")
 plot(v,add=T)
-terra::plot(FH_ID_rast_res2, main = "Fire History ID (FH_ID) resolution 1/10",sub="Fire History polygons overplot")
+terra::plot(FH_ID_rast_res2, main = "Fire History ID (FH_ID) resolution 0.1",sub="Fire History polygons overplot")
 plot(v,add=T)
 ```
 
@@ -408,7 +422,7 @@ OutDF <- cbind(FH_ID, SEASm, FTm)
 
 Each row of `OutDF` is one unique fire-history sequence. The `FH_ID` column is the key that links that row back to raster cells in the packed-raster representation.
 
-# Stage 7: Deriving downstream fire-history metrics
+# Stage 7: Calculate annual fire history values - \nlast fire type, last burned year and years since fire.
 
 The final stage passes `OutDF` into `add_fire_lft_lby_ysf()` and then attaches the raster-aligned ID mapping to the result.
 
