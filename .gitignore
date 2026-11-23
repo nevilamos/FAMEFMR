@@ -47,3 +47,6 @@ myAllCombs.rds
 .RDataTmp
 .positai
 .Renviron
+*.o
+*.so
+*.dll
