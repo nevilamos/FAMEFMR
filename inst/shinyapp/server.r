@@ -472,13 +472,6 @@ rv$FHAnalysis <- fhProcess_raster_first(
       saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
 
 
-      # rv$FHAnalysis$FH_IDr <-
-      #   terra::rasterize(
-      #     x = terra::vect(rv$FHAnalysis$OutDF),
-      #     y = eval(rv$cropRasters$rasterDef),
-      #     field = "ID"
-      #   )
-
       rv$cropRasters$FH_ID<-rv$FHAnalysis$FH_ID
       #rv$cropRasters$FH_ID<-values(rv$FHAnalysis$FH_IDr)
       rv$cropRasters$FH_ID[is.na(rv$cropRasters$RGN)]<-NA

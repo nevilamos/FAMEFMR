@@ -14,10 +14,10 @@ fireTypeLowToHigh(
 \item{max_interval}{the maximum inter fire interval where a LOW firetyppe for the second fire should be coverted to HIGH}
 
 \item{Interval_Matrix}{matrix of sequential intervals between fire in unique fire history sequence
-( generated internally as party of FAMEFMR::fhProcess())}
+( generated internally as party of fhProcess())}
 
 \item{Firetype_Matrix}{firetype matrix giving fireTypes (1=LOW 2=HIGH) for fires in unique fire history sequence
-( generated internally as party of FAMEFMR::fhProcess())}
+( generated internally as party of fhProcess())}
 }
 \value{
 modified Firetype_Matrix where the fireytpe of LOW fires have been changed to HIGH if the interval since the last
@@ -28,7 +28,7 @@ Helper function to deal with cases where there is a LOW intensity fire ( planned
 shortly after a HIGH intensity Fire, shortly after is defined as <= max_interval
 }
 \examples{
-#firetype matrix giving fitetypes (1=LOW 2=HIGH) for fires in unique fire hsitory sequence ( generated internally as party of FAMEFMR::fhProcess())
+#firetype matrix giving fitetypes (1=LOW 2=HIGH) for fires in unique fire hsitory sequence ( generated internally as party of fhProcess())
 FT_matrix<-structure(c(2, 2, 2, 2, NA, 1, 2, 2, NA, NA, NA, 1), dim = 4:3, dimnames = list(NULL, c("FireType01", "FireType02", "FireType03")))
 
 #Fire interval matrix
