@@ -13,8 +13,8 @@
 choose_block_nrows <- function(r, max_gb_block = 2, bytes_per_value = 4) {
   stopifnot(inherits(r, "SpatRaster"))
 
-  nc <- ncol(r)
-  nl <- nlyr(r)
+  nc <- terra::ncol(r)
+  nl <- terra::nlyr(r)
 
   nrb_int <- floor(.Machine$integer.max / (nc * nl))
   nrb_int <- max(1L, as.integer(nrb_int))

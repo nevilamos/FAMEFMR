@@ -170,7 +170,7 @@ res <- fhProcess_raster_first(
   OtherAndUnknown = 2,
   start.SEASON = 2000,
   end.SEASON = NA,
-  max_interval = 10
+  max_interval = 0
 )
 ```
 

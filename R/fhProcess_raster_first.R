@@ -98,10 +98,10 @@ fhProcess_raster_first <- function(r_template,
                                    start.SEASON = 1980,
                                    end.SEASON = NA,
                                    max_interval = 0) {
-  if (!inherits(v, "SpatVector")) {
+  if (!inherits(input_fire_history, "SpatVector")) {
     v <- vect(input_fire_history)
-  }
-  v<-input_fire_history
+  }else{v<-input_fire_history}
+
 
   s <- make_fh_raster_stack(
     r_template = r_template,

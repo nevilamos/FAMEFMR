@@ -88,7 +88,7 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4 VicGrid_2020",
       ),
       box(
         width = 12,
-        h4("FAME version info:"),
+        h4("FAMEFMR version info:"),
         #textOutput("FAMEGUIVersion"),
         textOutput("FAMEFMRVersion")
 
@@ -720,110 +720,110 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4 VicGrid_2020",
                 ),
                 fluidRow(plotlyOutput("RAtrendPlot"),
                          plotlyOutput("RADeltaPlot"))
-              )),
+              ))#,
       # tab GSO processing ----
-      tabItem(tabName = "GSO",
-              fluidRow(# h2("Aspatial GSO Input Selections"),
-                column(
-                  6,
-                  box(
-                    width = 12,
-                    #00B2A9 title = "Select and upload GSO .csv files",
-                    fileInput(
-                      inputId = "addGSOCSV",
-                      label = "gsofiles to upload",
-                      accept = c("csv", ".csv")
-                    )
-                  ),
-                  box(
-                    width = 12,
-                    #00B2A9 title = "Select GSO input tables",
-                    selectInput(
-                      "spEFGLMU",
-                      "Select Spp_EFG_LMU.csv file",
-                      choices = c(
-                        "Spp_EFG_LMU.csv",
-                        list.files("./GSOInputs/", pattern = "Spp_EFG_LMU.csv$")
-                      )
-                    ),
-                    selectInput(
-                      "lmuArea",
-                      "LMU_Area.csv file",
-                      choice = c(
-                        "LMU_Area.csv",
-                        list.files("./GSOInputs/", pattern = "LMU_Area.csv$")
-                      )
-                    ),
-                    selectInput(
-                      "lmuScenarios",
-                      "LMU_Scenarios.csv file",
-                      choice = c(
-                        "LMU_Scenarios.csv",
-                        list.files("./GSOInputs/", pattern = "LMU_Scenarios.csv$")
-                      )
-                    ),
-                    selectInput(
-                      "ObsData",
-                      "ObsData.csv file",
-                      choice = c(
-                        "ObsData.csv",
-                        list.files("./GSOInputs/", pattern = "ObsData.csv$")
-                      )
-                    )
-                  )
-                ),
-                column(
-                  6,
-                  box(
-                    width = 12,
-                    #00B2A9 title = "Analysis options",
-                    h4(
-                      "Please note all inputs are case sensitive, do not include any spaces"
-                    ),
-                    selectInput(
-                      "GSOFireType",
-                      choices = c("High", "Low"),
-                      label = "Low or High fire type."
-                    ),
-                    selectInput(
-                      "GSOBaseLine",
-                      label = "Baseline for comparisons.'Optimisation' or select from input scenarios",
-                      choices = c("Optimisation")
-                    ),
-                    selectInput(
-                      "GSOFaunaClasses",
-                      label = "Which fauna classes to use",
-                      choices = c("All", "Birds", "Mammals", "Reptiles", "Frogs"),
-                      selected = "All",
-                      # "Insects", "Fishes", "Crustaceans", "Annelids", Molluscs", "Nemerteans", "Flatworms", "Cnidarians","Echinoderms", "Zooplankton"
-                      multiple = T
-                    ),
-                    selectInput(
-                      "GSOrule",
-                      "Select rule to use",
-                      choices = c(
-                        "Rule0",
-                        "Rule1",
-                        "Rule1a",
-                        "Rule1b",
-                        "Rule1c",
-                        "Rule2",
-                        "Rule2a",
-                        "Rule2b",
-                        "Rule2c",
-                        "Rule3",
-                        "Rule3a",
-                        "Rule3b",
-                        "Rule3c"
-                      )
-                    ),
-                    numericInput("GSOdwt", "weight for option 2", 0.75),
-                    numericInput("GSOnrep", "Number of iterations to run", 100),
-                    numericInput("GSOnsim", "Number of simulations to generate 95% CI?", 5),
-                    withBusyIndicatorUI(actionButton("runGSO",
-                                                     "Run Aspatial GSO"))
-                  )
-                )))
+      # tabItem(tabName = "GSO",
+      #         fluidRow(# h2("Aspatial GSO Input Selections"),
+      #           column(
+      #             6,
+      #             box(
+      #               width = 12,
+      #               #00B2A9 title = "Select and upload GSO .csv files",
+      #               fileInput(
+      #                 inputId = "addGSOCSV",
+      #                 label = "gsofiles to upload",
+      #                 accept = c("csv", ".csv")
+      #               )
+      #             ),
+      #             box(
+      #               width = 12,
+      #               #00B2A9 title = "Select GSO input tables",
+      #               selectInput(
+      #                 "spEFGLMU",
+      #                 "Select Spp_EFG_LMU.csv file",
+      #                 choices = c(
+      #                   "Spp_EFG_LMU.csv",
+      #                   list.files("./GSOInputs/", pattern = "Spp_EFG_LMU.csv$")
+      #                 )
+      #               ),
+      #               selectInput(
+      #                 "lmuArea",
+      #                 "LMU_Area.csv file",
+      #                 choice = c(
+      #                   "LMU_Area.csv",
+      #                   list.files("./GSOInputs/", pattern = "LMU_Area.csv$")
+      #                 )
+      #               ),
+      #               selectInput(
+      #                 "lmuScenarios",
+      #                 "LMU_Scenarios.csv file",
+      #                 choice = c(
+      #                   "LMU_Scenarios.csv",
+      #                   list.files("./GSOInputs/", pattern = "LMU_Scenarios.csv$")
+      #                 )
+      #               ),
+      #               selectInput(
+      #                 "ObsData",
+      #                 "ObsData.csv file",
+      #                 choice = c(
+      #                   "ObsData.csv",
+      #                   list.files("./GSOInputs/", pattern = "ObsData.csv$")
+      #                 )
+      #               )
+      #             )
+      #           ),
+      #           column(
+      #             6,
+      #             box(
+      #               width = 12,
+      #               #00B2A9 title = "Analysis options",
+      #               h4(
+      #                 "Please note all inputs are case sensitive, do not include any spaces"
+      #               ),
+      #               selectInput(
+      #                 "GSOFireType",
+      #                 choices = c("High", "Low"),
+      #                 label = "Low or High fire type."
+      #               ),
+      #               selectInput(
+      #                 "GSOBaseLine",
+      #                 label = "Baseline for comparisons.'Optimisation' or select from input scenarios",
+      #                 choices = c("Optimisation")
+      #               ),
+      #               selectInput(
+      #                 "GSOFaunaClasses",
+      #                 label = "Which fauna classes to use",
+      #                 choices = c("All", "Birds", "Mammals", "Reptiles", "Frogs"),
+      #                 selected = "All",
+      #                 # "Insects", "Fishes", "Crustaceans", "Annelids", Molluscs", "Nemerteans", "Flatworms", "Cnidarians","Echinoderms", "Zooplankton"
+      #                 multiple = T
+      #               ),
+      #               selectInput(
+      #                 "GSOrule",
+      #                 "Select rule to use",
+      #                 choices = c(
+      #                   "Rule0",
+      #                   "Rule1",
+      #                   "Rule1a",
+      #                   "Rule1b",
+      #                   "Rule1c",
+      #                   "Rule2",
+      #                   "Rule2a",
+      #                   "Rule2b",
+      #                   "Rule2c",
+      #                   "Rule3",
+      #                   "Rule3a",
+      #                   "Rule3b",
+      #                   "Rule3c"
+      #                 )
+      #               ),
+      #               numericInput("GSOdwt", "weight for option 2", 0.75),
+      #               numericInput("GSOnrep", "Number of iterations to run", 100),
+      #               numericInput("GSOnsim", "Number of simulations to generate 95% CI?", 5),
+      #               withBusyIndicatorUI(actionButton("runGSO",
+      #                                                "Run Aspatial GSO"))
+      #             )
+      #           )))
     ),
   )
 

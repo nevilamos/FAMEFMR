@@ -10,30 +10,30 @@ errorFunc(err, buttonId)
 \item{err}{An error condition object. The error message is obtained from
 \code{err$message}.}
 
-\item{buttonId}{Character string giving the input ID of the Shiny button
+\item{buttonId}{A character string giving the input ID of the Shiny button
 associated with the error.}
 }
 \value{
-Called for its side effects. The function updates and displays
-the error element associated with the button.
+Called for its side effects. Returns the result of
+\code{\link[shinyjs:visibilityFuncs]{shinyjs::show()}} invisibly while updating and displaying the error
+element associated with the button.
 }
 \description{
 Displays an error message in the error container associated with a button
 created using \code{\link[=withBusyIndicatorUI]{withBusyIndicatorUI()}}.
 }
 \details{
-This function is primarily an internal helper used by
-\code{\link[=withBusyIndicatorServer]{withBusyIndicatorServer()}} when an error occurs while evaluating the
-supplied expression.
+This function is an internal helper used by \code{\link[=withBusyIndicatorServer]{withBusyIndicatorServer()}}
+when an error occurs while evaluating the supplied expression.
 
-The prefix \code{"ddpcr: "} is removed from the error message, if present,
-before the message is displayed.
+The prefix \code{"ddpcr: "}, if present at the beginning of the error
+message, is removed before the message is displayed.
 
-The function uses \code{\link[shinyjs:html]{shinyjs::html()}} and \code{\link[shinyjs:visibilityFuncs]{shinyjs::show()}} to update and
-display the error message.
+The function uses \code{\link[shinyjs:html]{shinyjs::html()}} to insert the error message and
+\code{\link[shinyjs:visibilityFuncs]{shinyjs::show()}} to display the associated error container.
 
-This implementation is based on the busy indicator example from Dean Attali's
-Advanced Shiny examples:
+This implementation is based on the busy-indicator example from Dean
+Attali's Advanced Shiny examples:
 \url{https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R}
 }
 \seealso{

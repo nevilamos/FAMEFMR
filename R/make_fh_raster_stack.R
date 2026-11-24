@@ -112,10 +112,7 @@ make_fh_raster_stack <- function(
     v$FIRETYPE_NO[v$FIRETYPE %in% c("OTHER", "UNKNOWN")] <- OtherAndUnknown
     nms <- names(v)
   }
-  # --- read vector
 
-
-  nms <- names(v)
   if (!all(fields %in% nms)) {
     missing <- fields[!fields %in% nms]
     stop(sprintf("Missing field(s) in vector attributes: %s", paste(missing, collapse = ", ")))
