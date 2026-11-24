@@ -6,7 +6,7 @@ server <- function(session, input, output) {
   rv$FAMEFMRVersion<-FAMEFMRVersion
   rv$max_interval = 5
   output$FAMEFMRVersion <- renderText(rv$FAMEFMRVersion)
-  rv$outputSettings = list()
+  #rv$outputSettings = list()
 
 
   observe({
@@ -466,10 +466,10 @@ rv$FHAnalysis <- fhProcess_raster_first(
       # the outpuSettings a reset to their empty values when the fhAnalysis is
       #run as the values for the subsequent anlayseis need to be updated
       #(ie run again ) if the fhAnalysis changes.
-      rv$outputSettings<-as.list(as.data.frame(t(outputNames)))
-      rv$outputSettings<-saveFHsettings(rv$outputSettings,rv)
-
-      saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
+      #rv$outputSettings<-as.list(as.data.frame(t(outputNames)))
+      # rv$outputSettings<-saveFHsettings(rv$outputSettings,rv)
+      #
+      # saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
 
 
       rv$cropRasters$FH_ID<-rv$FHAnalysis$FH_ID
@@ -502,9 +502,9 @@ rv$FHAnalysis <- fhProcess_raster_first(
       } else {
         rv$puPath <- NULL
       }
-      #save settings to rv$outputSettings for puPath
-      rv$outputSettings<-savePUsettings(rv$outputSettings,rv)
-      saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
+      # #save settings to rv$outputSettings for puPath
+      # rv$outputSettings<-savePUsettings(rv$outputSettings,rv)
+      # saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
 
 
 
@@ -618,10 +618,10 @@ rv$FHAnalysis <- fhProcess_raster_first(
             file = file.path(rv$resultsDir, "TFI_EFG_SUMMARY.csv")
           )
 
-          #save settings for TFI processing
-          rv$outputSettings$ranTFI = TRUE
-          rv$outputSettings$makeTFIrasters = rv$makeTFIrasters
-          saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
+          # #save settings for TFI processing
+          # rv$outputSettings$ranTFI = TRUE
+          # rv$outputSettings$makeTFIrasters = rv$makeTFIrasters
+          # saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
 
 
           print("Finished TFI calculations")
@@ -682,10 +682,10 @@ rv$FHAnalysis <- fhProcess_raster_first(
                     )
           )
 
-          #save settings for BBTFI processing
-          rv$outputSettings$ranBBTFI = TRUE
-          rv$outputSettings$makeBBTFIrasters = rv$makeBBTFIrasters
-          saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
+          # #save settings for BBTFI processing
+          # rv$outputSettings$ranBBTFI = TRUE
+          # rv$outputSettings$makeBBTFIrasters = rv$makeBBTFIrasters
+          # saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
         })
       })
     }
@@ -726,10 +726,10 @@ rv$FHAnalysis <- fhProcess_raster_first(
                                       )
                      )
 
-                     #save settings for GS processing
-                     rv$outputSettings$ranGS = TRUE
-                     saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
-                     print("finished GS calcs")
+                     # #save settings for GS processing
+                     # rv$outputSettings$ranGS = TRUE
+                     # saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
+                     # print("finished GS calcs")
                    })
                  })
                }
@@ -816,9 +816,9 @@ rv$FHAnalysis <- fhProcess_raster_first(
 
         print("finished auto JFMP")
 
-        #save settings for JFMP processing
-        rv$outputSettings<-saveJFMPsettings(rv$outputSettings,rv)
-        saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
+        # #save settings for JFMP processing
+        # rv$outputSettings<-saveJFMPsettings(rv$outputSettings,rv)
+        # saveSettingsTable(rv$outputSettings,rv$resultsDir,outputNames)
 
         })
     }
@@ -1321,7 +1321,7 @@ rv$FHAnalysis <- fhProcess_raster_first(
       mySavedAnaylysisFile<-as.character(fileinfo$datapath)
       qsave(myRvList, mySavedAnaylysisFile)
       #save name of autosavepath after species calculations
-      rv$outputSettings$analysisSavedPath[1] = mySavedAnaylysisFile
+      # rv$outputSettings$analysisSavedPath[1] = mySavedAnaylysisFile
       gc()
     }
   })

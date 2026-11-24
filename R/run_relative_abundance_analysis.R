@@ -233,7 +233,7 @@ run_relative_abundance_analysis <- function(.env = parent.frame()) {
   # ---------------------------------------------------------------------------
   # Construct full paths to the HDM rasters
   # ---------------------------------------------------------------------------
-print(rv$TaxonList$HDMPath[1])
+
   rv$TaxonList$HDMPath <- fame_data_path(
     rv$TaxonList$HDMPath
   )
@@ -280,23 +280,39 @@ print(rv$TaxonList$HDMPath[1])
       logical(1)
     )
   ]
-
   if (length(MissingHDMS) > 0) {
 
-    message("The following HDM rasters are missing:")
+    msg <- paste(
+      "The following HDM rasters are missing:\n\n",
+      paste(MissingHDMS, collapse = "\n")
+    )
 
-    message(
-      paste(
-        MissingHDMS,
-        collapse = "\n"
+    if (inherits(rv, "reactivevalues")) {
+
+      shiny::showModal(
+        shiny::modalDialog(
+          title = "Missing HDM Rasters",
+          HTML(
+            paste(
+              "The following HDM rasters are missing:<br><br>",
+              paste(MissingHDMS, collapse = "<br>")
+            )
+          ),
+          easyClose = TRUE,
+          footer = shiny::modalButton("OK")
+        )
       )
-    )
 
-    stop(
-      "Missing HDMS",
-      call. = FALSE
-    )
+      return(invisible(rv))
+
+    } else {
+
+      stop(msg, call. = FALSE)
+
+    }
   }
+
+
 
   # ---------------------------------------------------------------------------
   # Identify included species and species rasters to write
@@ -424,7 +440,6 @@ print(rv$TaxonList$HDMPath[1])
     myCropRasters = rv$cropRasters
   )
 
-  gc()
 
   # ---------------------------------------------------------------------------
   # Save species abundance summary outputs
@@ -578,55 +593,51 @@ print(rv$TaxonList$HDMPath[1])
 
   message("Finished relative abundance change calculations")
 
-  # ---------------------------------------------------------------------------
-  # Save fire-history and species settings
-  # ---------------------------------------------------------------------------
-
-  rv$outputSettings <- saveFHsettings(
-    rv$outputSettings,
-    rv
-  )
-
-  rv$outputSettings <- saveSPsettings(
-    rv$outputSettings,
-    rv
-  )
-
-  saveSettingsTable(
-    rv$outputSettings,
-    rv$resultsDir,
-    outputNames
-  )
+  # # ---------------------------------------------------------------------------
+  # # Save fire-history and species settings
+  # # ---------------------------------------------------------------------------
+  #
+  # rv$outputSettings <- saveFHsettings(
+  #   rv$outputSettings,
+  #   rv
+  # )
+  #
+  # rv$outputSettings <- saveSPsettings(
+  #   rv$outputSettings,
+  #   rv
+  # )
+  #
+  # saveSettingsTable(
+  #   rv$outputSettings,
+  #   rv$resultsDir,
+  #   outputNames
+  # )
 
   # ---------------------------------------------------------------------------
   # Save the complete analysis so that it can be restored
   # ---------------------------------------------------------------------------
+  autoSavePath <- fame_data_path(
+      "FH_Outputs",
+      "autoSavedAnalysis.qs"
+      )
 
+
+  if (shiny::isRunning()) {
   myRvList <- shiny::reactiveValuesToList(
     rv
   )
-
-  autoSavePath <- fame_data_path(
-    "FH_Outputs",
-    "autoSavedAnalysis.qs"
-  )
-
   qs::qsave(
     myRvList,
     autoSavePath
   )
+  }else{qs::qsave(
+    rv,
+    autoSavePath
+  )}
 
-  # Save the auto-save path after completion of the species calculations.
 
-  rv$outputSettings$analysisSavedPath[1] <- autoSavePath
-
-  saveSettingsTable(
-    rv$outputSettings,
-    rv$resultsDir,
-    outputNames
-  )
 
   message("Relative abundance analysis complete")
 
-  invisible(NULL)
+  invisible(rv)
 }

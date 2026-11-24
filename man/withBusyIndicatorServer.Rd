@@ -7,25 +7,26 @@
 withBusyIndicatorServer(buttonId, expr)
 }
 \arguments{
-\item{buttonId}{Character string giving the input ID of the Shiny button.}
+\item{buttonId}{A character string giving the input ID of the Shiny button.}
 
 \item{expr}{An expression to evaluate while the busy indicator is active.}
 }
 \value{
-The value returned by \code{expr} if it completes successfully.
-If an error occurs, the error is handled by \code{\link[=errorFunc]{errorFunc()}}.
+The value returned by \code{expr} if evaluation completes
+successfully. If an error occurs, the error is handled by \code{\link[=errorFunc]{errorFunc()}}
+and the value returned by the error handler is returned.
 }
 \description{
-Runs an expression while displaying a loading indicator associated with a
-Shiny button. The button is temporarily disabled while the expression runs.
+Evaluates an expression while displaying a loading indicator associated
+with a Shiny button. The button is temporarily disabled while the
+expression is evaluated.
 }
 \details{
 If the expression completes successfully, a completion indicator is shown
 briefly. If an error occurs, the error is passed to \code{\link[=errorFunc]{errorFunc()}} and
 displayed alongside the button.
 
-This function is the server-side counterpart to
-\code{\link[=withBusyIndicatorUI]{withBusyIndicatorUI()}}.
+This function is the server-side counterpart to \code{\link[=withBusyIndicatorUI]{withBusyIndicatorUI()}}.
 
 When called, the function:
 
@@ -38,11 +39,13 @@ When called, the function:
 \item Re-enables the button when processing finishes.
 }
 
-The function relies on functions from the \code{shinyjs} package for controlling
-UI elements.
+The function relies on functions from the \pkg{shinyjs} package to control
+the button and associated indicator elements. \code{\link[=withBusyIndicatorUI]{withBusyIndicatorUI()}} must
+be used for the corresponding button so that the required UI elements and
+\code{data-for-btn} attribute are present.
 
-This implementation is based on the busy indicator example from Dean Attali's
-Advanced Shiny examples:
+This implementation is based on the busy-indicator example from Dean
+Attali's Advanced Shiny examples:
 \url{https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R}
 }
 \seealso{

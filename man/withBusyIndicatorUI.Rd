@@ -7,11 +7,12 @@
 withBusyIndicatorUI(button)
 }
 \arguments{
-\item{button}{A Shiny button UI element, typically created using
-\code{\link[shiny:actionButton]{shiny::actionButton()}} or a similar function.}
+\item{button}{A Shiny button UI element, typically created with
+\code{\link[shiny:actionButton]{shiny::actionButton()}} or a similar function. The button must have an
+\code{id} attribute.}
 }
 \value{
-A Shiny \code{div} containing the supplied button together with the
+A Shiny \code{div} containing the supplied button together with
 loading, completion, and error indicator elements.
 }
 \description{
@@ -20,22 +21,23 @@ success indicator, and error message while a server-side operation is
 running.
 }
 \details{
-This function should be used together with
-\code{\link[=withBusyIndicatorServer]{withBusyIndicatorServer()}} on the server side.
+This function should be used together with \code{\link[=withBusyIndicatorServer]{withBusyIndicatorServer()}} on
+the server side.
 
-The wrapped button must have an \code{id}, as this is used to associate the
-loading, completion, and error indicators with the corresponding button.
+The supplied button must have an \code{id} attribute. This ID is used to
+associate the loading, completion, and error indicators with the
+corresponding button.
 
-The function expects an image named \code{ajax-loader.gif} to be available to
-the Shiny application as a web-accessible resource.
+The function expects an image named \code{ajax-loader.gif} to be available
+to the Shiny application as a web-accessible resource.
 
-The associated CSS defined in \code{appCSS} should also be included in the
-application's UI.
+The CSS definitions in \link{appCSS} should also be included in the application's
+UI.
 
-This implementation is based on the busy indicator example from Dean Attali's
-Advanced Shiny examples:
+This implementation is based on the busy-indicator example from Dean
+Attali's Advanced Shiny examples:
 \url{https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R}
 }
 \seealso{
-\code{\link[=withBusyIndicatorServer]{withBusyIndicatorServer()}}, \code{\link[=errorFunc]{errorFunc()}}
+\code{\link[=withBusyIndicatorServer]{withBusyIndicatorServer()}}, \code{\link[=errorFunc]{errorFunc()}}, \link{appCSS}
 }

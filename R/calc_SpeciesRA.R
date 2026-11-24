@@ -142,14 +142,13 @@ calc_SpeciesRA <- function(myFHAnalysis,
 
     if (myWriteSpRasters == TRUE) {
       for (myYear in as.character(writeYears)) {
-        cat("\r", paste("writing species abund rasters for", myYear))
+        cat("\r", paste("writing species", sp , "abund rasters for", myYear))
         #print(paste("writing species abund rasters for", myYear))
         if (sp %in% myWriteSp | is.null(myWriteSp)) {
           OutTif <-
             file.path(myResultsDir,
                       "RA_Rasters",
                       paste0("Spp", sp, "_", myYear, ".tif"))
-          print(OutTif)
           emptySpraster <- r
           terra::values(emptySpraster) <-
             Spp_Val_Cell_Year[, myYear]
@@ -164,6 +163,7 @@ calc_SpeciesRA <- function(myFHAnalysis,
       }
     }
   } # end species raster cell abundance calcs loop
+  cat("\n")
 
   # join species details from TaxonList  to the output tables
   SpYearSumm <-

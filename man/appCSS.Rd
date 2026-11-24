@@ -5,17 +5,18 @@
 \alias{appCSS}
 \title{CSS for Shiny busy indicators}
 \format{
-A character string containing CSS definitions.
+A character string containing CSS definitions for the busy
+indicator UI elements.
 }
 \usage{
 appCSS
 }
 \description{
-CSS definitions used by \code{\link[=withBusyIndicatorUI]{withBusyIndicatorUI()}} to style loading,
+CSS definitions used by \code{\link[=withBusyIndicatorUI]{withBusyIndicatorUI()}} to style the loading,
 completion, and error indicators.
 }
 \details{
-The CSS should be included in the Shiny application's UI, for example using
+The CSS should be included in the Shiny application's UI, for example with
 \code{shiny::tags$style(appCSS)}.
 }
 \seealso{
