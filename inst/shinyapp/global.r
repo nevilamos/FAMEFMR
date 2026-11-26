@@ -16,22 +16,19 @@ jscode <- "shinyjs.closeWindow = function() { window.close(); }"
 ##Check all packages are installed and loaded ---------
 
 ## First specify the packages of to load
-packages = c("aws.s3",
-             "dplyr",
+packages = c("dplyr",
              "ggplot2",
-             "knitr",
-             "nloptr",
              "plotly",
              "qs",
              "readr",
-             "readxl",
+             #"readxl",
              "Rfast",
              "rmarkdown",
              "rlang",
              "scales",
              "sf",
              "shiny",
-             "shinycssloaders",
+             #"shinycssloaders",
              "shinydashboard",
              "shinyFiles",
              "shinyjs",
@@ -52,16 +49,11 @@ package.check <- lapply(
     }
   }
 )
-#check that FAMEFMR package is installed and get it from github if not.
-if(require("FAMEFMR")==FALSE){
-  devtools::install_github("nevilamos/FAMEFMR@v1.1")
-}
-
 
 # Configure FAME data location --------------
 
 Sys.setenv(
-  FAME_DATA_DIR = "C:/Data/FAMEshiny-4.6"
+  FAME_DATA_DIR = "C:/Data/temp"
 )
 
 # Clear any value retained from an earlier R session
@@ -75,7 +67,7 @@ fame_data_status <- initialise_fame_data(
   download_missing = TRUE,
   force_sync = FALSE
 )
-
+print(fame_data_status)
 # Optional startup diagnostics
 message(
   "FAME_DATA_DIR: ",
@@ -91,8 +83,6 @@ message(
   "rawFH path: ",
   fame_data_path("rawFH")
 )
-
-
 
 
 
