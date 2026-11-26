@@ -3,22 +3,19 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4 VicGrid_2020",
   dashboardHeader(
     #formatting individual letters to different size and colour ----
     title = span(
-      "F",
-      style = "color: white; font-size: 40px",
-      span("ire",
-           style = "color: black; font-size: 30px"),
-      span("A",
-           style = "color: white; font-size: 40px"),
-      span("nalysis",
-           style = "color: black; font-size: 30px"),
-      span("M",
-           style = "color: white; font-size: 40px"),
-      span("odule for",
-           style = "color: Black; font-size: 30px"),
-      span("E",
-           style = "color: white; font-size: 40px"),
-      span("cological values",
-           style = "color: black; font-size: 30px")
+
+      span("F", class = "fame-title-letter"),
+      span("ire", class = "fame-title-text"),
+
+      span("A", class = "fame-title-letter"),
+      span("nalysis", class = "fame-title-text"),
+
+      span("M", class = "fame-title-letter"),
+      span("odule for", class = "fame-title-text"),
+
+      span("E", class = "fame-title-letter"),
+      span("cological values", class = "fame-title-text")
+
     ),
     titleWidth = "100vw"
   ),
@@ -29,9 +26,13 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4 VicGrid_2020",
       sidebarMenuOutput("tabsmenu"),
       # Button to open fame manual from pdf in www directory
 
-      actionButton(inputId='ab1', label="Open manual in new tab",
-                   icon = icon("th"),
-                   onclick ="window.open('FAME_User_Manual.pdf', '_blank')"),
+      actionButton(
+        inputId = "ab1",
+        label = "Open manual in new tab",
+        icon = icon("th"),
+        class = "fame-sidebar-button",
+        onclick = "window.open('FAME_User_Manual.pdf', '_blank')"
+      ),
 
 
 
@@ -80,11 +81,14 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4 VicGrid_2020",
         useShinyjs(),
         extendShinyjs(text = jscode, functions = c("closeWindow")),
         h5("Make sure you have downloaded all your data first"),
-        actionButton(inputId="close",
-                     label =tags$div(HTML(
-                       '<i class="fa-sharp fa-solid fa-circle-exclamation fa-2xl" style="color: #ff0000;"></i>  Shut Down Server')
-                       )
-                     )
+        actionButton(
+          inputId="close",
+          label = tags$div(
+            HTML(
+              '<i class="fa-sharp fa-solid fa-circle-exclamation fa-2xl fame-danger-icon"></i> Shut Down Server'
+            )
+            )
+          )
       ),
       box(
         width = 12,
@@ -115,105 +119,24 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4 VicGrid_2020",
   ),
   #dashboard body ----
   dashboardBody(
-    # this tags$head section changes the shinydashboard to DEECA corporate colours ----
-    # DEECA Navy 100% =  hex #201547
-    # DEECA Teal 100% =  hex #00B2A9
-    # Vic Gov Blue = hex #004C97
-    # Corporate Sky Blue = #88DBDF
-    # ECA Lime = #CDDC29
 
-    tags$head(tags$style(
-      HTML(
-        '
-        .main-header .logo {
-        font-weight: bold;
-        font-size: 40px;
-        font-family:Georgia;
-
-      }
-      .main-header .logo #mydiv b{
-        font-weight: bold;
-        font-size: 40px;
-        font-family:Georgia;
-      }
-
-
-        /* button */
-        .skin-blue .btn {
-        background-color: #004C97;
-        color: #ffffff;
-        border-radius: 10px;
-        }
-        /* logo */
-        .skin-blue .main-header .logo {
-                              background-color: #00B2A9;
-                              }
-
-        /* logo when hovered */
-        .skin-blue .main-header .logo:hover {
-                              background-color: #00B2A9;
-                              }
-
-        /* navbar (rest of the header) */
-        .skin-blue .main-header .navbar {
-                              background-color: #00B2A9;
-                              }
-
-        /* main sidebar */
-        .skin-blue .main-sidebar {
-                              background-color: #00B2A9;
-                              }
-
-        /* active selected tab in the sidebarmenu */
-        .skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
-                              background-color: #201547;
-                              }
-
-        /* other links in the sidebarmenu */
-        .skin-blue .main-sidebar .sidebar .sidebar-menu a{
-                              background-color: #00B2A9;
-                              color: #ffffff;
-                              }
-
-        /* other links in the sidebarmenu when hovered */
-         .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
-                              background-color: #004C97;
-         }
-
-        /* Box colours */
-        .skin-blue .box {
-                    color:#ffffff;
-                    background:#201547;
-                    border-bottom-color:#201547;
-                    border-left-color:#201547;
-                    border-right-color:#201547;
-                    border-top-color:#201547;
-                    background:#201547;
-                    border-radius: 10px;
-        }
-       /* box title force to white */
-        .skin-blue .box-header {
-        color:#ffffff;
-
-        }
-      /* pagewell formatting */
-      .skin-blue .well{
-        color:#ffffff;
-        background:#201547;
-        border-bottom-color:#201547;
-        border-left-color:#201547;
-        border-right-color:#201547;
-        border-top-color:#201547;
-        background:#201547;
-        border-radius: 10px;
-      }
-      .skin-blue .sidebar-menu  {
-        white-space: normal;
-      }
-      '
+    # Load ARI FAME theme ----
+    tags$head(
+      tags$link(
+        rel = "stylesheet",
+        type = "text/css",
+        href = "fame-theme.css"
       )
-    )),
-    setBackgroundImage(src = "08732250_before_after_2014_fire.jpg", shinydashboard = TRUE),
+    ),
+
+    setBackgroundImage(src = "BanksiaFireRegeneration-MarciaRiederer.jpg", shinydashboard = TRUE),
+
+    # Background image credit
+    tags$div(
+      class = "fame-photo-credit",
+      "Photo: Marcia Riederer / ARI"
+    ),
+
 
     tabItems(
       # Upload and other utilities tab----
@@ -420,9 +343,11 @@ ui <- shinydashboard::dashboardPage(  title = "FAME 4 VicGrid_2020",
               width = 12,
               #00B2A9
               conditionalPanel(condition = "input.usePUpolys == 0",
-                               h4("Fauna Abundance Calculation Choices")),
+                               div(class = "fame-box-heading",
+                                  "Fauna Abundance Calculation Choices")),
               conditionalPanel(condition = "input.usePUpolys == 1",
-                               h4("JFMP Calculation Choices")),
+                               div(class = "fame-box-heading",
+                                  "JFMP Calculation Choices")),
               # inputs conditional on whether JFMP or "standard" analysis is been run ----
               textOutput("selected_FH_name"),
               splitLayout(

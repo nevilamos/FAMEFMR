@@ -1,0 +1,2249 @@
+/* ============================================================
+   FAME / ARI SHINYDASHBOARD THEME
+   ============================================================
+
+   Official ARI core colours:
+
+   Navy:   #002B45
+   Green:  #879637
+   Rust:   #9A3B26
+   Blue:   #5E9CAE
+   Sand:   #D9AC6D
+   Black:  #000000
+   White:  #FFFFFF
+
+   Official ARI Green tint levels:
+
+   80%
+   50%
+   30%
+   10%
+
+   Main FAME content surfaces:
+   10% ARI Green at 94% opacity.
+
+   ============================================================ */
+
+
+/* ============================================================
+   OFFICIAL ARI PALETTE
+   ============================================================ */
+
+:root {
+
+  /* Core colours */
+
+  --ari-navy: #002B45;
+  --ari-green: #879637;
+  --ari-rust: #9A3B26;
+  --ari-blue: #5E9CAE;
+  --ari-sand: #D9AC6D;
+
+  --ari-black: #000000;
+  --ari-white: #FFFFFF;
+
+
+  /* ==========================================================
+     OFFICIAL ARI GREEN TINT LEVELS
+     ========================================================== */
+
+  --ari-green-80:
+    color-mix(
+      in srgb,
+      var(--ari-green) 80%,
+      var(--ari-white)
+    );
+
+  --ari-green-50:
+    color-mix(
+      in srgb,
+      var(--ari-green) 50%,
+      var(--ari-white)
+    );
+
+  --ari-green-30:
+    color-mix(
+      in srgb,
+      var(--ari-green) 30%,
+      var(--ari-white)
+    );
+
+  --ari-green-10:
+    color-mix(
+      in srgb,
+      var(--ari-green) 10%,
+      var(--ari-white)
+    );
+
+
+  /* Slightly transparent 10% ARI Green surface */
+
+  --ari-green-10-transparent:
+    rgba(243, 245, 235, 0.70);
+
+
+  /* ==========================================================
+     FAME MAPPING
+     ========================================================== */
+
+  --fame-primary:
+    var(--ari-navy);
+
+  --fame-accent:
+    var(--ari-green);
+
+  --fame-sidebar:
+    var(--ari-rust);
+
+  /* Main translucent content surface */
+  --fame-surface:
+    var(--ari-green-10-transparent);
+
+  --fame-text:
+    var(--ari-black);
+
+  --fame-text-light:
+    var(--ari-white);
+
+  --fame-border:
+    var(--ari-green-50);
+
+  --fame-box-header-bg:
+    var(--ari-navy);
+
+  --fame-box-header-text:
+    var(--fame-text-light);
+
+
+  /* ==========================================================
+     SHAPE
+     ========================================================== */
+
+  --fame-radius:
+    10px;
+
+  --fame-radius-small:
+    6px;
+
+
+  /* ==========================================================
+     DEPTH
+
+     Shadows use transparent ARI Navy only.
+     ========================================================== */
+
+  --fame-shadow:
+    0 2px 5px rgba(0, 43, 69, 0.15),
+    0 1px 2px rgba(0, 43, 69, 0.10);
+
+  --fame-shadow-hover:
+    0 6px 16px rgba(0, 43, 69, 0.22),
+    0 2px 5px rgba(0, 43, 69, 0.15);
+}
+
+
+/* ============================================================
+   GENERAL PAGE
+
+   Background image is supplied by setBackgroundImage() in ui.R.
+   ============================================================ */
+
+body {
+
+  color:
+    var(--fame-text);
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    Helvetica,
+    sans-serif;
+
+}
+
+
+/* Do not cover the FAME background image */
+
+.content-wrapper,
+.right-side {
+
+  background-color:
+    transparent !important;
+
+}
+
+
+.content {
+
+  padding:
+    18px;
+
+}
+
+
+.content-header {
+
+  padding:
+    18px 18px 4px 18px;
+
+}
+
+
+/* ============================================================
+   PAGE HEADINGS
+   ============================================================ */
+
+.content-header > h1,
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+
+  color:
+    var(--ari-navy);
+
+}
+
+
+/* ============================================================
+   FAME HEADER TITLE
+   ============================================================ */
+
+.main-header .logo {
+
+
+  font-weight:
+    bold;
+
+  white-space:
+    nowrap;
+
+  overflow:
+    visible;
+
+}
+
+
+.fame-title-letter {
+
+  color:
+    var(--ari-rust);
+
+  font-size:
+    40px;
+
+  font-weight:
+    bold;
+
+  line-height:
+    1;
+
+}
+
+
+.fame-title-text {
+
+  color:
+    var(--ari-green-50);
+
+  font-size:
+    30px;
+
+  font-weight:
+    normal;
+
+  line-height:
+    1;
+
+}
+
+
+/* ============================================================
+   MAIN HEADER
+   ============================================================ */
+
+.skin-blue .main-header .logo,
+.skin-blue .main-header .navbar {
+
+  background-color:
+    var(--ari-navy) !important;
+
+}
+
+
+.skin-blue .main-header .logo:hover {
+
+  background-color:
+    var(--ari-navy) !important;
+
+}
+
+
+.main-header {
+
+  box-shadow:
+    0 2px 7px rgba(0, 43, 69, 0.30);
+
+}
+
+
+/* Sidebar toggle */
+
+.skin-blue
+.main-header
+.navbar
+.sidebar-toggle {
+
+  color:
+    var(--ari-white);
+
+}
+
+
+.skin-blue
+.main-header
+.navbar
+.sidebar-toggle:hover,
+
+.skin-blue
+.main-header
+.navbar
+.sidebar-toggle:focus {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-green) !important;
+
+}
+
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+
+.skin-blue .main-sidebar,
+.skin-blue .left-side {
+
+  background-color:
+    var(--ari-navy) !important;
+
+}
+
+
+.skin-blue .sidebar {
+
+  padding-top:
+    12px;
+
+}
+
+
+.skin-blue .sidebar-menu {
+
+  white-space:
+    normal;
+
+}
+
+
+/* ============================================================
+   SIDEBAR SECTION HEADINGS
+   ============================================================ */
+
+.skin-blue
+.sidebar-menu > li.header {
+
+  color:
+    var(--ari-green-50);
+
+  background-color:
+    transparent;
+
+  padding:
+    12px 18px 6px 18px;
+
+  font-size:
+    11px;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.7px;
+
+  text-transform:
+    uppercase;
+
+}
+
+
+/* ============================================================
+   NORMAL SIDEBAR ITEMS
+   ============================================================ */
+
+.skin-blue
+.sidebar-menu > li > a {
+
+  color:
+    var(--ari-white) !important;
+
+  background-color:
+    transparent !important;
+
+  margin:
+    3px 10px;
+
+  padding:
+    11px 14px;
+
+  border:
+    none !important;
+
+  border-radius:
+    7px;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+
+}
+
+
+/* Sidebar hover */
+
+.skin-blue
+.sidebar-menu > li:hover > a,
+
+.skin-blue
+.sidebar-menu > li > a:hover,
+
+.skin-blue
+.sidebar-menu > li > a:focus {
+
+  color:
+    var(--ari-black) !important;
+
+  background-color:
+    var(--ari-blue) !important;
+
+}
+
+
+/* Active sidebar item */
+
+.skin-blue
+.sidebar-menu > li.active > a {
+
+  color:
+    var(--ari-black) !important;
+
+  background-color:
+    var(--ari-green) !important;
+
+  border:
+    none !important;
+
+  font-weight:
+    600;
+
+  box-shadow:
+    0 2px 7px rgba(0, 43, 69, 0.35);
+
+}
+
+
+/* ============================================================
+   SIDEBAR ICONS
+   ============================================================ */
+
+.skin-blue
+.sidebar-menu > li > a > .fa,
+
+.skin-blue
+.sidebar-menu > li > a > .fas,
+
+.skin-blue
+.sidebar-menu > li > a > .far,
+
+.skin-blue
+.sidebar-menu > li > a > .fab,
+
+.skin-blue
+.sidebar-menu > li > a > .glyphicon,
+
+.skin-blue
+.sidebar-menu > li > a > .ion {
+
+  width:
+    24px;
+
+  margin-right:
+    5px;
+
+  text-align:
+    center;
+
+}
+
+
+/* ============================================================
+   SIDEBAR SUBMENUS
+   ============================================================ */
+
+.skin-blue
+.sidebar-menu > li > .treeview-menu {
+
+  margin:
+    2px 10px 7px 10px;
+
+  padding:
+    5px 0;
+
+  background-color:
+    rgba(0, 43, 69, 0.65) !important;
+
+  border-radius:
+    7px;
+
+}
+
+
+.skin-blue
+.treeview-menu > li > a {
+
+  color:
+    var(--ari-white) !important;
+
+  background-color:
+    transparent !important;
+
+  padding:
+    8px 10px 8px 36px;
+
+}
+
+
+.skin-blue
+.treeview-menu > li > a:hover,
+
+.skin-blue
+.treeview-menu > li > a:focus {
+
+  color:
+    var(--ari-black) !important;
+
+  background-color:
+    var(--ari-green-50) !important;
+
+}
+
+
+.skin-blue
+.treeview-menu > li.active > a {
+
+  color:
+    var(--ari-black) !important;
+
+  background-color:
+    var(--ari-sand) !important;
+
+  font-weight:
+    600;
+
+}
+
+
+/* ============================================================
+   MAIN CONTENT BOXES
+
+   Slightly translucent 10% ARI Green surface.
+   ARI Navy header.
+   ARI Green accent.
+   ============================================================ */
+
+.skin-blue
+.content-wrapper .box,
+
+.skin-blue
+.right-side .box {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--fame-surface);
+
+  border:
+    none;
+
+  border-top:
+    4px solid var(--ari-green);
+
+  border-radius:
+    var(--fame-radius);
+
+  box-shadow:
+    var(--fame-shadow);
+
+  margin-bottom:
+    20px;
+
+  overflow:
+    hidden;
+
+  transition:
+    box-shadow 0.20s ease;
+
+}
+
+
+.skin-blue
+.content-wrapper .box:hover,
+
+.skin-blue
+.right-side .box:hover {
+
+  box-shadow:
+    var(--fame-shadow-hover);
+
+}
+
+
+/* ============================================================
+   BOX BODY
+   ============================================================ */
+
+.skin-blue
+.content-wrapper .box-body,
+
+.skin-blue
+.right-side .box-body {
+
+  padding:
+    18px;
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--fame-surface);
+
+}
+
+
+/* ============================================================
+   BOX HEADER
+   Keep solid for strong visual hierarchy.
+   ============================================================ */
+
+.skin-blue
+.content-wrapper .box-header,
+
+.skin-blue
+.right-side .box-header {
+
+  min-height:
+    43px;
+
+  padding:
+    11px 16px;
+
+  color:
+    var(--ari-white);
+
+  background-color:
+    var(--ari-navy);
+
+  border:
+    none;
+
+}
+
+
+.skin-blue
+.content-wrapper
+.box-header
+.box-title,
+
+.skin-blue
+.right-side
+.box-header
+.box-title {
+
+  color:
+    var(--ari-white);
+
+  font-size:
+    16px;
+
+  font-weight:
+    600;
+
+  letter-spacing:
+    0.2px;
+
+}
+
+
+/* ============================================================
+   PRIMARY BOX
+   ============================================================ */
+
+.skin-blue
+.content-wrapper
+.box.box-primary,
+
+.skin-blue
+.right-side
+.box.box-primary {
+
+  border-top-color:
+    var(--ari-green);
+
+}
+
+
+/* ============================================================
+   SUCCESS BOX
+   ============================================================ */
+
+.skin-blue
+.content-wrapper
+.box.box-success > .box-header,
+
+.skin-blue
+.right-side
+.box.box-success > .box-header {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-green);
+
+}
+
+
+.skin-blue
+.content-wrapper
+.box.box-success > .box-header .box-title,
+
+.skin-blue
+.right-side
+.box.box-success > .box-header .box-title {
+
+  color:
+    var(--ari-black);
+
+}
+
+
+/* ============================================================
+   INFO BOX
+   ============================================================ */
+
+.skin-blue
+.content-wrapper
+.box.box-info > .box-header,
+
+.skin-blue
+.right-side
+.box.box-info > .box-header {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-blue);
+
+}
+
+
+.skin-blue
+.content-wrapper
+.box.box-info > .box-header .box-title,
+
+.skin-blue
+.right-side
+.box.box-info > .box-header .box-title {
+
+  color:
+    var(--ari-black);
+
+}
+
+
+/* ============================================================
+   WARNING BOX
+   ============================================================ */
+
+.skin-blue
+.content-wrapper
+.box.box-warning > .box-header,
+
+.skin-blue
+.right-side
+.box.box-warning > .box-header {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-sand);
+
+}
+
+
+.skin-blue
+.content-wrapper
+.box.box-warning > .box-header .box-title,
+
+.skin-blue
+.right-side
+.box.box-warning > .box-header .box-title {
+
+  color:
+    var(--ari-black);
+
+}
+
+
+/* ============================================================
+   DANGER BOX
+   ============================================================ */
+
+.skin-blue
+.content-wrapper
+.box.box-danger > .box-header,
+
+.skin-blue
+.right-side
+.box.box-danger > .box-header {
+
+  color:
+    var(--ari-white);
+
+  background-color:
+    var(--ari-rust);
+
+}
+
+
+.skin-blue
+.content-wrapper
+.box.box-danger > .box-header .box-title,
+
+.skin-blue
+.right-side
+.box.box-danger > .box-header .box-title {
+
+  color:
+    var(--ari-white);
+
+}
+
+
+/* ============================================================
+   TEXT INSIDE MAIN BOXES
+   ============================================================ */
+
+.skin-blue
+.content-wrapper .box-body,
+
+.skin-blue
+.content-wrapper .box-body label,
+
+.skin-blue
+.content-wrapper .box-body p,
+
+.skin-blue
+.right-side .box-body,
+
+.skin-blue
+.right-side .box-body label,
+
+.skin-blue
+.right-side .box-body p {
+
+  color:
+    var(--ari-black);
+
+}
+
+
+.skin-blue
+.content-wrapper .box-body h1,
+
+.skin-blue
+.content-wrapper .box-body h2,
+
+.skin-blue
+.content-wrapper .box-body h3,
+
+.skin-blue
+.content-wrapper .box-body h4,
+
+.skin-blue
+.content-wrapper .box-body h5,
+
+.skin-blue
+.content-wrapper .box-body h6,
+
+.skin-blue
+.right-side .box-body h1,
+
+.skin-blue
+.right-side .box-body h2,
+
+.skin-blue
+.right-side .box-body h3,
+
+.skin-blue
+.right-side .box-body h4,
+
+.skin-blue
+.right-side .box-body h5,
+
+.skin-blue
+.right-side .box-body h6 {
+
+  color:
+    var(--ari-navy);
+
+}
+
+
+/* ============================================================
+   SIDEBAR BOXES
+   ============================================================ */
+
+.skin-blue
+.main-sidebar .box {
+
+  width:
+    calc(100% - 20px);
+
+  margin:
+    12px 10px;
+
+  color:
+    var(--ari-white);
+
+  background-color:
+    rgba(255, 255, 255, 0.08);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.25);
+
+  border-radius:
+    8px;
+
+  box-shadow:
+    none;
+
+  overflow:
+    hidden;
+
+}
+
+
+/* Sidebar box header */
+
+.skin-blue
+.main-sidebar .box-header {
+
+  padding:
+    9px 11px;
+
+  color:
+    var(--ari-white);
+
+  background-color:
+    rgba(255, 255, 255, 0.08);
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.25);
+
+}
+
+
+.skin-blue
+.main-sidebar
+.box-header
+.box-title {
+
+  color:
+    var(--ari-white);
+
+  font-size:
+    14px;
+
+  font-weight:
+    600;
+
+}
+
+
+/* Sidebar box body */
+
+.skin-blue
+.main-sidebar
+.box-body {
+
+  padding:
+    11px;
+
+  color:
+    var(--ari-white);
+
+  background-color:
+    transparent;
+
+}
+
+
+.skin-blue
+.main-sidebar .box label,
+
+.skin-blue
+.main-sidebar .box p,
+
+.skin-blue
+.main-sidebar .box h1,
+
+.skin-blue
+.main-sidebar .box h2,
+
+.skin-blue
+.main-sidebar .box h3,
+
+.skin-blue
+.main-sidebar .box h4,
+
+.skin-blue
+.main-sidebar .box h5,
+
+.skin-blue
+.main-sidebar .box h6 {
+
+  color:
+    var(--ari-white);
+
+}
+
+
+/* ============================================================
+   SIDEBAR BUTTONS
+   ============================================================ */
+
+.skin-blue
+.main-sidebar .btn {
+
+  width:
+    100%;
+
+  margin-bottom:
+    7px;
+
+  padding:
+    8px 10px;
+
+  color:
+    var(--ari-white);
+
+  background-color:
+    transparent;
+
+  border:
+    1px solid var(--ari-green-50);
+
+  border-radius:
+    var(--fame-radius-small);
+
+  font-weight:
+    500;
+
+  text-align:
+    left;
+
+  white-space:
+    normal;
+
+}
+
+
+.skin-blue
+.main-sidebar .btn:hover,
+
+.skin-blue
+.main-sidebar .btn:focus {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-green);
+
+  border-color:
+    var(--ari-green);
+
+}
+
+
+/* ============================================================
+   SHUTDOWN SERVER BUTTON
+   ============================================================ */
+
+#close {
+
+  color:
+    var(--ari-white) !important;
+
+  background-color:
+    var(--ari-rust) !important;
+
+  border-color:
+    var(--ari-rust) !important;
+
+  font-weight:
+    600;
+
+  text-align:
+    center;
+
+}
+
+
+#close:hover,
+#close:focus {
+
+  color:
+    var(--ari-black) !important;
+
+  background-color:
+    var(--ari-sand) !important;
+
+  border-color:
+    var(--ari-sand) !important;
+
+}
+
+
+.fame-danger-icon {
+
+  color:
+    var(--ari-white);
+
+}
+
+
+#close:hover .fame-danger-icon,
+#close:focus .fame-danger-icon {
+
+  color:
+    var(--ari-rust);
+
+}
+
+
+/* ============================================================
+   WELL PANELS
+   Slightly translucent to match main content boxes.
+   ============================================================ */
+
+.skin-blue
+.well {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--fame-surface);
+
+  border:
+    1px solid var(--ari-green-50);
+
+  border-left:
+    4px solid var(--ari-green);
+
+  border-radius:
+    var(--fame-radius);
+
+  box-shadow:
+    var(--fame-shadow);
+
+}
+
+
+.skin-blue .well h1,
+.skin-blue .well h2,
+.skin-blue .well h3,
+.skin-blue .well h4,
+.skin-blue .well h5,
+.skin-blue .well h6,
+.skin-blue .well label {
+
+  color:
+    var(--ari-navy);
+
+}
+
+
+/* ============================================================
+   MAIN CONTENT BUTTONS
+   ============================================================ */
+
+.skin-blue
+.content-wrapper .btn,
+
+.skin-blue
+.right-side .btn {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-green);
+
+  border:
+    1px solid var(--ari-green);
+
+  border-radius:
+    var(--fame-radius-small);
+
+  font-weight:
+    600;
+
+  box-shadow:
+    0 1px 2px rgba(0, 43, 69, 0.18);
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+}
+
+
+/* Button hover */
+
+.skin-blue
+.content-wrapper .btn:hover,
+
+.skin-blue
+.content-wrapper .btn:focus,
+
+.skin-blue
+.right-side .btn:hover,
+
+.skin-blue
+.right-side .btn:focus {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-blue);
+
+  border-color:
+    var(--ari-blue);
+
+}
+
+
+/* ============================================================
+   BUTTON TYPES
+   ============================================================ */
+
+.skin-blue
+.btn-primary {
+
+  color:
+    var(--ari-white) !important;
+
+  background-color:
+    var(--ari-navy) !important;
+
+  border-color:
+    var(--ari-navy) !important;
+
+}
+
+
+.skin-blue
+.btn-success {
+
+  color:
+    var(--ari-black) !important;
+
+  background-color:
+    var(--ari-green) !important;
+
+  border-color:
+    var(--ari-green) !important;
+
+}
+
+
+.skin-blue
+.btn-info {
+
+  color:
+    var(--ari-black) !important;
+
+  background-color:
+    var(--ari-blue) !important;
+
+  border-color:
+    var(--ari-blue) !important;
+
+}
+
+
+.skin-blue
+.btn-warning {
+
+  color:
+    var(--ari-black) !important;
+
+  background-color:
+    var(--ari-sand) !important;
+
+  border-color:
+    var(--ari-sand) !important;
+
+}
+
+
+.skin-blue
+.btn-danger {
+
+  color:
+    var(--ari-white) !important;
+
+  background-color:
+    var(--ari-rust) !important;
+
+  border-color:
+    var(--ari-rust) !important;
+
+}
+
+
+/* ============================================================
+   FORM INPUTS
+
+   Keep form controls solid for legibility.
+   ============================================================ */
+
+.skin-blue
+.form-control {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-white);
+
+  border:
+    1px solid var(--ari-green-50);
+
+  border-radius:
+    var(--fame-radius-small);
+
+  box-shadow:
+    none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+}
+
+
+.skin-blue
+.form-control:focus {
+
+  border-color:
+    var(--ari-blue);
+
+  box-shadow:
+    0 0 0 3px rgba(94, 156, 174, 0.25);
+
+}
+
+
+/* ============================================================
+   SELECTIZE INPUTS
+   ============================================================ */
+
+.skin-blue
+.selectize-input {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-white);
+
+  border:
+    1px solid var(--ari-green-50);
+
+  border-radius:
+    var(--fame-radius-small);
+
+  box-shadow:
+    none;
+
+}
+
+
+.skin-blue
+.selectize-input.focus {
+
+  border-color:
+    var(--ari-blue);
+
+  box-shadow:
+    0 0 0 3px rgba(94, 156, 174, 0.25);
+
+}
+
+
+.skin-blue
+.selectize-input input {
+
+  color:
+    var(--ari-black);
+
+}
+
+
+.skin-blue
+.selectize-dropdown {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-white);
+
+}
+
+
+.skin-blue
+.selectize-dropdown .active {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-green-30);
+
+}
+
+
+.skin-blue
+.selectize-control.multi
+.selectize-input > div {
+
+  color:
+    var(--ari-white);
+
+  background-color:
+    var(--ari-navy);
+
+  border:
+    none;
+
+  border-radius:
+    4px;
+
+}
+
+
+/* ============================================================
+   CHECKBOXES AND RADIO BUTTONS
+   ============================================================ */
+
+.skin-blue
+.content-wrapper
+.checkbox label,
+
+.skin-blue
+.content-wrapper
+.radio label,
+
+.skin-blue
+.right-side
+.checkbox label,
+
+.skin-blue
+.right-side
+.radio label {
+
+  color:
+    var(--ari-black);
+
+}
+
+
+/* ============================================================
+   SLIDERS
+   ============================================================ */
+
+.irs-bar,
+.irs-bar-edge {
+
+  background:
+    var(--ari-green) !important;
+
+  border-color:
+    var(--ari-green) !important;
+
+}
+
+
+.irs-line {
+
+  background:
+    var(--ari-green-10) !important;
+
+  border-color:
+    var(--ari-green-30) !important;
+
+}
+
+
+.irs-slider {
+
+  background:
+    var(--ari-white) !important;
+
+  border-color:
+    var(--ari-navy) !important;
+
+}
+
+
+.irs-single,
+.irs-from,
+.irs-to {
+
+  color:
+    var(--ari-white) !important;
+
+  background:
+    var(--ari-navy) !important;
+
+}
+
+
+.irs-min,
+.irs-max {
+
+  color:
+    var(--ari-black) !important;
+
+  background:
+    var(--ari-green-10) !important;
+
+}
+
+
+/* ============================================================
+   TAB PANELS
+   ============================================================ */
+
+.nav-tabs-custom {
+
+  overflow:
+    hidden;
+
+  background-color:
+    var(--fame-surface);
+
+  border-radius:
+    var(--fame-radius);
+
+  box-shadow:
+    var(--fame-shadow);
+
+}
+
+
+.nav-tabs-custom > .nav-tabs {
+
+  border-bottom:
+    1px solid var(--ari-green-50);
+
+}
+
+
+.nav-tabs-custom > .nav-tabs > li.active {
+
+  border-top-color:
+    var(--ari-green);
+
+}
+
+
+.nav-tabs-custom > .nav-tabs > li > a {
+
+  color:
+    var(--ari-navy);
+
+}
+
+
+.nav-tabs-custom > .nav-tabs > li.active > a {
+
+  color:
+    var(--ari-navy);
+
+  font-weight:
+    600;
+
+}
+
+
+.nav-tabs-custom > .nav-tabs > li > a:hover {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-green-30);
+
+}
+
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+
+.skin-blue table,
+.skin-blue .box table {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    transparent;
+
+}
+
+
+.skin-blue table > thead > tr > th,
+.skin-blue .box table > thead > tr > th {
+
+  color:
+    var(--ari-navy);
+
+  border-bottom:
+    2px solid var(--ari-green);
+
+  font-weight:
+    600;
+
+}
+
+
+.skin-blue
+.table-striped > tbody > tr:nth-of-type(odd) {
+
+  background-color:
+    var(--ari-green-30);
+
+}
+
+
+.skin-blue
+.table-hover > tbody > tr:hover {
+
+  background-color:
+    var(--ari-green-50);
+
+}
+
+
+/* ============================================================
+   DATATABLES
+   ============================================================ */
+
+table.dataTable {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    transparent;
+
+}
+
+
+table.dataTable thead th {
+
+  color:
+    var(--ari-navy);
+
+  border-bottom-color:
+    var(--ari-green);
+
+}
+
+
+table.dataTable tbody tr:hover {
+
+  background-color:
+    var(--ari-green-30) !important;
+
+}
+
+
+.dataTables_wrapper
+.dataTables_paginate
+.paginate_button.current,
+
+.dataTables_wrapper
+.dataTables_paginate
+.paginate_button.current:hover {
+
+  color:
+    var(--ari-white) !important;
+
+  background:
+    var(--ari-navy) !important;
+
+  border-color:
+    var(--ari-navy) !important;
+
+  border-radius:
+    var(--fame-radius-small);
+
+}
+
+
+/* ============================================================
+   PROGRESS BARS
+   ============================================================ */
+
+.progress {
+
+  background-color:
+    var(--ari-green-10);
+
+  border-radius:
+    var(--fame-radius-small);
+
+  box-shadow:
+    none;
+
+}
+
+
+.progress-bar,
+.progress-bar-primary,
+.shiny-progress .progress-bar {
+
+  background-color:
+    var(--ari-green) !important;
+
+}
+
+
+.progress-bar-success {
+
+  background-color:
+    var(--ari-green) !important;
+
+}
+
+
+.progress-bar-info {
+
+  background-color:
+    var(--ari-blue) !important;
+
+}
+
+
+.progress-bar-warning {
+
+  background-color:
+    var(--ari-sand) !important;
+
+}
+
+
+.progress-bar-danger {
+
+  background-color:
+    var(--ari-rust) !important;
+
+}
+
+
+/* ============================================================
+   SHINY NOTIFICATIONS
+   ============================================================ */
+
+.shiny-notification {
+
+  color:
+    var(--ari-white);
+
+  background-color:
+    var(--ari-navy);
+
+  border:
+    2px solid var(--ari-green);
+
+  border-radius:
+    var(--fame-radius);
+
+  box-shadow:
+    var(--fame-shadow-hover);
+
+}
+
+
+.shiny-notification-message {
+
+  color:
+    var(--ari-white);
+
+  background-color:
+    var(--ari-navy);
+
+}
+
+
+.shiny-notification-warning {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-sand);
+
+  border-color:
+    var(--ari-sand);
+
+}
+
+
+.shiny-notification-error {
+
+  color:
+    var(--ari-white);
+
+  background-color:
+    var(--ari-rust);
+
+  border-color:
+    var(--ari-rust);
+
+}
+
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+
+.modal-content {
+
+  overflow:
+    hidden;
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--fame-surface);
+
+  border:
+    none;
+
+  border-radius:
+    var(--fame-radius);
+
+  box-shadow:
+    var(--fame-shadow-hover);
+
+}
+
+
+.modal-header {
+
+  color:
+    var(--ari-white);
+
+  background-color:
+    var(--ari-navy);
+
+  border-bottom:
+    2px solid var(--ari-green);
+
+}
+
+
+.modal-header
+.modal-title {
+
+  color:
+    var(--ari-white);
+
+}
+
+
+.modal-header
+.close {
+
+  color:
+    var(--ari-white);
+
+}
+
+
+.modal-body {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--fame-surface);
+
+}
+
+
+.modal-footer {
+
+  background-color:
+    var(--fame-surface);
+
+  border-top:
+    1px solid var(--ari-green-50);
+
+}
+
+
+/* ============================================================
+   LINKS
+   ============================================================ */
+
+.content-wrapper a,
+.right-side a {
+
+  color:
+    var(--ari-navy);
+
+}
+
+
+.content-wrapper a:hover,
+.content-wrapper a:focus,
+.right-side a:hover,
+.right-side a:focus {
+
+  color:
+    var(--ari-rust);
+
+}
+
+
+/* Don't override navigation link decoration */
+
+.main-sidebar a {
+
+  text-decoration:
+    none;
+
+}
+
+
+/* ============================================================
+   SCROLLBARS
+   ============================================================ */
+
+::-webkit-scrollbar {
+
+  width:
+    9px;
+
+  height:
+    9px;
+
+}
+
+
+::-webkit-scrollbar-track {
+
+  background:
+    var(--ari-green-10);
+
+}
+
+
+::-webkit-scrollbar-thumb {
+
+  background:
+    var(--ari-green);
+
+  border:
+    2px solid var(--ari-green-10);
+
+  border-radius:
+    6px;
+
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+
+  background:
+    var(--ari-navy);
+
+}
+
+
+/* ============================================================
+   TEXT SELECTION
+   ============================================================ */
+
+::selection {
+
+  color:
+    var(--ari-black);
+
+  background-color:
+    var(--ari-green);
+
+}
+
+
+/* ============================================================
+   KEYBOARD FOCUS
+   ============================================================ */
+
+.sidebar-menu a:focus-visible,
+.btn:focus-visible,
+button:focus-visible,
+a:focus-visible {
+
+  outline:
+    3px solid var(--ari-sand);
+
+  outline-offset:
+    2px;
+
+}
+
+
+/* ============================================================
+   SMALL SCREENS
+   ============================================================ */
+
+@media (max-width: 767px) {
+
+  .content {
+
+    padding:
+      10px;
+
+  }
+
+
+  .content-header {
+
+    padding:
+      12px 10px 3px 10px;
+
+  }
+
+
+  .skin-blue
+  .content-wrapper
+  .box-body,
+
+  .skin-blue
+  .right-side
+  .box-body {
+
+    padding:
+      13px;
+
+  }
+
+
+  .fame-title-letter {
+
+    font-size:
+      30px;
+
+  }
+
+
+  .fame-title-text {
+
+    font-size:
+      22px;
+
+  }
+
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+
+    transition-duration:
+      0.01ms !important;
+
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+
+  }
+
+}
+/* ---------------------------------------------------------
+   Background photo credit
+   --------------------------------------------------------- */
+
+.fame-photo-credit {
+  position: fixed;
+  bottom: 6px;
+  right: 8px;
+  z-index: 9999;
+
+  padding: 2px 6px;
+
+  font-size: 10px;
+  line-height: 1.2;
+
+  color: #FFFFFF;
+  background: rgba(0, 31, 48, 0.55);
+
+  border-radius: 3px;
+
+  pointer-events: none;
+}
+/* =========================================================
+   FAME headings inside boxes
+   ========================================================= */
+
+.fame-box-heading {
+  background-color: var(--fame-box-header-bg);
+  color: var(--fame-box-header-text) !important;
+
+  margin: -10px -10px 15px -10px;
+  padding: 10px 15px;
+
+
+  font-weight: 600;
+  line-height: 1.3;
+
+  border-radius: 4px 4px 0 0;
+}
+
+/* ============================================================
+   SIDEBAR CONTENT BOXES
+   ============================================================ */
+
+.main-sidebar .box {
+  width: auto !important;
+  margin-left: 8px !important;
+  margin-right: 8px !important;
+  box-sizing: border-box;
+}
+/* ============================================================
+   SIDEBAR SHINYDASHBOARD BOX SPACING
+   ============================================================ */
+
+/* Box is 8px from sidebar edges */
+.main-sidebar .col-sm-12 {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* Box fills its Bootstrap column */
+.main-sidebar .box {
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box;
+}
+
+
+/* ============================================================
+   SIDEBAR BOX CONTENT
+   ============================================================ */
+
+/* Content is 8px from visible box edges */
+.main-sidebar .box-body {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+
+/* ============================================================
+   SIDEBAR BOX BUTTONS
+   ============================================================ */
+
+.main-sidebar .box-body .btn {
+  display: block !important;
+  width: 100% !important;
+
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+
+  box-sizing: border-box;
+
+  border-radius: 7px;
+
+  white-space: normal;
+  text-align: left;
+}
+/* ============================================================
+   STANDALONE SIDEBAR BUTTON
+   Match width/alignment of sidebar boxes
+   ============================================================ */
+
+.main-sidebar .fame-sidebar-button {
+  display: block !important;
+
+  width: calc(100% - 16px) !important;
+  margin-left: 8px !important;
+  margin-right: 8px !important;
+
+  box-sizing: border-box;
+
+  border-radius: 7px;
+
+  white-space: normal;
+  text-align: left;
+}
+
+
+.content-wrapper .box {
+  border-top: none !important;
+  box-shadow: none !important;
+}
