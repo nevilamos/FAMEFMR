@@ -1,6 +1,6 @@
 Package: FAMEFMR
 Title: Functions For DELWP FAME Fire Analysis
-Version: 1.1.0.9004
+Version: 1.1.0.9006
 Authors@R: 
     person(given = "Nevil",
            family = "Amos",
@@ -16,9 +16,7 @@ Description: The package contains all the functions necessary to run the DEECA F
             The FAME analysis can be run using standard R scripts, or alternatively via a
             shiny web GUI also contained in the package. The package does not contain the required input files (lookup
             tables, rasters of species HDMs etc) as these are too large to be loaded to 
-            github and are available separately from an aws repository.  The functions used 
-            in the Growth Stage Optimisation are modified from code written by Paul
-            Moloney (Arthur Rylah institute) and Holly Sitters (Melbourne University).
+            github and are available separately from an aws repository.  
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
@@ -28,9 +26,6 @@ Imports:
     dplyr,
     foreign,
     magrittr,
-    mgcv,
-    nloptr,
-    purrr,
     qs,
     Rcpp,
     readr,
