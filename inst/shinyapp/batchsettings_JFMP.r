@@ -16,11 +16,9 @@ options(FAME.data_dir = "C:/Data/FAMEshiny-4.6")
 
 rawFHPaths = c(fame_data_path("rawFH","HUME2020JFMP_FH_RAW.shp"))
 #the root directory in which results directories should be created and outputs saved
-<<<<<<< HEAD
+
 resultsDir = fame_data_path("results")
-=======
-resultsDir = "./results"
->>>>>>> 79aa0dbf8b8144c1c88960897232186556e9fdab
+
 #the integer value of the region number 1-6 for FFR regions,7 for user supplied adHoc polygon, 99 for Statewide
 REGION_NO = "4"  #"99"
 

@@ -1,6 +1,7 @@
 source("global.r")
 unlink(resultsDir,recursive = TRUE)
-source("batchsettings_JFMP.r")
+#source("batchsettings_JFMP.r")
+source("batchsettings_raster_first_fh.r")
 
 
 #(rv name in kept for consistency with rv <- reactiveValues in shiny app)

@@ -7,7 +7,7 @@
 # throughout the batch
 
 # sets default directory for FAME input files
-options(FAME.data_dir = "C:/Data/FAMEshiny-4.6")
+options(fame.data_dir = "C:/Data/FAMEshiny-4.6")
 
 #path(s) to your rawFH file ( output of the ARCGIS preprocessing tool) each
 #given as a separate string of the full path or ./path relative to the working
