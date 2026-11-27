@@ -15,7 +15,7 @@
 #' The function uses a template \code{SpatRaster} to define the target grid (extent/resolution/CRS).
 #'
 #' @param r_template A \code{\link[terra:SpatRaster-class]{terra::SpatRaster}} template defining
-#'   output extent, resolution and CRS.
+#'   output extent, resolution and CRS, also provides mask for cells in area of interest.
 #' @param v terra spatVector object.
 #' @param fields Character vector of length 2 giving the names of the fields used to form the
 #'   combined code. Defaults to \code{c("SEASON","FIRETYPE_NO")}.
@@ -78,14 +78,17 @@ make_fh_raster_stack <- function(
     v,
     fields = c("SEASON", "FIRETYPE_NO"),
     combField_multiplier = 10L,
-
     background = 0,
     overwrite = TRUE,
     datatype = "INT2U",
     compress = "LZW",
     memfrac = NULL,
     progress = TRUE,
-    OtherAndUnknown = 2
+    OtherAndUnknown = 2,
+    base_fire = base_fire,
+    base_fire_type = base_fire_type,
+    post_fire = post_fire,
+    post_fire_type = post_fire_type
 ) {
   if (!requireNamespace("terra", quietly = TRUE)) {
     stop("Package 'terra' is required.")
@@ -153,6 +156,30 @@ make_fh_raster_stack <- function(
     names(rr)<-nm
     f<-tempfile(pattern = paste0(nm, "_"), fileext = ".tif")
     stackfiles<-c(stackfiles,f)
+
+    if(base_fire>0){
+      base_nm<-as.integer(base_fire * mult + as.numeric(base_fire_type))
+      base_fire_r<-template_r
+      base_fire_r[base_fire_r>0]<-base_nm
+      names(base_fire_r)<-base_nm
+      rr<-c(base_fire_r,rr)
+    }
+
+    if(base_fire>0){
+      base_nm<-as.integer(base_fire * mult + as.numeric(base_fire_type))
+      base_fire_r<-template_r
+      base_fire_r[base_fire_r>0]<-base_nm
+      names(base_fire_r)<-base_nm
+      rr<-c(base_fire_r,rr)
+    }
+
+    if(post_fire>0){
+      base_nm<-as.integer(post_fire * mult + as.numeric(post_fire_type))
+      post_fire_r<-template_r
+      post_fire_r[post_fire_r>0]<-post_nm
+      names(post_fire_r)<-post_nm
+      rr<-c(post_fire_r,rr)
+    }
 
 
     terra::writeRaster(

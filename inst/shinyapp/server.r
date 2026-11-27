@@ -438,6 +438,8 @@ server <- function(session, input, output) {
 
       rv$cropRasters$HDM_RASTER_PATH <- HDM_RASTER_PATH
       template_r<-eval(rv$cropRasters$rasterDef)
+      values(template_r)<-rv$cropRasters$RGN>0
+
 
 rv$FHAnalysis <- fhProcess_raster_first(
         r_template = template_r,

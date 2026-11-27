@@ -97,10 +97,23 @@ fhProcess_raster_first <- function(r_template,
                                    OtherAndUnknown = 2,
                                    start.SEASON = 1980,
                                    end.SEASON = NA,
-                                   max_interval = 0) {
+                                   max_interval = 0,
+                                   base_fire = 0,
+                                   post_fire = 0,
+                                   second_input_fire_history = NULL,
+                                   RGN = cropRasters$RGN) {
+  #reads first fire history converts to vect if required
   if (!inherits(input_fire_history, "SpatVector")) {
     v <- vect(input_fire_history)
   }else{v<-input_fire_history}
+
+  # reads and appends second fire history if provided
+  if(!is.null(second_input_fire_history)){
+  if (!inherits(second_input_fire_history, "SpatVector")) {
+    v2 <- vect(second_input_fire_history)
+  }else{v2<-second_input_fire_history}
+    common_cols <- intersect(names(v), names(v2))
+    v<-rbind(v[, common_cols],v2[, common_cols])}
 
 
   s <- make_fh_raster_stack(
@@ -114,7 +127,11 @@ fhProcess_raster_first <- function(r_template,
     compress = compress,
     memfrac = memfrac,
     progress = progress,
-    OtherAndUnknown = OtherAndUnknown
+    OtherAndUnknown = OtherAndUnknown,
+    base_fire = 0,
+    base_fire_type = 2,
+    post_fire = 0,
+    post_fire_type = 1
   )
 
 
