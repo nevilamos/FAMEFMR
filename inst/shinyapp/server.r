@@ -1471,7 +1471,7 @@ rv$FHAnalysis <- fhProcess_raster_first(
 
 
   # Choose results files to download ----
- roots = c(FAME = ".")
+ roots = c(FAME = fame_data_dir())
   shinyFileChoose(input, "files",
                   roots =  roots
   )
