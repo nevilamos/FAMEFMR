@@ -50,29 +50,8 @@ package.check <- lapply(
   }
 )
 
-# Configure FAME data location --------------
+# check FAME data location --------------
 
-Sys.setenv(
-  FAME_DATA_DIR = "C:/Data/temp"
-)
-
-# Clear any value retained from an earlier R session
-options(
-  FAME.data_dir = NULL
-)
-
-# Initialise FAME data
-fame_data_status <- initialise_fame_data(
-  app_dir = getwd(),
-  download_missing = TRUE,
-  force_sync = FALSE
-)
-print(fame_data_status)
-# Optional startup diagnostics
-message(
-  "FAME_DATA_DIR: ",
-  Sys.getenv("FAME_DATA_DIR")
-)
 
 message(
   "FAME data root: ",
